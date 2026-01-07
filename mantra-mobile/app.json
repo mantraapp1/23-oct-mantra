@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Mantra Mobile",
+    "slug": "mantra-mobile",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "primaryColor": "#0ea5e9"
+    },
+    "web": {
+    }
+  }
+}
