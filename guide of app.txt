@@ -1,0 +1,115 @@
+this my mantra app all page navigation and detail 
+this is splash page file name is splash.html
+splash page after it redirect  if user not login then redirect to login page login.html else redirect to home page file name is home.html
+login page after it redirect to home page file name is home.html
+if user click on sign up then redirect to sign up page file name is sign up.html
+if user click on forgot button then redirect to password reset page file name is  password reset.html when click on send link then get toast message that reset link send to your email after it redirect to login page login.html
+ sign up page 
+ 1)when user click on login then it back to login page login.html
+ 2)when user click on sign up then if all information is correct then it redirect to verify email email verification.html
+ 3)once otp correct on email verification.html then redirect to profile completion page profile onboarding.html
+ 
+main page that open through bottom nav bar
+1)home page file name is home.html
+2)ranking page file name is ranking.html
+3)library page file name is library.html
+4)profile page file name is profile.html
+   home page 
+ 1) home page containg search bar when user click then this page open  recent search.html and  search result in search result.html  
+2)when user click on any novel card  then this page open novel detail.html
+3)when user click on any section see all  then this page open see all.html
+4)when user click on any genre tab   then this page open genre.html
+
+ranking page
+1)when user click on any novel card  then this page open novel detail.html
+2) show ranking of novel according filter
+ 
+ library page 
+ 1)when find novel click then search.html open
+ 2)when user click on any novel card of saved tab then this page open  chapter.html page according which chapter he reading
+3)when user click on any novel card of history tab then this page open  novel detail.html page 
+  4) when user click remove button then remove that novel from saved tab
+  5) when user click clear history button  of history tab then clear history 
+
+profile page
+1)when user click on edit button  then this page open  edit profile.html page 
+( when user click on any profile card of followlist then that other user profile.html page open)
+2)when user click on following then this page open  follow list.html page with following tab selected
+3)when user click on followers then this page open  follow list.html page  with followers tab selected
+4) when user click on notification then this page open  notification.html page if there is not any notification then show "no notification.html"
+5) when user click on setting then this page open  setting.html page
+6) when user click on wallet or earnings then open wallet.html page
+7) when user click on Faq then open faq.html page
+8)when click on contact us then open contact Us.html page
+9) when user report then open report.html 
+10)when click on rate the app then open rathing page of that app on app store
+   11)when user didnt logined then open profile_withoutlogin.html page when clicked on profile tab bottom nav bar
+12)when user clicked on author dashboard then open author dashboard.html page
+
+   novel detail page 
+   1)when user click on back arrow then it back to that page through which user open this page
+   2)when user click on read button then chapter.html page open according to that chapter user reading if not any then open first  chapter
+   3)user clicked on + library button then save novel in saved tab of library.html page
+   4) user click on view AUTHOR option then open that show that user details in this page "other user profile.html" page open
+   5) user click on report option then open report.html page  in report novel section with pre filled novel name 
+   6) user click on on author named that shown below novel name then open that "other user profile.html" page
+   7)user click on share icon then share novel
+   9) when user click on any novel card of related novel  then open "novel detail.html" page
+   10) in chapter tab when user click on any chapter then open "chapter.html" page only if that chapther unlocked
+   
+ chapter page
+ 1) when user click on back arrow then it back to that page through which user open this page
+ 2) when user click on next arrow then it open next chapter it there is no next chapter then disable next button
+ 3) when user click on three dot  view novel then novel detail.html page open
+ 4) when user click on three dot  view author then other user profile.html page open
+ 5) when user click on three dot  report then report.html page open in report chapter section with pre filled chapter name
+ 6) when user click on three dot  share then share chapter
+
+
+ other user profile page 
+ 1)whenuser click on follower or following  count   then follow list.html page open with that user's followers or following
+ 2)user click on anynovel card then novel detail.html page open
+ 3)share option click then share user
+ 4)when report option clicked then report.html page open in report user section with pre filled user name
+
+author dashboard page
+1)when user click on + novel then open 'create novel.html' page
+2)when user click on any novel card then open 'novel mange.html' page
+3)when user click on edit button then open 'edit novel.html' page
+4)when user click on delete button then delete that novel 
+5)when user click on +chapter then create chapter.html page open
+  
+  novel mange page
+  1) when edit info button or setting icon  clicked then open 'edit novel.html' page
+  2)when user click on +chapter then create chapter.html page open
+  3) when user clicked on view details button of earnings section of overview tabs
+4)when user clicked on any chapter of chapter tab then open  chapter mange.html page
+5) when user clciked on +new button of chapters tab then open create chapter.html page
+  chapter mange page
+  1) when user clicked on edit chapter then open edit chapter.html page
+  2) when user clicked on delete chapter then delete that chapter
+
+wallet page 
+1)when user clicked on withdraw button then withdrawal.html page open
+2) when user clicked on history button then  transcation history.html page open here all transction history show
+3) wallet page show only last 10 transcation history but transction history.html page show all transcation history
+
+setting page
+1)when user click on account setting then open account setting.html page
+2) when user turn on push notification then push notification enable
+3) when user turn on dark mode then dark mode enable
+4) when user click on logout then logout 
+
+
+search result page
+1) when user click on any novel card then novel detail.html page open
+2) when user click on any author card then other user profile.html page open
+    
+
+    special note 
+  use this as commponents not has page ,show then in that pages when needed for example when user open author dashboard but he didnt created any novel  then show " no novel created.html" as component in author dashboard.html page
+  when there no result then show " no result.html" as component in search result.html page
+  for network error show " network error.html" as component in any page
+for no history show " no history.html" as component in library.html page history tab
+ for no comments show " no comments.html" as component in novel detail.html page
+   currently many page showing alret using browser alert  but its mobile app so use toast message so use various toast design from this toast.html file

@@ -221,6 +221,7 @@ class ProfileService {
         followerCount: 0,
         followingCount: 0,
         novelsCount: 0,
+        libraryCount: 0,
         earnings: 0,
         balance: 0,
       };

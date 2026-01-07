@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { colors, spacing, borderRadius, typography } from '../constants';
+import { colors, spacing, borderRadius, typography, HOME_CATEGORIES, DEFAULT_IMAGES } from '../constants';
 import { getNovelCover } from '../constants/defaultImages';
 import { AppHeader, HorizontalSection, NovelCard, GenreTag } from './common';
 import novelService from '../services/novelService';
@@ -20,7 +20,6 @@ const HomeScreen = () => {
   const { language, isLoading: isLanguageLoading } = useLanguage();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const categories = ['All', 'Fantasy', 'Romance', 'Sci-Fi', 'Adventure', 'Thriller'];
 
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -35,9 +34,15 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     if (!isLanguageLoading) {
-      loadHomeData(currentUserId, language);
+      loadHomeData(currentUserId, language, isMounted);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [language, isLanguageLoading]);
 
   // Reset selected category when screen comes into focus
@@ -54,7 +59,8 @@ const HomeScreen = () => {
     setCurrentUserId(user?.id || null);
   };
 
-  const loadHomeData = async (userId: string | null = currentUserId, language: string = 'All') => {
+  const loadHomeData = async (userId: string | null = currentUserId, language: string = 'All', isMounted: boolean = true) => {
+    if (!isMounted) return;
     setIsLoading(true);
     try {
       let [trending, popular, recommended, editorsPicks] = await Promise.all([
@@ -148,9 +154,18 @@ const HomeScreen = () => {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Reload user data to get updated language preference
-    await initializeUser();
-    setIsRefreshing(false);
+    try {
+      // Reload user data and refetch all home content
+      const user = await authService.getCurrentUser();
+      const userId = user?.id || null;
+      setCurrentUserId(userId);
+      await loadHomeData(userId, language);
+    } catch (error) {
+      console.error('Error refreshing home data:', error);
+      showToast('error', 'Failed to refresh content');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleNovelPress = (novelId: string) => {
@@ -208,7 +223,7 @@ const HomeScreen = () => {
 
         {/* Category Buttons */}
         <ScrollView horizontal style={styles.categoryButtonsContainer} showsHorizontalScrollIndicator={false}>
-          {categories.map((category) => (
+          {HOME_CATEGORIES.map((category: string) => (
             <GenreTag
               key={category}
               label={category}
@@ -231,7 +246,7 @@ const HomeScreen = () => {
             onPress={() => (navigation.navigate as any)('EditorsChoice')}
           >
             <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200&auto=format&fit=crop' }}
+              source={{ uri: DEFAULT_IMAGES.featuredBanner }}
               style={styles.featuredBannerImage}
             />
             <LinearGradient

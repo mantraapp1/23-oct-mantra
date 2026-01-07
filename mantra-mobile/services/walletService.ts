@@ -300,13 +300,20 @@ class WalletService {
         })
         .select()
         .single();
-
       if (error) throw error;
+
+      // Verify balance was deducted (should be handled by DB trigger)
+      // Re-check wallet balance to confirm deduction
+      const updatedWallet = await this.getWallet(userId);
+      if (updatedWallet && updatedWallet.balance >= wallet.balance) {
+        // Balance wasn't deducted - this could indicate a DB trigger issue
+        console.warn('Withdrawal created but balance may not be properly deducted. Review DB triggers.');
+      }
 
       return {
         success: true,
         message: 'Withdrawal request submitted successfully',
-        request,
+        request: request ?? undefined,
       };
     } catch (error: any) {
       return {

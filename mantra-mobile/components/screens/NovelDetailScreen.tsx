@@ -1655,45 +1655,49 @@ const NovelDetailScreen = () => {
                   ))}
                 </View>
 
-                {/* Top Reviews */}
-                <View style={styles.card}>
-                  <View style={styles.cardHeader}>
-                    <Text style={styles.cardTitle}>Top Reviews</Text>
-                    <TouchableOpacity onPress={() => setActiveTab('reviews')}>
-                      <Text style={styles.seeAllText}>See all</Text>
-                    </TouchableOpacity>
-                  </View>
-                  {reviews.slice(0, 3).map((review, index) => (
-                    <View
-                      key={index}
-                      style={[
-                        styles.topReviewItem,
-                        index < 2 && styles.topReviewItemBorder,
-                      ]}
-                    >
-                      <Image
-                        source={{ uri: review.userAvatar }}
-                        style={styles.topReviewAvatar}
-                      />
-                      <View style={styles.topReviewContent}>
-                        <View style={styles.topReviewHeader}>
-                          <Text style={styles.topReviewName}>{review.userName}</Text>
-                          <RatingStars rating={review.rating} size={12} />
-                          <Text style={styles.topReviewTime}>{review.timeAgo}</Text>
-                        </View>
-                        <Text style={styles.topReviewText} numberOfLines={2}>
-                          {review.text}
-                        </Text>
-                      </View>
+                {/* Top Reviews - Only show if there are reviews */}
+                {reviews.length > 0 && (
+                  <View style={styles.card}>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.cardTitle}>Top Reviews</Text>
+                      <TouchableOpacity onPress={() => setActiveTab('reviews')}>
+                        <Text style={styles.seeAllText}>See all</Text>
+                      </TouchableOpacity>
                     </View>
-                  ))}
-                </View>
+                    {reviews.slice(0, 3).map((review, index) => (
+                      <View
+                        key={index}
+                        style={[
+                          styles.topReviewItem,
+                          index < 2 && styles.topReviewItemBorder,
+                        ]}
+                      >
+                        <Image
+                          source={{ uri: review.userAvatar }}
+                          style={styles.topReviewAvatar}
+                        />
+                        <View style={styles.topReviewContent}>
+                          <View style={styles.topReviewHeader}>
+                            <Text style={styles.topReviewName}>{review.userName}</Text>
+                            <RatingStars rating={review.rating} size={12} />
+                            <Text style={styles.topReviewTime}>{review.timeAgo}</Text>
+                          </View>
+                          <Text style={styles.topReviewText} numberOfLines={2}>
+                            {review.text}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
 
                 {/* Related Novels */}
                 {/* Related Novels */}
                 {/* Related Novels */}
                 <View style={styles.card}>
-                  <Text style={styles.cardTitle}>Related Novels</Text>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.cardTitle}>Related Novels</Text>
+                  </View>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
                     {relatedNovels.map((relatedNovel) => (
                       <TouchableOpacity

@@ -6,6 +6,7 @@ import { colors, spacing, borderRadius, typography } from '../../constants';
 import { getProfilePicture } from '../../constants/defaultImages';
 import authService from '../../services/authService';
 import profileService from '../../services/profileService';
+import notificationService from '../../services/notificationService';
 import { useToast } from '../ToastManager';
 import { getUserProfileImage } from '../../utils/profileUtils';
 import { useTheme } from '../../context/ThemeContext';
@@ -67,8 +68,16 @@ const ProfileScreen = () => {
           libraryCount: stats.libraryCount || 0,
           authoredNovelsCount: stats.novelsCount || 0,
           walletBalance: stats.balance || 0,
-          unreadNotifications: 0, // TODO: Get from notification service
+          unreadNotifications: 0, // Will be updated after stats load
         });
+
+        // Fetch unread notification count
+        try {
+          const unreadCount = await notificationService.getUnreadCount(currentUser.id);
+          setUser(prev => ({ ...prev, unreadNotifications: unreadCount }));
+        } catch (err) {
+          console.error('Error fetching notification count:', err);
+        }
       }
     } catch (error) {
       console.error('Error loading user data:', error);

@@ -5,6 +5,9 @@
       "dom",
       "esnext"
     ],
+    "types": [
+      "jest"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

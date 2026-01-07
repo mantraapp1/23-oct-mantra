@@ -63,6 +63,11 @@ const ChapterScreen = () => {
   const [lineSpacing, setLineSpacing] = useState(1.6);
   const { theme: globalTheme, isDarkMode } = useTheme();
   const [theme, setTheme] = useState<'default' | 'sepia' | 'dark'>(isDarkMode ? 'dark' : 'default');
+
+  // Sync local theme with global dark mode changes
+  useEffect(() => {
+    setTheme(isDarkMode ? 'dark' : 'default');
+  }, [isDarkMode]);
   const [sortBy, setSortBy] = useState<'newest' | 'mostLiked'>('newest');
   const [commentText, setCommentText] = useState('');
   const [activeCommentMenu, setActiveCommentMenu] = useState<string | null>(null);
@@ -238,9 +243,21 @@ const ChapterScreen = () => {
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     setShowMenu(false);
-    Alert.alert('Share', 'Chapter shared successfully!');
+    try {
+      const { Share } = require('react-native');
+      const result = await Share.share({
+        message: `Check out "${chapter?.novel?.title}" - Chapter ${chapter?.number}: ${chapter?.title}`,
+        title: `${chapter?.novel?.title} - Chapter ${chapter?.number}`,
+      });
+      if (result.action === Share.sharedAction) {
+        // Successfully shared
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      Alert.alert('Error', 'Failed to share chapter');
+    }
   };
 
   const handleReport = () => {
@@ -522,9 +539,29 @@ const ChapterScreen = () => {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
+          onPress: async () => {
+            // Optimistic UI update
             setComments(prev => prev.filter(c => c.id !== commentId));
             setActiveCommentMenu(null);
+
+            try {
+              // Persist deletion to database
+              const result = await commentService.deleteComment(commentId);
+              if (!result.success) {
+                // Revert on error - reload comments
+                Alert.alert('Error', result.message || 'Failed to delete comment');
+                if (chapter?.id && currentUserId) {
+                  await loadComments(chapter.id, currentUserId);
+                }
+              }
+            } catch (error) {
+              console.error('Error deleting comment:', error);
+              Alert.alert('Error', 'Failed to delete comment');
+              // Reload comments to restore state
+              if (chapter?.id && currentUserId) {
+                await loadComments(chapter.id, currentUserId);
+              }
+            }
           },
         },
       ]

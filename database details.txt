@@ -1,0 +1,7 @@
+ each novel should have this details{
+    novel title ,author ,genres,tags,description,chapter list,chapter count, all reviews ,all reviews like/dislike,all chapters comments,all chapters comments like/dislike,
+      all reports of novel,reports of chapters,reports of reviews,report of comments,all replies of comments,each user each novels locked chapters,each user each novels unlocked chapters,each user each novels read chapters,each novel how ads showed for chapter unlock, }
+
+
+
+      till not has feature that html has ,it chapter unlocking not exacly like in html like ,also when user clcik on start timer then also timer window show which user close and when user clcik on timer started chapter then timer window but current still showing watch ads or start timer when user already started timer ,also i ac start multiple timer when in html not ,in review section report option background white not transpart idiot 

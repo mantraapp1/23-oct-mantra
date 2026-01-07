@@ -50,11 +50,11 @@ const getStyles = (theme: ThemeColors) => StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: spacing[4],
-        marginBottom: spacing[3],
+        marginBottom: spacing[2],
     },
     title: {
         fontSize: typography.fontSize.lg,
-        fontWeight: typography.fontWeight.bold,
+        fontWeight: typography.fontWeight.semibold,
         color: theme.text,
         letterSpacing: -0.5,
     },
