@@ -107,7 +107,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
       // Load popular novels (highest votes)
       const { data: popularData } = await supabase
         .from('novels')
-        .select('id, title, cover_image_url, average_rating, total_votes')
+        .select('id, title, cover_image_url, average_rating, total_votes, total_views')
         .contains('genres', [genre])
         .order('total_votes', { ascending: false })
         .limit(5);
@@ -115,7 +115,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
       // Load recommended novels (mix of rating and views)
       const { data: recommendedData } = await supabase
         .from('novels')
-        .select('id, title, cover_image_url, average_rating')
+        .select('id, title, cover_image_url, average_rating, total_views')
         .contains('genres', [genre])
         .gte('average_rating', 4.0)
         .limit(4);
@@ -123,7 +123,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
       // Load new arrivals (recently created)
       const { data: newData } = await supabase
         .from('novels')
-        .select('id, title, cover_image_url')
+        .select('id, title, cover_image_url, description')
         .contains('genres', [genre])
         .order('created_at', { ascending: false })
         .limit(5);
@@ -136,7 +136,8 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
           title,
           cover_image_url,
           total_chapters,
-          updated_at
+          updated_at,
+          genres
         `)
         .contains('genres', [genre])
         .order('updated_at', { ascending: false })
@@ -200,7 +201,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
           title: novel.title,
           cover: getNovelCover(novel.cover_image_url),
           rating: novel.average_rating || 0,
-          views: '',
+          views: formatNumber(novel.total_views || 0),
           hasVoted: userVotesSet.has(novel.id),
           isInLibrary: userLibrarySet.has(novel.id),
         })));
@@ -212,7 +213,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
           title: novel.title,
           cover: getNovelCover(novel.cover_image_url),
           rating: novel.average_rating || 0,
-          views: '',
+          views: formatNumber(novel.total_views || 0),
           hasVoted: userVotesSet.has(novel.id),
           isInLibrary: userLibrarySet.has(novel.id),
         })));
@@ -223,7 +224,8 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
           id: novel.id,
           title: novel.title,
           cover: getNovelCover(novel.cover_image_url),
-          label: `New · ${genre}`,
+          description: novel.description || '',
+          genre: genre, // Use the screen's genre or first from novel.genres
           hasVoted: userVotesSet.has(novel.id),
           isInLibrary: userLibrarySet.has(novel.id),
         })));
@@ -234,7 +236,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
           id: novel.id,
           title: novel.title,
           cover: getNovelCover(novel.cover_image_url),
-          label: `Ch ${novel.total_chapters || 0} · ${formatTimeAgo(novel.updated_at)}`,
+          label: `Ch ${novel.total_chapters || 0} · ${formatTimeAgo(novel.updated_at)} · ${novel.genres?.[0] || genre}`,
           hasVoted: userVotesSet.has(novel.id),
           isInLibrary: userLibrarySet.has(novel.id),
         })));
@@ -359,7 +361,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
                   </View>
                   <View style={styles.trendingInfo}>
                     <Text style={styles.trendingTitle} numberOfLines={1}>{novel.title}</Text>
-                    <Text style={styles.trendingMeta}>{novel.rating}★ · {novel.views}</Text>
+                    <Text style={styles.trendingMeta}>{novel.rating}★ · {novel.views} views</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -393,7 +395,7 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
                   </View>
                   <View style={styles.trendingInfo}>
                     <Text style={styles.trendingTitle} numberOfLines={1}>{novel.title}</Text>
-                    <Text style={styles.trendingMeta}>{novel.rating}★</Text>
+                    <Text style={styles.trendingMeta}>{novel.rating}★ · {novel.views} views</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -410,22 +412,28 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
                 <Text style={styles.seeAllText}>See all</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.gridContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            >
               {recommendedNovels.map((novel) => (
                 <TouchableOpacity
                   key={novel.id}
-                  style={styles.gridCard}
+                  style={styles.trendingCard}
                   onPress={() => handleNovelPress(novel.id)}
                   activeOpacity={0.7}
                 >
-                  <Image source={{ uri: novel.cover }} style={styles.gridImage} />
-                  <View style={styles.gridInfo}>
-                    <Text style={styles.gridTitle} numberOfLines={1}>{novel.title}</Text>
-                    <Text style={styles.gridMeta}>{novel.rating}★</Text>
+                  <View style={styles.trendingImage}>
+                    <Image source={{ uri: novel.cover }} style={styles.trendingImageInner} />
+                  </View>
+                  <View style={styles.trendingInfo}>
+                    <Text style={styles.trendingTitle} numberOfLines={1}>{novel.title}</Text>
+                    <Text style={styles.trendingMeta}>{novel.rating}★ · {novel.views} views</Text>
                   </View>
                 </TouchableOpacity>
               ))}
-            </View>
+            </ScrollView>
           </View>
         )}
 
@@ -449,7 +457,14 @@ const GenreScreen: React.FC<GenreScreenProps> = ({ navigation, route }) => {
                   <Image source={{ uri: novel.cover }} style={styles.listImage} />
                   <View style={styles.listInfo}>
                     <Text style={styles.listTitle} numberOfLines={1}>{novel.title}</Text>
-                    <Text style={styles.listMeta}>{novel.label}</Text>
+                    <View style={styles.listMetaContainer}>
+                      <Text style={styles.newLabel}>New</Text>
+                      <Text style={styles.listMetaDivider}> · </Text>
+                      <Text style={styles.listGenre}>{novel.genre}</Text>
+                    </View>
+                    <Text style={styles.listDescription} numberOfLines={2}>
+                      {novel.description}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -662,6 +677,30 @@ const getStyles = (theme: ThemeColors) => StyleSheet.create({
   listMeta: {
     fontSize: typography.fontSize.xs,
     color: theme.textSecondary,
+  },
+  listMetaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  newLabel: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.sky500,
+  },
+  listMetaDivider: {
+    fontSize: typography.fontSize.xs,
+    color: theme.textSecondary,
+  },
+  listGenre: {
+    fontSize: typography.fontSize.xs,
+    color: theme.textSecondary,
+  },
+  listDescription: {
+    fontSize: typography.fontSize.xs,
+    color: theme.textSecondary,
+    marginTop: 4,
+    lineHeight: 16,
   },
   emptyState: {
     alignItems: 'center',

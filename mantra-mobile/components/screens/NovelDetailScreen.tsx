@@ -94,7 +94,7 @@ const NovelDetailScreen = () => {
   const [unlockedChapters, setUnlockedChapters] = useState<string[]>([]);
   const [timerDisplay, setTimerDisplay] = useState<Record<string, string>>({});
   const [fullTimerDisplay, setFullTimerDisplay] = useState<Record<string, string>>({});
-  const timerInterval = useRef<NodeJS.Timeout | null>(null);
+  const timerInterval = useRef<any>(null);
 
   // Pulse animation for timer badge
   const pulseAnim = useRef(new Animated.Value(1)).current;

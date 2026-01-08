@@ -9,7 +9,7 @@ import { colors, spacing, borderRadius, typography } from '../constants';
  */
 export const convertPadding = (tailwindClass: string): ViewStyle => {
   const styles: ViewStyle = {};
-  
+
   const paddingMap: Record<string, keyof ViewStyle> = {
     'p-': 'padding',
     'px-': 'paddingHorizontal',
@@ -19,15 +19,15 @@ export const convertPadding = (tailwindClass: string): ViewStyle => {
     'pl-': 'paddingLeft',
     'pr-': 'paddingRight',
   };
-  
+
   Object.entries(paddingMap).forEach(([prefix, property]) => {
     const match = tailwindClass.match(new RegExp(`${prefix}(\\d+\\.?\\d*)`));
     if (match) {
       const value = parseFloat(match[1]);
-      styles[property] = spacing[value as keyof typeof spacing] || value * 4;
+      (styles as any)[property] = spacing[value as keyof typeof spacing] || value * 4;
     }
   });
-  
+
   return styles;
 };
 
@@ -37,7 +37,7 @@ export const convertPadding = (tailwindClass: string): ViewStyle => {
  */
 export const convertMargin = (tailwindClass: string): ViewStyle => {
   const styles: ViewStyle = {};
-  
+
   const marginMap: Record<string, keyof ViewStyle> = {
     'm-': 'margin',
     'mx-': 'marginHorizontal',
@@ -47,15 +47,15 @@ export const convertMargin = (tailwindClass: string): ViewStyle => {
     'ml-': 'marginLeft',
     'mr-': 'marginRight',
   };
-  
+
   Object.entries(marginMap).forEach(([prefix, property]) => {
     const match = tailwindClass.match(new RegExp(`${prefix}(\\d+\\.?\\d*)`));
     if (match) {
       const value = parseFloat(match[1]);
-      styles[property] = spacing[value as keyof typeof spacing] || value * 4;
+      (styles as any)[property] = spacing[value as keyof typeof spacing] || value * 4;
     }
   });
-  
+
   return styles;
 };
 
@@ -66,10 +66,10 @@ export const convertMargin = (tailwindClass: string): ViewStyle => {
 export const convertBorderRadius = (tailwindClass: string): ViewStyle => {
   const match = tailwindClass.match(/rounded-(\w+)/);
   if (!match) return {};
-  
+
   const size = match[1];
-  return { 
-    borderRadius: borderRadius[size as keyof typeof borderRadius] || borderRadius.DEFAULT 
+  return {
+    borderRadius: borderRadius[size as keyof typeof borderRadius] || borderRadius.DEFAULT
   };
 };
 
@@ -80,7 +80,7 @@ export const convertBorderRadius = (tailwindClass: string): ViewStyle => {
 export const convertTextColor = (tailwindClass: string): string => {
   const match = tailwindClass.match(/text-(\w+)-(\d+)/);
   if (!match) return colors.slate900;
-  
+
   const [, colorName, shade] = match;
   const colorKey = `${colorName}${shade}` as keyof typeof colors;
   return colors[colorKey] || colors.slate900;
@@ -93,7 +93,7 @@ export const convertTextColor = (tailwindClass: string): string => {
 export const convertBackgroundColor = (tailwindClass: string): string => {
   const match = tailwindClass.match(/bg-(\w+)-(\d+)/);
   if (!match) return colors.white;
-  
+
   const [, colorName, shade] = match;
   const colorKey = `${colorName}${shade}` as keyof typeof colors;
   return colors[colorKey] || colors.white;
@@ -106,7 +106,7 @@ export const convertBackgroundColor = (tailwindClass: string): string => {
 export const convertBorderColor = (tailwindClass: string): string => {
   const match = tailwindClass.match(/border-(\w+)-(\d+)/);
   if (!match) return colors.slate200;
-  
+
   const [, colorName, shade] = match;
   const colorKey = `${colorName}${shade}` as keyof typeof colors;
   return colors[colorKey] || colors.slate200;
@@ -126,7 +126,7 @@ export const convertShadow = (tailwindClass: string): ViewStyle => {
       elevation: 1,
     };
   }
-  
+
   if (tailwindClass.includes('shadow-md')) {
     return {
       shadowColor: '#000',
@@ -136,7 +136,7 @@ export const convertShadow = (tailwindClass: string): ViewStyle => {
       elevation: 2,
     };
   }
-  
+
   if (tailwindClass.includes('shadow-lg')) {
     return {
       shadowColor: '#000',
@@ -146,7 +146,7 @@ export const convertShadow = (tailwindClass: string): ViewStyle => {
       elevation: 4,
     };
   }
-  
+
   if (tailwindClass.includes('shadow')) {
     return {
       shadowColor: '#000',
@@ -156,7 +156,7 @@ export const convertShadow = (tailwindClass: string): ViewStyle => {
       elevation: 2,
     };
   }
-  
+
   return {};
 };
 
@@ -167,7 +167,7 @@ export const convertShadow = (tailwindClass: string): ViewStyle => {
 export const convertFontSize = (tailwindClass: string): number => {
   const match = tailwindClass.match(/text-(\w+)/);
   if (!match) return typography.fontSize.base;
-  
+
   const size = match[1];
   return typography.fontSize[size as keyof typeof typography.fontSize] || typography.fontSize.base;
 };
@@ -179,7 +179,7 @@ export const convertFontSize = (tailwindClass: string): number => {
 export const convertFontWeight = (tailwindClass: string): TextStyle['fontWeight'] => {
   const match = tailwindClass.match(/font-(\w+)/);
   if (!match) return typography.fontWeight.normal;
-  
+
   const weight = match[1];
   return typography.fontWeight[weight as keyof typeof typography.fontWeight] || typography.fontWeight.normal;
 };
@@ -191,7 +191,7 @@ export const convertFontWeight = (tailwindClass: string): TextStyle['fontWeight'
 export const convertGap = (tailwindClass: string): number => {
   const match = tailwindClass.match(/gap-(\d+\.?\d*)/);
   if (!match) return 0;
-  
+
   const value = parseFloat(match[1]);
   return spacing[value as keyof typeof spacing] || value * 4;
 };
@@ -207,7 +207,7 @@ export const convertWidth = (tailwindClass: string): number | string => {
     const value = parseInt(numMatch[1]);
     return spacing[value as keyof typeof spacing] || value * 4;
   }
-  
+
   // Handle percentage widths
   if (tailwindClass.includes('w-full')) return '100%';
   if (tailwindClass.includes('w-1/2')) return '50%';
@@ -215,7 +215,7 @@ export const convertWidth = (tailwindClass: string): number | string => {
   if (tailwindClass.includes('w-2/3')) return '66.666%';
   if (tailwindClass.includes('w-1/4')) return '25%';
   if (tailwindClass.includes('w-3/4')) return '75%';
-  
+
   return 'auto';
 };
 
@@ -230,10 +230,10 @@ export const convertHeight = (tailwindClass: string): number | string => {
     const value = parseInt(numMatch[1]);
     return spacing[value as keyof typeof spacing] || value * 4;
   }
-  
+
   // Handle percentage heights
   if (tailwindClass.includes('h-full')) return '100%';
   if (tailwindClass.includes('h-screen')) return '100%';
-  
+
   return 'auto';
 };
