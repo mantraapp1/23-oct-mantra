@@ -776,8 +776,8 @@ The sharp, cheerful voice cut through his reverie. Priya, his 15-year-old sister
                           style={styles.commentAction}
                           onPress={() => toggleLike(comment.id)}
                         >
-                          <AntDesign
-                            name={comment.userLiked ? "like1" : "like2"}
+                          <Feather
+                            name="thumbs-up"
                             size={16}
                             color={comment.userLiked ? colors.sky500 : readerStyles.textColor + '66'}
                           />
@@ -790,8 +790,8 @@ The sharp, cheerful voice cut through his reverie. Priya, his 15-year-old sister
                           style={styles.commentAction}
                           onPress={() => toggleDislike(comment.id)}
                         >
-                          <AntDesign
-                            name={comment.userDisliked ? "dislike1" : "dislike2"}
+                          <Feather
+                            name="thumbs-down"
                             size={16}
                             color={comment.userDisliked ? colors.red500 : readerStyles.textColor + '66'}
                           />

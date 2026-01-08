@@ -1137,8 +1137,8 @@ const NovelManageScreen = () => {
                         onPress={() => handleLikeReview(review.id.toString(), review.likes, review.dislikes)}
                         activeOpacity={0.7}
                       >
-                        <AntDesign
-                          name={interaction.isLiked ? "like1" : "like2"}
+                        <Feather
+                          name="thumbs-up"
                           size={16}
                           color={interaction.isLiked ? colors.sky500 : theme.textSecondary}
                         />
@@ -1151,8 +1151,8 @@ const NovelManageScreen = () => {
                         onPress={() => handleDislikeReview(review.id.toString(), review.likes, review.dislikes)}
                         activeOpacity={0.7}
                       >
-                        <AntDesign
-                          name={interaction.isDisliked ? "dislike1" : "dislike2"}
+                        <Feather
+                          name="thumbs-down"
                           size={16}
                           color={interaction.isDisliked ? colors.red500 : theme.textSecondary}
                         />
@@ -1810,14 +1810,15 @@ const getStyles = (theme: ThemeColors, isDarkMode: boolean) => StyleSheet.create
   searchIcon: {
     position: 'absolute',
     left: 12,
-    top: 10,
+    top: 12, // Centered for 40px height
     zIndex: 1,
   },
   searchInput: {
     flex: 1,
     paddingLeft: 36,
     paddingRight: 12,
-    paddingVertical: 8,
+    height: 40, // Fixed height
+    paddingVertical: 0, // Reset padding
     borderRadius: 8,
     borderWidth: 1,
     borderColor: theme.border,

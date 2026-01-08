@@ -387,7 +387,8 @@ const styles = StyleSheet.create({
     borderColor: colors.slate200,
     paddingLeft: spacing[9],
     paddingRight: spacing[3],
-    paddingVertical: spacing[2],
+    height: 40, // Fixed height
+    paddingVertical: 0, // Remove default padding
     fontSize: typography.fontSize.sm,
     color: colors.slate900,
     backgroundColor: colors.white,

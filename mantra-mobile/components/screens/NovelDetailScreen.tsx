@@ -2127,8 +2127,8 @@ const NovelDetailScreen = () => {
                                 style={styles.reviewActionButton}
                                 onPress={() => toggleReviewLike(review.id)}
                               >
-                                <AntDesign
-                                  name={review.isLiked ? "like1" : "like2"}
+                                <Feather
+                                  name="thumbs-up"
                                   size={16}
                                   color={review.isLiked ? colors.sky500 : colors.slate500}
                                 />
@@ -2145,8 +2145,8 @@ const NovelDetailScreen = () => {
                                 style={styles.reviewActionButton}
                                 onPress={() => toggleReviewDislike(review.id)}
                               >
-                                <AntDesign
-                                  name={review.isDisliked ? "dislike1" : "dislike2"}
+                                <Feather
+                                  name="thumbs-down"
                                   size={16}
                                   color={review.isDisliked ? '#ef4444' : colors.slate500}
                                 />
@@ -2761,7 +2761,7 @@ const getStyles = (theme: ThemeColors, isDarkMode: boolean) => StyleSheet.create
     borderColor: theme.border,
     borderRadius: borderRadius.lg,
     paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
+    height: 40, // Fixed height
     backgroundColor: theme.card,
   },
   chapterSearchIcon: {
@@ -2771,6 +2771,8 @@ const getStyles = (theme: ThemeColors, isDarkMode: boolean) => StyleSheet.create
     flex: 1,
     fontSize: typography.fontSize.sm,
     color: theme.text,
+    height: '100%',
+    paddingVertical: 0,
   },
   sortButton: {
     paddingHorizontal: spacing[3],

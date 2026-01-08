@@ -308,7 +308,7 @@ const getStyles = (theme: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing[2],
     paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
+    paddingVertical: spacing[2], // Reduced from 3
     borderBottomWidth: 1,
     borderBottomColor: theme.border,
     backgroundColor: theme.card,
@@ -325,7 +325,7 @@ const getStyles = (theme: ThemeColors) => StyleSheet.create({
     borderColor: theme.border,
     borderRadius: borderRadius.lg,
     paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
+    height: 40, // Fixed height
     backgroundColor: theme.inputBackground,
   },
   searchIcon: {
@@ -335,6 +335,8 @@ const getStyles = (theme: ThemeColors) => StyleSheet.create({
     flex: 1,
     fontSize: typography.fontSize.sm,
     color: theme.text,
+    height: '100%',
+    paddingVertical: 0,
   },
   content: {
     flex: 1,
