@@ -6,7 +6,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Image,
   Modal,
   ActivityIndicator,
   RefreshControl,
@@ -18,6 +17,8 @@ import { ThemeColors } from '../../../constants/theme';
 import socialService from '../../../services/socialService';
 import authService from '../../../services/authService';
 import { useToast } from '../../ToastManager';
+import { UserAvatar } from '../../common';
+import { getProfilePicture } from '../../../constants/defaultImages';
 
 interface FollowListScreenProps {
   navigation?: any;
@@ -87,11 +88,12 @@ const FollowListScreen = ({ navigation, route }: FollowListScreenProps) => {
       const formattedFollowers = await Promise.all(
         followersList.map(async (follower: any) => {
           const isFollowing = await socialService.isFollowing(currentUserId, follower.id);
+          const displayName = follower.display_name || follower.username || 'User';
           return {
             id: follower.id,
-            name: follower.display_name || follower.username,
+            name: displayName,
             username: `@${follower.username}`,
-            avatar: follower.profile_picture_url || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100&auto=format&fit=crop',
+            avatar: getProfilePicture(follower.profile_picture_url, displayName),
             isFollowing,
           };
         })
@@ -110,13 +112,16 @@ const FollowListScreen = ({ navigation, route }: FollowListScreenProps) => {
     try {
       const followingList = await socialService.getFollowing(targetUserId);
 
-      const formattedFollowing = followingList.map((user: any) => ({
-        id: user.id,
-        name: user.display_name || user.username,
-        username: `@${user.username}`,
-        avatar: user.profile_picture_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop',
-        isFollowing: true, // They're in the following list, so always true
-      }));
+      const formattedFollowing = followingList.map((user: any) => {
+        const displayName = user.display_name || user.username || 'User';
+        return {
+          id: user.id,
+          name: displayName,
+          username: `@${user.username}`,
+          avatar: getProfilePicture(user.profile_picture_url, displayName),
+          isFollowing: true, // They're in the following list, so always true
+        };
+      });
 
       setFollowing(formattedFollowing);
     } catch (error) {
@@ -196,7 +201,7 @@ const FollowListScreen = ({ navigation, route }: FollowListScreenProps) => {
         onPress={() => navigation.navigate('OtherUserProfile', { userId: user.id })}
         activeOpacity={0.7}
       >
-        <Image source={{ uri: user.avatar }} style={styles.avatar} />
+        <UserAvatar uri={user.avatar} name={user.name} size={40} />
         <View style={styles.userDetails}>
           <Text style={styles.userName} numberOfLines={1}>
             {user.name}

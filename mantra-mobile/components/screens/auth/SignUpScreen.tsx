@@ -150,7 +150,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
           }, 500);
         } else {
           setTimeout(() => {
-            navigation.navigate('Onboarding');
+            navigation.navigate('Onboarding', { username: username.trim() });
           }, 500);
         }
       } else {

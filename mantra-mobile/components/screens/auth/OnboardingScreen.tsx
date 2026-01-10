@@ -40,6 +40,7 @@ const GENDERS = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
 const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation, route }) => {
   const prefillUsername = route?.params?.username || '';
   const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
   const [username, setUsername] = useState(prefillUsername);
   const [gender, setGender] = useState('');
   const [age, setAge] = useState('');
@@ -143,6 +144,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation, route }
         const currentUser = await authService.getCurrentUser();
         await profileService.updateProfile(currentUser?.id || '', {
           display_name: name,
+          bio: bio.trim(),
           age: parseInt(age),
           gender: gender.toLowerCase() as any,
           preferred_language: language,
@@ -243,6 +245,25 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation, route }
                       {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
                     </View>
                   </View>
+                </View>
+
+                {/* Bio Field */}
+                <View style={styles.inputContainer}>
+                  <Text style={[styles.label, { color: theme.textSecondary }]}>Bio</Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      styles.textArea,
+                      { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }
+                    ]}
+                    value={bio}
+                    onChangeText={setBio}
+                    placeholder="Tell us a little about yourself..."
+                    placeholderTextColor={colors.slate400}
+                    multiline
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                  />
                 </View>
 
                 {/* Gender, Age, Language */}
@@ -567,8 +588,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     color: colors.slate800,
   },
+  textArea: {
+    height: 80,
+    paddingTop: spacing[3],
+  },
   inputError: {
     borderColor: colors.red500,
+  },
+  inputContainer: {
+    width: '100%',
   },
   dropdownWrapper: {
     position: 'relative',

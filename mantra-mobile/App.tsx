@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import SplashScreen from './components/SplashScreen';
 import RootNavigator from './components/navigation/RootNavigator';
 import { ToastProvider } from './components/ToastManager';
+import { AlertProvider } from './context/AlertContext';
 import { colors } from './constants';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
@@ -154,12 +155,14 @@ export default function App() {
         <ThemeProvider>
           <LanguageProvider>
             <ToastProvider>
-              <AppContainer>
-                <NavigationContainer>
-                  <ThemedStatusBar />
-                  <RootNavigator isLoggedIn={isLoggedIn} />
-                </NavigationContainer>
-              </AppContainer>
+              <AlertProvider>
+                <AppContainer>
+                  <NavigationContainer>
+                    <ThemedStatusBar />
+                    <RootNavigator isLoggedIn={isLoggedIn} />
+                  </NavigationContainer>
+                </AppContainer>
+              </AlertProvider>
             </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>

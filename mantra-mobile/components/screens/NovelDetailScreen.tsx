@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useCustomAlert } from '../../context/AlertContext';
 import {
   View,
   Text,
@@ -17,7 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, borderRadius, typography, semanticColors } from '../../constants';
 import { getProfilePicture } from '../../constants/defaultImages';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
-import { RatingStars, LoadingState, ErrorState, NovelCard } from '../common';
+import { RatingStars, LoadingState, ErrorState, NovelCard, UserAvatar } from '../common';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../config/supabase';
 import readingService from '../../services/readingService';
@@ -64,11 +65,15 @@ interface RelatedNovel {
   rating: number;
 }
 
+// Use centralized UserAvatar component from common for consistent avatar display
+// The UserAvatar component handles image load errors and provides initials fallback
+
 const NovelDetailScreen = () => {
   const { theme, isDarkMode } = useTheme();
   const styles = getStyles(theme, isDarkMode);
   const navigation = useNavigation();
   const { showToast } = useToast();
+  const { showAlert } = useCustomAlert();
 
   const [activeTab, setActiveTab] = useState<TabType>('about');
   const [isInLibrary, setIsInLibrary] = useState(false);
@@ -274,20 +279,17 @@ const NovelDetailScreen = () => {
         // Check if this review belongs to the current user
         const isOwnReview = effectiveUserId ? review.user_id === effectiveUserId : false;
 
+        // Handle potential array return from Supabase (defensive coding)
+        const profileData = Array.isArray(review.profiles)
+          ? (review.profiles[0] || null)
+          : (review.profiles || null);
+
         // Get display name and profile image
-        const displayName = review.profiles?.display_name || review.profiles?.username || 'Anonymous';
-        const profileImage = getUserProfileImage(review.profiles);
+        const displayName = getUserDisplayName(profileData);
+        // Ensure profileImage is never null/undefined (utils handle this, but explicit check matches pattern)
+        const profileImage = getUserProfileImage(profileData);
 
         const reaction = userReactionsMap.get(review.id);
-
-        // Debug log for review ownership
-        console.log('[Review Transform]', {
-          reviewId: review.id,
-          reviewUserId: review.user_id,
-          effectiveUserId,
-          isOwnReview,
-          displayName,
-        });
 
         return {
           id: review.id,
@@ -573,13 +575,22 @@ const NovelDetailScreen = () => {
   useFocusEffect(
     useCallback(() => {
       const initializeScreen = async () => {
-        // Get current user first
-        const user = await authService.getCurrentUser();
+        // Get current user profile (not just auth user)
+        const profile = await authService.getCurrentProfile();
         let userId = null;
-        if (user) {
-          userId = user.id;
-          setCurrentUserId(user.id);
-          setCurrentUserProfile(user);
+        if (profile) {
+          userId = profile.id;
+          setCurrentUserId(profile.id);
+          setCurrentUserProfile(profile);
+        } else {
+          // Fallback: try getting auth user if profile fetch fails
+          const user = await authService.getCurrentUser();
+          if (user) {
+            userId = user.id;
+            setCurrentUserId(user.id);
+            // Still set what we have
+            setCurrentUserProfile(user);
+          }
         }
 
         // Load novel data with userId
@@ -1595,8 +1606,8 @@ const NovelDetailScreen = () => {
                 style={[styles.voteButton, hasVoted && styles.voteButtonActive]}
                 onPress={toggleVote}
               >
-                <Feather
-                  name="thumbs-up"
+                <FontAwesome
+                  name={hasVoted ? "thumbs-up" : "thumbs-o-up"}
                   size={16}
                   color={hasVoted ? colors.white : colors.slate700}
                 />
@@ -1672,9 +1683,10 @@ const NovelDetailScreen = () => {
                           index < 2 && styles.topReviewItemBorder,
                         ]}
                       >
-                        <Image
-                          source={{ uri: review.userAvatar }}
-                          style={styles.topReviewAvatar}
+                        <UserAvatar
+                          uri={review.userAvatar}
+                          name={review.userName}
+                          size={40}
                         />
                         <View style={styles.topReviewContent}>
                           <View style={styles.topReviewHeader}>
@@ -1907,27 +1919,28 @@ const NovelDetailScreen = () => {
                     <Text style={styles.totalRatings}>{totalRatings.toLocaleString()} ratings</Text>
                   </View>
                   <View style={styles.ratingBars}>
-                    {[5, 4, 3, 2, 1].map((star) => (
-                      <View key={star} style={styles.ratingBarRow}>
-                        <Text style={styles.ratingBarLabel}>{star}★</Text>
-                        <View style={styles.ratingBarTrack}>
-                          <View
-                            style={[
-                              styles.ratingBarFill,
-                              { width: `${ratingStats[star as keyof typeof ratingStats]}%` },
-                              star === 5 && { backgroundColor: '#10b981' },
-                              star === 4 && { backgroundColor: '#34d399' },
-                              star === 3 && { backgroundColor: '#fbbf24' },
-                              star === 2 && { backgroundColor: '#fb923c' },
-                              star === 1 && { backgroundColor: '#ef4444' },
-                            ]}
-                          />
+                    {[5, 4, 3, 2, 1].map((star) => {
+                      const count = ratingStats[star as keyof typeof ratingStats] || 0;
+                      const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
+
+                      return (
+                        <View key={star} style={styles.ratingBarRow}>
+                          <Text style={styles.ratingBarLabel}>{star}★</Text>
+                          <View style={styles.ratingBarTrack}>
+                            <View
+                              style={[
+                                styles.ratingBarFill,
+                                { width: `${percentage}%` },
+                                { backgroundColor: theme.primary }, // Match app theme
+                              ]}
+                            />
+                          </View>
+                          <Text style={styles.ratingBarPercent}>
+                            {Math.round(percentage)}%
+                          </Text>
                         </View>
-                        <Text style={styles.ratingBarPercent}>
-                          {ratingStats[star as keyof typeof ratingStats]}%
-                        </Text>
-                      </View>
-                    ))}
+                      );
+                    })}
                   </View>
                 </View>
 
@@ -1963,9 +1976,10 @@ const NovelDetailScreen = () => {
                 {!userReview && !isEditingReview && currentUserId && (
                   <View style={styles.writeReviewCard}>
                     <View style={styles.writeReviewHeader}>
-                      <Image
-                        source={{ uri: getUserProfileImage(currentUserProfile) }}
-                        style={styles.writeReviewAvatar}
+                      <UserAvatar
+                        uri={getUserProfileImage(currentUserProfile)}
+                        name={getUserDisplayName(currentUserProfile)}
+                        size={32}
                       />
                       <Text style={styles.writeReviewTitle}>Write a review</Text>
                     </View>
@@ -2013,9 +2027,10 @@ const NovelDetailScreen = () => {
                   const ownReview = reviews.find(r => r.isCurrentUser);
                   return (
                     <View style={styles.editReviewCard}>
-                      <Image
-                        source={{ uri: ownReview?.userAvatar || getUserProfileImage(currentUserProfile) }}
-                        style={styles.userReviewAvatar}
+                      <UserAvatar
+                        uri={ownReview?.userAvatar || getUserProfileImage(currentUserProfile)}
+                        name={ownReview?.userName || getUserDisplayName(currentUserProfile)}
+                        size={40}
                       />
                       <View style={styles.editReviewContent}>
                         <Text style={styles.editReviewTitle}>Edit your review</Text>
@@ -2079,7 +2094,12 @@ const NovelDetailScreen = () => {
                     {getFilteredReviews().map((review, index) => (
                       <View key={review.id} style={[styles.reviewItemWrapper, openReviewMenu === review.id && { zIndex: 1000 }]}>
                         <View style={styles.reviewItem}>
-                          <Image source={{ uri: review.userAvatar }} style={styles.reviewAvatar} />
+                          {/* Use UserAvatar for consistent fallback handling */}
+                          <UserAvatar
+                            uri={review.userAvatar}
+                            name={review.userName}
+                            size={36}
+                          />
                           <View style={styles.reviewContent}>
                             <View style={styles.reviewHeader}>
                               <View style={styles.reviewHeaderLeft}>
@@ -2127,8 +2147,8 @@ const NovelDetailScreen = () => {
                                 style={styles.reviewActionButton}
                                 onPress={() => toggleReviewLike(review.id)}
                               >
-                                <Feather
-                                  name="thumbs-up"
+                                <FontAwesome
+                                  name={review.isLiked ? "thumbs-up" : "thumbs-o-up"}
                                   size={16}
                                   color={review.isLiked ? colors.sky500 : colors.slate500}
                                 />
@@ -2145,8 +2165,8 @@ const NovelDetailScreen = () => {
                                 style={styles.reviewActionButton}
                                 onPress={() => toggleReviewDislike(review.id)}
                               >
-                                <Feather
-                                  name="thumbs-down"
+                                <FontAwesome
+                                  name={review.isDisliked ? "thumbs-down" : "thumbs-o-down"}
                                   size={16}
                                   color={review.isDisliked ? '#ef4444' : colors.slate500}
                                 />
@@ -2239,7 +2259,12 @@ const NovelDetailScreen = () => {
                     onPress={() => {
                       setOpenReviewMenu(null);
                       setMenuPosition(null);
-                      alert('Report functionality would go here');
+                      (navigation.navigate as any)('Report', {
+                        type: 'review',
+                        reviewId: selectedReview?.id,
+                        novelId: novel?.id,
+                        novelName: novel?.title,
+                      });
                     }}
                   >
                     <Feather name="flag" size={14} color="#ef4444" />
@@ -2249,11 +2274,11 @@ const NovelDetailScreen = () => {
               }
             })()}
           </View>
-        </TouchableOpacity>
-      </Modal>
+        </TouchableOpacity >
+      </Modal >
 
       {/* Unlock Chapter Dialog */}
-      <Modal
+      < Modal
         visible={showUnlockDialog}
         transparent
         animationType="fade"
@@ -2351,9 +2376,9 @@ const NovelDetailScreen = () => {
             )}
           </View>
         </View>
-      </Modal>
+      </Modal >
 
-    </View>
+    </View >
   );
 };
 

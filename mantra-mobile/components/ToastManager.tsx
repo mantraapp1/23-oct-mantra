@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast, { ToastConfig } from './Toast';
 
@@ -29,16 +29,24 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const insets = useSafeAreaInsets();
 
   const showToast = (type: 'success' | 'error' | 'warning' | 'info' | 'loading', message: string, duration?: number): string => {
+    // Deduplication: Don't show if identical message exists
+    const isDuplicate = toasts.some(t => t.message === message && t.type === type);
+    if (isDuplicate) {
+      // Create a dummy ID or return existing one if possible, but here we just return empty string 
+      // as the UI doesn't usually depend on the ID immediately for these cases
+      return '';
+    }
+
     const id = `toast-${Date.now()}-${Math.random()}`;
-    
+
     // Default durations: 3s for info/success, 5s for errors
     let defaultDuration = 3000;
     if (type === 'error') {
-      defaultDuration = 5000;
+      defaultDuration = 4000;
     } else if (type === 'loading') {
       defaultDuration = 0; // Loading toasts don't auto-dismiss
     }
-    
+
     const toast: ToastConfig = {
       id,
       type,
@@ -51,6 +59,9 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   };
 
   const showActionToast = (message: string, actionText: string, onAction: () => void): string => {
+    const isDuplicate = toasts.some(t => t.message === message);
+    if (isDuplicate) return '';
+
     const id = `toast-${Date.now()}-${Math.random()}`;
     const toast: ToastConfig = {
       id,
@@ -66,6 +77,9 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   };
 
   const showUndoToast = (message: string, onUndo: () => void): string => {
+    const isDuplicate = toasts.some(t => t.message === message);
+    if (isDuplicate) return '';
+
     const id = `toast-${Date.now()}-${Math.random()}`;
     const toast: ToastConfig = {
       id,
@@ -93,7 +107,16 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
-      <View style={[styles.toastContainer, { top: insets.top + 8 }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'position' : undefined}
+        style={[
+          styles.toastContainer,
+          {
+            bottom: insets.bottom + 20,
+          }
+        ]}
+        enabled
+      >
         {toasts.map(toast => (
           <Toast
             key={toast.id}
@@ -101,7 +124,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
             onClose={hideToast}
           />
         ))}
-      </View>
+      </KeyboardAvoidingView>
     </ToastContext.Provider>
   );
 };
@@ -113,5 +136,7 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 9999,
     alignItems: 'center',
+    flexDirection: 'column-reverse',
+    gap: 8,
   },
 });

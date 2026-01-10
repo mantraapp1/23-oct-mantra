@@ -8,11 +8,10 @@ import {
   SafeAreaView,
   TextInput,
   Alert,
-  Image,
   Animated,
   Pressable,
 } from 'react-native';
-import { Feather, AntDesign } from '@expo/vector-icons';
+import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, spacing, borderRadius, typography } from '../constants';
 import { useTheme } from '../context/ThemeContext';
@@ -22,7 +21,7 @@ import UnlockOverlay from './chapter/UnlockOverlay';
 import authService from '../services/authService';
 import chapterService from '../services/chapterService';
 import commentService from '../services/commentService';
-import { LoadingState, ErrorState } from './common';
+import { LoadingState, ErrorState, UserAvatar } from './common';
 
 interface Comment {
   id: string;
@@ -885,25 +884,27 @@ const ChapterScreen = () => {
                 <TouchableOpacity
                   style={[
                     styles.sortButton,
+                    { borderColor: themeStyles.borderColor },
                     sortBy === 'newest' && styles.sortButtonActive,
                   ]}
                   onPress={() => setSortBy('newest')}
                 >
                   <Text style={[
                     styles.sortButtonText,
-                    sortBy === 'newest' && styles.sortButtonTextActive,
+                    sortBy === 'newest' ? styles.sortButtonTextActive : { color: themeStyles.textColor + '99' },
                   ]}>Newest</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
                     styles.sortButton,
+                    { borderColor: themeStyles.borderColor },
                     sortBy === 'mostLiked' && styles.sortButtonActive,
                   ]}
                   onPress={() => setSortBy('mostLiked')}
                 >
                   <Text style={[
                     styles.sortButtonText,
-                    sortBy === 'mostLiked' && styles.sortButtonTextActive,
+                    sortBy === 'mostLiked' ? styles.sortButtonTextActive : { color: themeStyles.textColor + '99' },
                   ]}>Most Liked</Text>
                 </TouchableOpacity>
               </View>
@@ -925,9 +926,10 @@ const ChapterScreen = () => {
                 sortedComments.map(comment => (
                   <View key={comment.id} style={styles.commentCard}>
                     <View style={styles.commentHeader}>
-                      <Image
-                        source={{ uri: comment.avatar }}
-                        style={styles.commentAvatar}
+                      <UserAvatar
+                        uri={comment.avatar}
+                        name={comment.author}
+                        size={36}
                       />
                       <View style={styles.commentMeta}>
                         <View style={styles.commentAuthorRow}>
@@ -954,8 +956,8 @@ const ChapterScreen = () => {
                             style={styles.commentAction}
                             onPress={() => toggleLike(comment.id)}
                           >
-                            <Feather
-                              name="thumbs-up"
+                            <FontAwesome
+                              name={comment.userLiked ? "thumbs-up" : "thumbs-o-up"}
                               size={16}
                               color={comment.userLiked ? colors.sky500 : colors.slate400}
                             />
@@ -968,8 +970,8 @@ const ChapterScreen = () => {
                             style={styles.commentAction}
                             onPress={() => toggleDislike(comment.id)}
                           >
-                            <Feather
-                              name="thumbs-down"
+                            <FontAwesome
+                              name={comment.userDisliked ? "thumbs-down" : "thumbs-o-down"}
                               size={16}
                               color={comment.userDisliked ? colors.red500 : colors.slate400}
                             />
@@ -1023,6 +1025,11 @@ const ChapterScreen = () => {
                                       (navigation.navigate as any)('Report', {
                                         type: 'comment',
                                         commentId: comment.id,
+                                        novelId: params?.novelId || chapter?.novel?.id,
+                                        novelName: chapter?.novel?.title,
+                                        chapterId: params?.chapterId || chapter?.id,
+                                        chapterNumber: chapter?.number,
+                                        chapterTitle: chapter?.title,
                                       });
                                     }}
                                   >
@@ -1051,9 +1058,10 @@ const ChapterScreen = () => {
                               <View style={styles.repliesList}>
                                 {comment.replies.map(reply => (
                                   <View key={reply.id} style={styles.replyCard}>
-                                    <Image
-                                      source={{ uri: reply.avatar }}
-                                      style={styles.replyAvatar}
+                                    <UserAvatar
+                                      uri={reply.avatar}
+                                      name={reply.author}
+                                      size={28}
                                     />
                                     <View style={styles.replyContent}>
                                       <View style={styles.replyAuthorRow}>
@@ -1105,9 +1113,10 @@ const ChapterScreen = () => {
               </View>
             )}
             <View style={[styles.commentInputBox, { backgroundColor: themeStyles.backgroundColor, borderColor: themeStyles.borderColor }]}>
-              <Image
-                source={{ uri: currentUserAvatar || getProfilePicture(null, 'User') }}
-                style={styles.commentInputAvatar}
+              <UserAvatar
+                uri={currentUserAvatar || getProfilePicture(null, 'User')}
+                name="User"
+                size={32}
               />
               <TextInput
                 ref={commentInputRef}

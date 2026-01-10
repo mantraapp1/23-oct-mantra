@@ -15,15 +15,30 @@ import { useTheme } from '../../../context/ThemeContext';
 import reportService from '../../../services/reportService';
 import authService from '../../../services/authService';
 import { useToast } from '../../ToastManager';
+import { useRoute } from '@react-navigation/native';
 
 interface ReportScreenProps {
   navigation: any;
+}
+
+interface RouteParams {
+  type?: 'novel' | 'chapter' | 'user' | 'comment' | 'review';
+  novelId?: string;
+  novelName?: string;
+  chapterId?: string;
+  chapterNumber?: number;
+  chapterTitle?: string;
+  commentId?: string;
+  userId?: string;
+  reviewId?: string;
 }
 
 type ReportType = 'novel' | 'chapter' | 'user' | 'comment' | 'review' | null;
 
 const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
+  const route = useRoute();
+  const params = route.params as RouteParams | undefined;
   const [reportType, setReportType] = useState<ReportType>(null);
   const [novelSearch, setNovelSearch] = useState('');
   const [chapter, setChapter] = useState('');
@@ -32,6 +47,7 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [prefillEntityId, setPrefillEntityId] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const [errors, setErrors] = useState({
@@ -44,7 +60,37 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     initializeUser();
-  }, []);
+    // Handle prefilled params from navigation
+    if (params?.type) {
+      setReportType(params.type);
+
+      // Prefill novel info
+      if (params.novelName) {
+        setNovelSearch(params.novelName);
+      }
+
+      // Prefill chapter info
+      if (params.chapterNumber !== undefined && params.chapterTitle) {
+        setChapter(`Chapter ${params.chapterNumber} - ${params.chapterTitle}`);
+      }
+
+      // Prefill user info
+      if (params.userId) {
+        setUserSearch(params.userId);
+      }
+
+      // Store entity IDs for submission
+      if (params.commentId) {
+        setPrefillEntityId(params.commentId);
+      } else if (params.chapterId) {
+        setPrefillEntityId(params.chapterId);
+      } else if (params.novelId) {
+        setPrefillEntityId(params.novelId);
+      } else if (params.reviewId) {
+        setPrefillEntityId(params.reviewId);
+      }
+    }
+  }, [params]);
 
   const initializeUser = async () => {
     const user = await authService.getCurrentUser();
@@ -124,6 +170,24 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
       'Inappropriate profile',
       'Other',
     ],
+    comment: [
+      'Harassment',
+      'Spam',
+      'Hate speech',
+      'Inappropriate content',
+      'Off-topic',
+      'Threatening behavior',
+      'Other',
+    ],
+    review: [
+      'Harassment',
+      'Spam',
+      'Hate speech',
+      'Inappropriate content',
+      'Fake review',
+      'Off-topic',
+      'Other',
+    ],
     technical: [
       'App crashes',
       'Login issues',
@@ -155,10 +219,13 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
   };
 
   const validateForm = () => {
+    // For prefilled reports (comment/review), skip novel/chapter/user validation
+    const isPrefilled = !!prefillEntityId;
+
     const newErrors = {
-      novel: (reportType === 'novel' || reportType === 'chapter') && !novelSearch.trim(),
-      chapter: reportType === 'chapter' && !chapter,
-      user: reportType === 'user' && !userSearch.trim(),
+      novel: !isPrefilled && (reportType === 'novel' || reportType === 'chapter') && !novelSearch.trim(),
+      chapter: !isPrefilled && reportType === 'chapter' && !chapter,
+      user: !isPrefilled && reportType === 'user' && !userSearch.trim(),
       reason: !selectedReason,
       description: description.trim().length < 20,
     };
@@ -175,13 +242,15 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
     try {
       // Determine the entity type and ID based on report type
       let entityType: 'novel' | 'chapter' | 'user' | 'comment' | 'review' = reportType as any;
-      let entityId = '';
+      let entityId = prefillEntityId || '';
 
-      // For now, use placeholder IDs - in production, these would come from search/selection
-      if (reportType === 'novel' || reportType === 'chapter') {
-        entityId = 'novel-id-placeholder'; // Would come from novel search
-      } else if (reportType === 'user') {
-        entityId = 'user-id-placeholder'; // Would come from user search
+      // If no prefilled ID, use placeholder - in production, these would come from search/selection
+      if (!entityId) {
+        if (reportType === 'novel' || reportType === 'chapter') {
+          entityId = 'novel-id-placeholder'; // Would come from novel search
+        } else if (reportType === 'user') {
+          entityId = 'user-id-placeholder'; // Would come from user search
+        }
       }
 
       const response = await reportService.submitReport(currentUserId, {
@@ -269,8 +338,30 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
         {/* Report Form */}
         {reportType && (
           <View style={styles.formContainer}>
-            {/* Novel Search */}
-            {(reportType === 'novel' || reportType === 'chapter') && (
+            {/* Prefilled Context Info for comment/review reports */}
+            {prefillEntityId && (reportType === 'comment' || reportType === 'review') && (
+              <View style={[styles.prefilledContext, { backgroundColor: isDarkMode ? 'rgba(14, 165, 233, 0.1)' : colors.sky50, borderColor: isDarkMode ? colors.sky700 : colors.sky200 }]}>
+                <Feather name="info" size={16} color={colors.sky500} />
+                <View style={styles.prefilledContextContent}>
+                  <Text style={[styles.prefilledContextTitle, { color: theme.text }]}>
+                    Reporting {reportType === 'comment' ? 'Comment' : 'Review'}
+                  </Text>
+                  {novelSearch && (
+                    <Text style={[styles.prefilledContextText, { color: theme.textSecondary }]}>
+                      Novel: {novelSearch}
+                    </Text>
+                  )}
+                  {chapter && (
+                    <Text style={[styles.prefilledContextText, { color: theme.textSecondary }]}>
+                      {chapter}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            )}
+
+            {/* Novel Search - Only show when not prefilled */}
+            {!prefillEntityId && (reportType === 'novel' || reportType === 'chapter') && (
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>
                   Search for the novel <Text style={styles.required}>*</Text>
@@ -765,6 +856,25 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: {
     opacity: 0.6,
+  },
+  prefilledContext: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    padding: spacing[3],
+    borderRadius: borderRadius.xl,
+    borderWidth: 1,
+    marginBottom: spacing[4],
+  },
+  prefilledContextContent: {
+    flex: 1,
+  },
+  prefilledContextTitle: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    marginBottom: spacing[1],
+  },
+  prefilledContextText: {
+    fontSize: typography.fontSize.xs,
   },
 });
 

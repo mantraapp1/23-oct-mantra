@@ -14,14 +14,14 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { Feather, AntDesign } from '@expo/vector-icons';
+import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart, PieChart } from 'react-native-chart-kit';
 import { colors, spacing, borderRadius, typography } from '../../../constants';
 import { getProfilePicture } from '../../../constants/defaultImages';
 import { ThemeColors } from '../../../constants/theme';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
-import { RatingStars, LoadingState, ErrorState, EmptyState } from '../../common';
+import { RatingStars, LoadingState, ErrorState, EmptyState, UserAvatar } from '../../common';
 import { supabase } from '../../../config/supabase';
 import authService from '../../../services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -365,11 +365,16 @@ const NovelManageScreen = () => {
       if (reviewsError) throw reviewsError;
 
       const formattedReviews = (reviewsData || []).map((review: any) => {
-        const user = review.profiles?.display_name || review.profiles?.username || 'Anonymous';
+        // Handle potential array return (defensive coding because of left join behavior)
+        const profileData = Array.isArray(review.profiles)
+          ? (review.profiles[0] || {})
+          : (review.profiles || {});
+
+        const displayName = profileData.display_name || profileData.username || 'Anonymous';
         return {
           id: review.id,
-          user: user,
-          avatar: getProfilePicture(review.profiles?.profile_picture_url, user),
+          user: displayName,
+          avatar: getProfilePicture(profileData.profile_picture_url, displayName),
           rating: review.rating,
           time: formatTimeAgo(review.created_at),
           text: review.review_text,
@@ -1058,7 +1063,7 @@ const NovelManageScreen = () => {
               <View key={item.stars} style={styles.ratingBarRow}>
                 <Text style={[styles.ratingStarLabel, { color: theme.textSecondary }]}>{item.stars}★</Text>
                 <View style={[styles.ratingBarContainer, { backgroundColor: theme.backgroundSecondary }]}>
-                  <View style={[styles.ratingBarFill, { width: `${item.percentage}%`, backgroundColor: item.color }]} />
+                  <View style={[styles.ratingBarFill, { width: `${item.percentage}%`, backgroundColor: theme.primary }]} />
                 </View>
                 <Text style={[styles.ratingPercentage, { color: theme.textSecondary }]}>{item.percentage}%</Text>
               </View>
@@ -1095,7 +1100,7 @@ const NovelManageScreen = () => {
             return (
               <View key={review.id} style={[styles.reviewItemWrapper, isMenuOpen && { zIndex: 1000 }]}>
                 <View style={[styles.reviewCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                  <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
+                  <UserAvatar uri={review.avatar} name={review.user} size={36} />
                   <View style={styles.reviewContent}>
                     <View style={styles.reviewHeader}>
                       <View style={styles.reviewUser}>
@@ -1137,8 +1142,8 @@ const NovelManageScreen = () => {
                         onPress={() => handleLikeReview(review.id.toString(), review.likes, review.dislikes)}
                         activeOpacity={0.7}
                       >
-                        <Feather
-                          name="thumbs-up"
+                        <FontAwesome
+                          name={interaction.isLiked ? "thumbs-up" : "thumbs-o-up"}
                           size={16}
                           color={interaction.isLiked ? colors.sky500 : theme.textSecondary}
                         />
@@ -1151,8 +1156,8 @@ const NovelManageScreen = () => {
                         onPress={() => handleDislikeReview(review.id.toString(), review.likes, review.dislikes)}
                         activeOpacity={0.7}
                       >
-                        <Feather
-                          name="thumbs-down"
+                        <FontAwesome
+                          name={interaction.isDisliked ? "thumbs-down" : "thumbs-o-down"}
                           size={16}
                           color={interaction.isDisliked ? colors.red500 : theme.textSecondary}
                         />

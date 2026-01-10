@@ -9,10 +9,9 @@ import {
   SafeAreaView,
   TextInput,
   Modal,
-  Image,
   Animated,
 } from 'react-native';
-import { Feather, AntDesign } from '@expo/vector-icons';
+import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '../../../constants';
 import { getProfilePicture } from '../../../constants/defaultImages';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -21,6 +20,7 @@ import { supabase } from '../../../config/supabase';
 import commentService from '../../../services/commentService';
 import chapterService from '../../../services/chapterService';
 import { useTheme } from '../../../context/ThemeContext';
+import { UserAvatar } from '../../common';
 
 
 interface Comment {
@@ -750,9 +750,10 @@ The sharp, cheerful voice cut through his reverie. Priya, his 15-year-old sister
               sortedComments.map(comment => (
                 <View key={comment.id} style={styles.commentCard}>
                   <View style={styles.commentHeader}>
-                    <Image
-                      source={{ uri: comment.avatar }}
-                      style={styles.commentAvatar}
+                    <UserAvatar
+                      uri={comment.avatar}
+                      name={comment.author}
+                      size={36}
                     />
                     <View style={styles.commentMeta}>
                       <View style={styles.commentAuthorRow}>
@@ -776,8 +777,8 @@ The sharp, cheerful voice cut through his reverie. Priya, his 15-year-old sister
                           style={styles.commentAction}
                           onPress={() => toggleLike(comment.id)}
                         >
-                          <Feather
-                            name="thumbs-up"
+                          <FontAwesome
+                            name={comment.userLiked ? "thumbs-up" : "thumbs-o-up"}
                             size={16}
                             color={comment.userLiked ? colors.sky500 : readerStyles.textColor + '66'}
                           />
@@ -790,8 +791,8 @@ The sharp, cheerful voice cut through his reverie. Priya, his 15-year-old sister
                           style={styles.commentAction}
                           onPress={() => toggleDislike(comment.id)}
                         >
-                          <Feather
-                            name="thumbs-down"
+                          <FontAwesome
+                            name={comment.userDisliked ? "thumbs-down" : "thumbs-o-down"}
                             size={16}
                             color={comment.userDisliked ? colors.red500 : readerStyles.textColor + '66'}
                           />
@@ -881,9 +882,10 @@ The sharp, cheerful voice cut through his reverie. Priya, his 15-year-old sister
                             <View style={styles.repliesList}>
                               {comment.replies.map(reply => (
                                 <View key={reply.id} style={styles.replyCard}>
-                                  <Image
-                                    source={{ uri: reply.avatar }}
-                                    style={styles.replyAvatar}
+                                  <UserAvatar
+                                    uri={reply.avatar}
+                                    name={reply.author}
+                                    size={28}
                                   />
                                   <View style={styles.replyContent}>
                                     <View style={styles.replyAuthorRow}>
@@ -935,9 +937,10 @@ The sharp, cheerful voice cut through his reverie. Priya, his 15-year-old sister
             </View>
           )}
           <View style={[styles.commentInputBox, { borderColor: readerStyles.borderColor, backgroundColor: readerStyles.cardBackground }]}>
-            <Image
-              source={{ uri: userProfile?.avatar || getProfilePicture(null) }}
-              style={styles.commentInputAvatar}
+            <UserAvatar
+              uri={userProfile?.avatar || getProfilePicture(null)}
+              name={userProfile?.displayName || 'User'}
+              size={32}
             />
             <TextInput
               ref={commentInputRef}

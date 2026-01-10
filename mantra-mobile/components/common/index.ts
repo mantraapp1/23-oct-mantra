@@ -11,6 +11,7 @@ export { default as UserAvatar } from './UserAvatar';
 export { default as AppHeader } from './AppHeader';
 export { default as LoadingState } from './LoadingState';
 export { default as ErrorState } from './ErrorState';
+export { default as CustomAlert } from './CustomAlert';
 
 // Export types
 export type { NovelCardProps } from './NovelCard';
