@@ -7,7 +7,6 @@ import {
   ScrollView,
   TextInput,
   Linking,
-  Alert,
   ActivityIndicator,
   FlatList,
   Animated,
@@ -23,6 +22,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '../../../constants';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAlert } from '../../../context/AlertContext';
 import authService from '../../../services/authService';
 import { LoadingState } from '../../common';
 
@@ -32,6 +32,7 @@ interface ContactUsScreenProps {
 
 const ContactUsScreen: React.FC<ContactUsScreenProps> = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
+  const { showAlert } = useAlert();
   const [showForm, setShowForm] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -98,7 +99,7 @@ const ContactUsScreen: React.FC<ContactUsScreenProps> = ({ navigation }) => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      Alert.alert('Form Error', 'Please fill in all required fields and ensure the message is at least 10 characters.');
+      showAlert('error', 'Form Error', 'Please fill in all required fields and ensure the message is at least 10 characters.');
       return;
     }
 
@@ -109,7 +110,7 @@ const ContactUsScreen: React.FC<ContactUsScreenProps> = ({ navigation }) => {
       setIsSent(true);
       // Scroll to top to ensure success message is visible
     } catch (error) {
-      Alert.alert('Error', 'Failed to send message. Please try again.');
+      showAlert('error', 'Error', 'Failed to send message. Please try again.');
     } finally {
       setUserLoading(false);
     }

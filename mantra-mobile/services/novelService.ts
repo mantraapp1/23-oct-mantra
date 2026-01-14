@@ -488,6 +488,61 @@ class NovelService {
   }
 
   /**
+   * Toggle vote for a novel - checks actual DB state first
+   * This prevents issues when local state doesn't match database
+   */
+  async toggleVote(userId: string, novelId: string): Promise<{ success: boolean; message: string; hasVoted: boolean }> {
+    try {
+      // Always check actual DB state first to prevent race conditions
+      const { data: existingVote } = await supabase
+        .from('novel_votes')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('novel_id', novelId)
+        .maybeSingle();
+
+      if (existingVote) {
+        // User has voted, so remove the vote
+        const { error } = await supabase
+          .from('novel_votes')
+          .delete()
+          .eq('user_id', userId)
+          .eq('novel_id', novelId);
+
+        if (error) throw error;
+
+        return {
+          success: true,
+          message: 'Vote removed',
+          hasVoted: false,
+        };
+      } else {
+        // User hasn't voted, so add the vote
+        const { error } = await supabase
+          .from('novel_votes')
+          .insert({
+            user_id: userId,
+            novel_id: novelId,
+          });
+
+        if (error) throw error;
+
+        return {
+          success: true,
+          message: 'Vote added',
+          hasVoted: true,
+        };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: handleSupabaseError(error),
+        hasVoted: false, // Will be corrected when data reloads
+      };
+    }
+  }
+
+  /**
    * Remove vote from a novel
    */
   async unvoteNovel(userId: string, novelId: string): Promise<{ success: boolean; message: string }> {

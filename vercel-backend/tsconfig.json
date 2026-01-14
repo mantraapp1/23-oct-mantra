@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "CommonJS",
+        "lib": [
+            "ES2022"
+        ],
+        "moduleResolution": "node",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "./dist",
+        "rootDir": ".",
+        "declaration": true,
+        "resolveJsonModule": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true
+    },
+    "include": [
+        "api/**/*",
+        "lib/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

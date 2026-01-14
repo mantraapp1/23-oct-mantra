@@ -6,12 +6,12 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '../../../constants';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAlert } from '../../../context/AlertContext';
 import reportService from '../../../services/reportService';
 import authService from '../../../services/authService';
 import { useToast } from '../../ToastManager';
@@ -49,6 +49,7 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [prefillEntityId, setPrefillEntityId] = useState<string | null>(null);
   const { showToast } = useToast();
+  const { showAlert } = useAlert();
 
   const [errors, setErrors] = useState({
     novel: false,
@@ -406,9 +407,10 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
                   <TouchableOpacity
                     style={styles.pickerButton}
                     onPress={() => {
-                      Alert.alert(
+                      showAlert(
+                        'info',
                         'Select Chapter',
-                        '',
+                        'Please select a chapter to report.',
                         [
                           ...chapters.map((ch) => ({
                             text: ch,
@@ -527,7 +529,7 @@ const ReportScreen: React.FC<ReportScreenProps> = ({ navigation }) => {
               <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Screenshots (Optional)</Text>
               <TouchableOpacity
                 style={[styles.uploadButton, { backgroundColor: theme.card, borderColor: theme.border }]}
-                onPress={() => Alert.alert('Upload', 'Image upload functionality')}
+                onPress={() => showAlert('info', 'Upload', 'Image upload functionality coming soon!')}
                 activeOpacity={0.7}
               >
                 <Feather name="upload" size={16} color={theme.textSecondary} />

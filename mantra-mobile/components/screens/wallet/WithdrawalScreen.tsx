@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  Alert,
   Modal,
   ActivityIndicator,
 } from 'react-native';
@@ -16,6 +15,7 @@ import { colors, spacing, borderRadius, typography } from '../../../constants';
 import walletService from '../../../services/walletService';
 import authService from '../../../services/authService';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAlert } from '../../../context/AlertContext';
 
 interface SavedAddress {
   label: string;
@@ -28,6 +28,7 @@ interface WithdrawalScreenProps {
 
 const WithdrawalScreen: React.FC<WithdrawalScreenProps> = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
+  const { showAlert } = useAlert();
   const [amount, setAmount] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
   const [saveAddress, setSaveAddress] = useState(false);
@@ -108,7 +109,7 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = ({ navigation }) => {
 
   const saveEdit = () => {
     if (!editLabel.trim() || !editAddress.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showAlert('error', 'Error', 'Please fill in all fields');
       return;
     }
 
@@ -137,41 +138,41 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = ({ navigation }) => {
 
   const handleWithdrawal = async () => {
     if (!currentUserId) {
-      Alert.alert('Error', 'Please login to make a withdrawal');
+      showAlert('error', 'Error', 'Please login to make a withdrawal');
       return;
     }
 
     const withdrawAmount = parseFloat(amount);
 
     if (!amount || isNaN(withdrawAmount)) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      showAlert('error', 'Error', 'Please enter a valid amount');
       return;
     }
 
     if (withdrawAmount < minimumWithdrawal) {
-      Alert.alert('Error', `Minimum withdrawal is ${minimumWithdrawal} XLM`);
+      showAlert('error', 'Error', `Minimum withdrawal is ${minimumWithdrawal} XLM`);
       return;
     }
 
     if (withdrawAmount > availableBalance) {
-      Alert.alert('Error', 'Insufficient balance');
+      showAlert('error', 'Error', 'Insufficient balance');
       return;
     }
 
     if (!walletAddress.trim()) {
-      Alert.alert('Error', 'Please enter your Stellar wallet address');
+      showAlert('error', 'Error', 'Please enter your Stellar wallet address');
       return;
     }
 
     if (!walletAddress.startsWith('G') || walletAddress.length !== 56) {
-      Alert.alert('Error', 'Please enter a valid Stellar address (starts with G and is 56 characters)');
+      showAlert('error', 'Error', 'Please enter a valid Stellar address (starts with G and is 56 characters)');
       return;
     }
 
     // Save address if checkbox is checked
     if (saveAddress) {
       if (!label.trim()) {
-        Alert.alert('Error', 'Please enter a label for this address');
+        showAlert('error', 'Error', 'Please enter a label for this address');
         return;
       }
 
@@ -193,7 +194,8 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = ({ navigation }) => {
 
       if (result.success) {
         const total = (withdrawAmount + networkFee).toFixed(7);
-        Alert.alert(
+        showAlert(
+          'success',
           'Withdrawal Requested',
           `Withdrawal request submitted successfully!\n\nAmount: ${withdrawAmount} XLM\nNetwork Fee: ~${networkFee} XLM\nTotal: ${total} XLM\n\nStatus: Pending approval`,
           [
@@ -210,11 +212,11 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = ({ navigation }) => {
           ]
         );
       } else {
-        Alert.alert('Error', result.message || 'Failed to process withdrawal');
+        showAlert('error', 'Error', result.message || 'Failed to process withdrawal');
       }
     } catch (error) {
       console.error('Error processing withdrawal:', error);
-      Alert.alert('Error', 'Failed to process withdrawal. Please try again.');
+      showAlert('error', 'Error', 'Failed to process withdrawal. Please try again.');
     }
   };
 

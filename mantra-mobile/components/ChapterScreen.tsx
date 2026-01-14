@@ -7,7 +7,6 @@ import {
   StyleSheet,
   SafeAreaView,
   TextInput,
-  Alert,
   Animated,
   Pressable,
   Platform,
@@ -16,6 +15,7 @@ import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, spacing, borderRadius, typography } from '../constants';
 import { useTheme } from '../context/ThemeContext';
+import { useAlert } from '../context/AlertContext';
 import { getProfilePicture } from '../constants/defaultImages';
 import { formatUserProfile, getUserProfileImage } from '../utils/profileUtils';
 import UnlockOverlay from './chapter/UnlockOverlay';
@@ -57,6 +57,7 @@ const ChapterScreen = () => {
   const params = route.params as any;
   const commentInputOpacity = useRef(new Animated.Value(0)).current;
   const { showToast } = useToast();
+  const { showAlert } = useAlert();
 
   const [showSettings, setShowSettings] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -273,7 +274,7 @@ const ChapterScreen = () => {
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      Alert.alert('Error', 'Failed to share chapter');
+      showAlert('error', 'Error', 'Failed to share chapter');
     }
   };
 
@@ -290,7 +291,8 @@ const ChapterScreen = () => {
 
   const handleReportComment = (commentId: string) => {
     setActiveCommentMenu(null); // Close menu first
-    Alert.alert(
+    showAlert(
+      'warning',
       'Report Comment',
       'Are you sure you want to report this comment for inappropriate content?',
       [
@@ -303,7 +305,7 @@ const ChapterScreen = () => {
           style: 'destructive',
           onPress: async () => {
             if (!currentUserId) {
-              Alert.alert('Login Required', 'Please log in to report comments');
+              showAlert('warning', 'Login Required', 'Please log in to report comments');
               return;
             }
             try {
@@ -350,7 +352,7 @@ const ChapterScreen = () => {
 
   const toggleLike = async (commentId: string) => {
     if (!currentUserId) {
-      Alert.alert('Login Required', 'Please log in to like comments');
+      showAlert('warning', 'Login Required', 'Please log in to like comments');
       return;
     }
 
@@ -412,7 +414,7 @@ const ChapterScreen = () => {
 
   const toggleDislike = async (commentId: string) => {
     if (!currentUserId) {
-      Alert.alert('Login Required', 'Please log in to dislike comments');
+      showAlert('warning', 'Login Required', 'Please log in to dislike comments');
       return;
     }
 
@@ -488,12 +490,12 @@ const ChapterScreen = () => {
     if (!commentText.trim()) return;
 
     if (!currentUserId) {
-      Alert.alert('Login Required', 'Please log in to comment');
+      showAlert('warning', 'Login Required', 'Please log in to comment');
       return;
     }
 
     if (!chapter?.id) {
-      Alert.alert('Error', 'Chapter not loaded');
+      showAlert('error', 'Error', 'Chapter not loaded');
       return;
     }
 
@@ -516,7 +518,7 @@ const ChapterScreen = () => {
           );
           setEditingComment(null);
         } else {
-          Alert.alert('Error', result.message);
+          showAlert('error', 'Error', result.message);
         }
       } else if (replyingTo) {
         // Add reply
@@ -550,7 +552,7 @@ const ChapterScreen = () => {
           );
           setReplyingTo(null);
         } else {
-          Alert.alert('Error', result.message);
+          showAlert('error', 'Error', result.message);
         }
       } else {
         // Add new comment
@@ -576,13 +578,13 @@ const ChapterScreen = () => {
           };
           setComments(prev => [newComment, ...prev]);
         } else {
-          Alert.alert('Error', result.message);
+          showAlert('error', 'Error', result.message);
         }
       }
       setCommentText('');
     } catch (error) {
       console.error('Error posting comment:', error);
-      Alert.alert('Error', 'Failed to post comment');
+      showAlert('error', 'Error', 'Failed to post comment');
     }
   };
 
@@ -610,7 +612,8 @@ const ChapterScreen = () => {
   };
 
   const handleDeleteComment = (commentId: string) => {
-    Alert.alert(
+    showAlert(
+      'warning',
       'Delete Comment',
       'Are you sure you want to delete this comment?',
       [
@@ -628,14 +631,14 @@ const ChapterScreen = () => {
               const result = await commentService.deleteComment(commentId);
               if (!result.success) {
                 // Revert on error - reload comments
-                Alert.alert('Error', result.message || 'Failed to delete comment');
+                showAlert('error', 'Error', result.message || 'Failed to delete comment');
                 if (chapter?.id && currentUserId) {
                   await loadComments(chapter.id, currentUserId);
                 }
               }
             } catch (error) {
               console.error('Error deleting comment:', error);
-              Alert.alert('Error', 'Failed to delete comment');
+              showAlert('error', 'Error', 'Failed to delete comment');
               // Reload comments to restore state
               if (chapter?.id && currentUserId) {
                 await loadComments(chapter.id, currentUserId);
@@ -1064,8 +1067,8 @@ const ChapterScreen = () => {
                             style={styles.commentAction}
                             onPress={() => toggleLike(comment.id)}
                           >
-                            <FontAwesome
-                              name={comment.userLiked ? "thumbs-up" : "thumbs-o-up"}
+                            <Feather
+                              name="thumbs-up"
                               size={16}
                               color={comment.userLiked ? colors.sky500 : colors.slate400}
                             />
@@ -1078,8 +1081,8 @@ const ChapterScreen = () => {
                             style={styles.commentAction}
                             onPress={() => toggleDislike(comment.id)}
                           >
-                            <FontAwesome
-                              name={comment.userDisliked ? "thumbs-down" : "thumbs-o-down"}
+                            <Feather
+                              name="thumbs-down"
                               size={16}
                               color={comment.userDisliked ? colors.red500 : colors.slate400}
                             />
@@ -1260,6 +1263,41 @@ const styles = StyleSheet.create({
   headerButton: {
     padding: spacing[2],
     borderRadius: borderRadius.lg,
+  },
+  chapterMenuButtonContainer: {
+    position: 'relative',
+    zIndex: 1000,
+  },
+  chapterMenuDropdown: {
+    position: 'absolute',
+    top: '100%',
+    right: 0,
+    marginTop: spacing[1],
+    minWidth: 160,
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.xl,
+    borderWidth: 1,
+    borderColor: colors.slate200,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 10,
+    zIndex: 2000,
+    overflow: 'hidden',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.slate100,
+  },
+  menuItemText: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
   },
   headerInfo: {
     flex: 1,

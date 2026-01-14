@@ -22,6 +22,9 @@ const BottomTabNavigation = () => {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
+                // LAZY LOADING: Only mount screens when user navigates to them
+                // Prevents unwanted API requests for screens user isn't viewing
+                lazy: true,
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName: any;
 

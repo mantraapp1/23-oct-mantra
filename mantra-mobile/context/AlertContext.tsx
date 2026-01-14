@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import CustomAlert, { AlertButton } from '../components/common/CustomAlert';
 
+export type AlertType = 'success' | 'error' | 'warning' | 'info';
+
 interface AlertContextType {
-    showAlert: (title: string, message: string, buttons?: AlertButton[]) => void;
+    showAlert: (type: AlertType, title: string, message: string, buttons?: AlertButton[]) => void;
     hideAlert: () => void;
 }
 
@@ -11,16 +13,22 @@ const AlertContext = createContext<AlertContextType | undefined>(undefined);
 export const AlertProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [visible, setVisible] = useState(false);
     const [config, setConfig] = useState<{
+        type: AlertType;
         title: string;
         message: string;
         buttons: AlertButton[];
     }>({
+        type: 'info',
         title: '',
         message: '',
         buttons: [],
     });
 
-    const showAlert = useCallback((title: string, message: string, buttons: AlertButton[] = []) => {
+    const hideAlert = useCallback(() => {
+        setVisible(false);
+    }, []);
+
+    const showAlert = useCallback((type: AlertType, title: string, message: string, buttons: AlertButton[] = []) => {
         // Wrap button onPress handlers to ensure they close the alert if not handled
         const wrappedButtons = buttons.length > 0 ? buttons.map(btn => ({
             ...btn,
@@ -29,20 +37,17 @@ export const AlertProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 hideAlert();
             }
         })) : [
-            { text: 'OK', style: 'default', onPress: () => hideAlert() }
+            { text: 'OK', style: 'default' as const, onPress: () => hideAlert() }
         ];
 
         setConfig({
+            type,
             title,
             message,
             buttons: wrappedButtons as AlertButton[]
         });
         setVisible(true);
-    }, []);
-
-    const hideAlert = useCallback(() => {
-        setVisible(false);
-    }, []);
+    }, [hideAlert]);
 
     return (
         <AlertContext.Provider value={{ showAlert, hideAlert }}>
@@ -65,3 +70,6 @@ export const useCustomAlert = (): AlertContextType => {
     }
     return context;
 };
+
+// Alias for consistency
+export const useAlert = useCustomAlert;

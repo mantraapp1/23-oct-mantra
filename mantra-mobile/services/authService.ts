@@ -35,7 +35,7 @@ class AuthService {
   async signUp(data: SignUpData): Promise<AuthResponse> {
     try {
       console.log('AuthService: Starting signup for:', data.email);
-      
+
       // Validate input
       this.validateSignUpData(data);
       console.log('AuthService: Validation passed');
@@ -43,7 +43,7 @@ class AuthService {
       // Check if username is available
       const isAvailable = await this.checkUsernameAvailability(data.username);
       console.log('AuthService: Username availability:', isAvailable);
-      
+
       if (!isAvailable) {
         return {
           success: false,
@@ -94,9 +94,10 @@ class AuthService {
 
       if (profileError) {
         console.error('AuthService: Profile creation error:', profileError);
-        // Rollback: delete auth user if profile creation fails
-        await supabase.auth.admin.deleteUser(authData.user.id);
-        throw profileError;
+        // Note: Cannot delete auth user from client - admin operations require service role
+        // User may need manual cleanup if profile creation fails
+        console.error('AuthService: Profile creation failed. User auth created but profile missing:', authData.user.id);
+        throw new Error('Failed to create user profile. Please contact support if this persists.');
       }
 
       console.log('AuthService: Profile created successfully');

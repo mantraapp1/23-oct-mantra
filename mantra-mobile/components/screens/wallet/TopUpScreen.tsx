@@ -5,13 +5,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useToast } from '../../ToastManager';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAlert } from '../../../context/AlertContext';
 
 interface CoinPackage {
   id: string;
@@ -33,6 +33,7 @@ const TopUpScreen = () => {
   const navigation = useNavigation();
   const { showToast } = useToast();
   const { theme } = useTheme();
+  const { showAlert } = useAlert();
   const [selectedPackage, setSelectedPackage] = useState<string>('');
   const [selectedPayment, setSelectedPayment] = useState<string>('card');
   const [isLoading, setIsLoading] = useState(false);
@@ -113,7 +114,8 @@ const TopUpScreen = () => {
     const packageData = coinPackages.find(pkg => pkg.id === selectedPackage);
     if (!packageData) return;
 
-    Alert.alert(
+    showAlert(
+      'info',
       'Confirm Purchase',
       `Purchase ${packageData.coins}${packageData.bonus ? ` + ${packageData.bonus} bonus` : ''} coins for $${packageData.price}?`,
       [

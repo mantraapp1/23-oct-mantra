@@ -60,9 +60,13 @@ const HomeScreen = () => {
     setCurrentUserId(user?.id || null);
   };
 
-  const loadHomeData = async (userId: string | null = currentUserId, language: string = 'All', isMounted: boolean = true) => {
+  const loadHomeData = async (userId: string | null = currentUserId, language: string = 'All', isMounted: boolean = true, isSilent: boolean = false) => {
     if (!isMounted) return;
-    setIsLoading(true);
+
+    if (!isSilent) {
+      setIsLoading(true);
+    }
+
     try {
       // Force 'All' language to ensure we get results, ignoring the language context for now
       // as per user feedback that single language filtering is hiding content
@@ -132,7 +136,9 @@ const HomeScreen = () => {
       console.error('Error loading home data:', error);
       showToast('error', 'Failed to load content');
     } finally {
-      setIsLoading(false);
+      if (!isSilent) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -264,7 +270,7 @@ const HomeScreen = () => {
               key={novel.id}
               novel={novel}
               size="medium"
-              badge="New"
+
               onPress={() => handleNovelPress(novel.id)}
             />
           ))}

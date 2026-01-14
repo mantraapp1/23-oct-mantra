@@ -8,7 +8,6 @@ import {
   ScrollView,
   Dimensions,
   Image,
-  Alert,
   TextInput,
   Modal,
 } from 'react-native';
@@ -17,6 +16,7 @@ import { Feather } from '@expo/vector-icons';
 // Removed Picker import - using custom dropdowns now
 import { useToast } from '../../ToastManager';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAlert } from '../../../context/AlertContext';
 import { colors, spacing, borderRadius, typography, LANGUAGES } from '../../../constants';
 import authService from '../../../services/authService';
 import profileService from '../../../services/profileService';
@@ -48,6 +48,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation, route }
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const { theme } = useTheme();
+  const { showAlert } = useAlert();
 
 
 
@@ -66,7 +67,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation, route }
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {
-      Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+      showAlert('warning', 'Permission Required', 'Permission to access camera roll is required!');
       return;
     }
 

@@ -14,6 +14,7 @@ import { ThemeColors } from '../../constants/theme';
 import unlockService, { UnlockStatus } from '../../services/unlockService';
 import { useToast } from '../ToastManager';
 import { UNLOCK_SETTINGS } from '../../constants/supabase';
+import { useRewardedAd } from '../../hooks/useRewardedAd';
 
 interface UnlockOverlayProps {
   userId: string;
@@ -35,9 +36,21 @@ const UnlockOverlay: React.FC<UnlockOverlayProps> = ({
   const [unlockStatus, setUnlockStatus] = useState<UnlockStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isStartingTimer, setIsStartingTimer] = useState(false);
-  const [isUnlockingWithAd, setIsUnlockingWithAd] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const { showToast } = useToast();
+
+  // AdMob Rewarded Ad Hook - ONLY records view when user earns reward
+  const {
+    isLoaded: isAdLoaded,
+    isLoading: isAdLoading,
+    isShowing: isAdShowing,
+    showAd,
+  } = useRewardedAd({
+    userId,
+    novelId,
+    chapterId,
+    authorId,
+  });
 
   useEffect(() => {
     checkStatus();
@@ -109,34 +122,28 @@ const UnlockOverlay: React.FC<UnlockOverlayProps> = ({
     }
   };
 
+  /**
+   * Handle unlock with AdMob rewarded ad
+   * CRITICAL: The ad view is ONLY recorded when user earns reward (watches completely)
+   * This is handled by the useRewardedAd hook's EARNED_REWARD listener
+   */
   const handleUnlockWithAd = async () => {
-    setIsUnlockingWithAd(true);
+    if (!isAdLoaded) {
+      showToast('info', 'Loading ad... Please wait');
+      return;
+    }
+
     try {
-      // TODO: Show AdMob ad here
-      // For now, simulate ad viewing
-      showToast('info', 'Ad viewing would happen here');
+      // Show the ad - recording happens automatically in hook when reward earned
+      const shown = await showAd();
 
-      // TODO: Replace with actual AdMob ad unit ID
-      const adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Test ad unit ID
-
-      const response = await unlockService.unlockWithAd(
-        userId,
-        novelId,
-        chapterId,
-        authorId,
-        adUnitId
-      );
-
-      if (response.success) {
-        showToast('success', response.message);
+      if (shown) {
+        // Ad was shown, unlock will happen after reward is earned
+        // The hook handles recording the ad view
         await checkStatus();
-      } else {
-        showToast('error', response.message);
       }
     } catch (error: any) {
-      showToast('error', error.message || 'Failed to unlock with ad');
-    } finally {
-      setIsUnlockingWithAd(false);
+      showToast('error', error.message || 'Failed to show ad');
     }
   };
 
@@ -239,15 +246,17 @@ const UnlockOverlay: React.FC<UnlockOverlayProps> = ({
               <TouchableOpacity
                 style={[styles.button, styles.adButton]}
                 onPress={handleUnlockWithAd}
-                disabled={isUnlockingWithAd}
+                disabled={isAdShowing || isAdLoading}
               >
-                {isUnlockingWithAd ? (
+                {isAdShowing || isAdLoading ? (
                   <ActivityIndicator color={colors.white} />
                 ) : (
                   <>
                     <Feather name="play-circle" size={20} color={colors.white} />
                     <View style={styles.buttonTextContainer}>
-                      <Text style={styles.buttonText}>Watch Ad to Unlock</Text>
+                      <Text style={styles.buttonText}>
+                        {isAdLoaded ? 'Watch Ad to Unlock' : 'Loading Ad...'}
+                      </Text>
                       <Text style={styles.buttonSubtext}>Instant unlock</Text>
                     </View>
                   </>

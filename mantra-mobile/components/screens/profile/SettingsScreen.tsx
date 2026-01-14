@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Toggle } from '../../ui/Toggle';
@@ -15,6 +14,7 @@ import authService from '../../../services/authService';
 import profileService from '../../../services/profileService';
 import { useToast } from '../../ToastManager';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAlert } from '../../../context/AlertContext';
 import { useLanguage } from '../../../context/LanguageContext';
 
 interface SettingsScreenProps {
@@ -24,6 +24,7 @@ interface SettingsScreenProps {
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
   const { theme, isDarkMode, toggleTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
+  const { showAlert } = useAlert();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [userEmail, setUserEmail] = useState('');
@@ -79,7 +80,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
 
   const handleLogout = () => {
-    Alert.alert(
+    showAlert(
+      'warning',
       'Log Out',
       'Are you sure you want to log out?',
       [
@@ -231,7 +233,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           <View style={styles.sectionContent}>
             <TouchableOpacity
               style={styles.settingButton}
-              onPress={() => Alert.alert('Terms of Service', 'Terms of Service content')}
+              onPress={() => showAlert('info', 'Terms of Service', 'Terms of Service content')}
               activeOpacity={0.7}
             >
               <Text style={styles.settingLabel}>Terms of Service</Text>
@@ -239,7 +241,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.settingButton}
-              onPress={() => Alert.alert('Privacy Policy', 'Privacy Policy content')}
+              onPress={() => showAlert('info', 'Privacy Policy', 'Privacy Policy content')}
               activeOpacity={0.7}
             >
               <Text style={styles.settingLabel}>Privacy Policy</Text>

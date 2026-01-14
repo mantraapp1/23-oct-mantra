@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../config/supabase';
 import readingService from '../../services/readingService';
 import reviewService from '../../services/reviewService';
+import reportService from '../../services/reportService';
 import novelService from '../../services/novelService';
 import authService from '../../services/authService';
 import { useToast } from '../ToastManager';
@@ -120,14 +121,17 @@ const NovelDetailScreen = () => {
   const novelId = route.params?.novelId;
 
   // Load novel data from Supabase
-  const loadNovelData = async (userId: string | null = null) => {
-    try {
+  const loadNovelData = async (userId: string | null = null, isSilent: boolean = false) => {
+    // Only show loading state if not silent refresh and we don't have existing valid data
+    if (!isSilent && (!novel || loading)) {
       setLoading(true);
       setError(null);
+    }
 
-      // Use passed userId or fall back to state
-      const effectiveUserId = userId || currentUserId;
+    // Use effective user ID (passed ID or current state)
+    const effectiveUserId = userId || currentUserId;
 
+    try {
       // Load novel details
       const { data: novelData, error: novelError } = await supabase
         .from('novels')
@@ -595,7 +599,7 @@ const NovelDetailScreen = () => {
 
         // Load novel data with userId
         if (novelId) {
-          await loadNovelData(userId);
+          await loadNovelData(userId, false);
         }
       };
       initializeScreen();
@@ -612,19 +616,11 @@ const NovelDetailScreen = () => {
   // Pull to refresh
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadNovelData();
+    await loadNovelData(currentUserId);
     setRefreshing(false);
   };
 
-  const handleRead = () => {
-    // Navigate to first chapter
-    if (chapters.length > 0) {
-      const firstChapter = chapters[0];
-      (navigation.navigate as any)('Chapter', { novelId: novel.id, chapterId: firstChapter.id });
-    } else {
-      showToast('error', 'No chapters available');
-    }
-  };
+
 
   const toggleLibrary = async () => {
     if (!currentUserId || !novelId) {
@@ -632,11 +628,13 @@ const NovelDetailScreen = () => {
       return;
     }
 
+    // Optimistic update
+    setIsInLibrary(prev => !prev);
+
     try {
       if (isInLibrary) {
         const result = await readingService.removeFromLibrary(currentUserId, novelId);
         if (result.success) {
-          setIsInLibrary(false);
           showToast('success', 'Removed from library');
         } else {
           showToast('error', result.message);
@@ -644,14 +642,17 @@ const NovelDetailScreen = () => {
       } else {
         const result = await readingService.addToLibrary(currentUserId, novelId);
         if (result.success) {
-          setIsInLibrary(true);
           showToast('success', 'Added to library');
         } else {
           showToast('error', result.message);
         }
       }
+      // Silent reload to update state
+      await loadNovelData(currentUserId, true);
     } catch (error) {
       console.error('Error toggling library:', error);
+      // Revert optimistic update
+      setIsInLibrary(prev => !prev); // Revert to previous state
       showToast('error', 'Failed to update library');
     }
   };
@@ -678,138 +679,42 @@ const NovelDetailScreen = () => {
       return;
     }
 
-    // Validation: Check if votes field exists and is valid
-    if (!novel.votes || typeof novel.votes !== 'string') {
-      console.error('[Vote Validation] Invalid votes data:', {
-        votes: novel.votes,
-        novelId,
-        timestamp: new Date().toISOString()
-      });
-      showToast('error', 'Unable to update vote. Please refresh.');
-      return;
-    }
+    // Optimistic update
+    setHasVoted(prev => !prev);
+    setNovel((prev: any) => {
+      if (!prev) return prev;
+      try {
+        const currentVotes = parseFloat(prev.votes.replace(/[^0-9.]/g, ''));
+        let actualCount = currentVotes;
+        if (prev.votes.includes('k')) actualCount *= 1000;
+        else if (prev.votes.includes('M')) actualCount *= 1000000;
+
+        const newCount = hasVoted ? Math.max(0, actualCount - 1) : actualCount + 1;
+        return { ...prev, votes: formatNumber(newCount) };
+      } catch (error) {
+        console.error('[Vote Optimistic Update Error] Failed to calculate new vote count:', {
+          error,
+          votes: prev.votes,
+          timestamp: new Date().toISOString()
+        });
+        return prev;
+      }
+    });
 
     try {
-      if (hasVoted) {
-        // Optimistic update - decrement vote count immediately
-        setNovel((prev: any) => {
-          if (!prev) return prev;
+      // Use toggleVote which checks actual DB state first to prevent race conditions
+      const result = await novelService.toggleVote(currentUserId, novelId);
 
-          try {
-            const currentVotes = prev.votes.replace(/[^0-9.]/g, '');
-            const numericVotes = parseFloat(currentVotes);
-
-            // Validation: Check if vote count is a valid number
-            if (isNaN(numericVotes)) {
-              console.error('[Vote Calculation Error] Invalid vote count:', {
-                votes: prev.votes,
-                numericVotes,
-                timestamp: new Date().toISOString()
-              });
-              return prev;
-            }
-
-            let actualCount = numericVotes;
-
-            // Handle formatted numbers (e.g., "1.2k" = 1200, "1.5M" = 1500000)
-            if (prev.votes.includes('k')) {
-              actualCount = numericVotes * 1000;
-            } else if (prev.votes.includes('M')) {
-              actualCount = numericVotes * 1000000;
-            }
-
-            const newCount = Math.max(0, actualCount - 1);
-            return {
-              ...prev,
-              votes: formatNumber(newCount)
-            };
-          } catch (error) {
-            console.error('[Vote Calculation Error] Failed to calculate new vote count:', {
-              error,
-              votes: prev.votes,
-              timestamp: new Date().toISOString()
-            });
-            return prev;
-          }
-        });
-
-        const result = await novelService.unvoteNovel(currentUserId, novelId);
-        if (result.success) {
-          setHasVoted(false);
-          showToast('success', 'Vote removed');
-          // Reload novel data to get accurate count from database
-          await loadNovelData();
-        } else {
-          console.error('[Vote Operation Error] Failed to remove vote:', {
-            result,
-            novelId,
-            userId: currentUserId,
-            timestamp: new Date().toISOString()
-          });
-          // Revert optimistic update on error
-          await loadNovelData();
-          showToast('error', result.message || 'Failed to remove vote');
-        }
+      if (result.success) {
+        // Update hasVoted to match what the service actually did
+        setHasVoted(result.hasVoted);
+        showToast('success', result.message);
+        // Reload to get accurate count from database
+        await loadNovelData(currentUserId, true);
       } else {
-        // Optimistic update - increment vote count immediately
-        setNovel((prev: any) => {
-          if (!prev) return prev;
-
-          try {
-            const currentVotes = prev.votes.replace(/[^0-9.]/g, '');
-            const numericVotes = parseFloat(currentVotes);
-
-            // Validation: Check if vote count is a valid number
-            if (isNaN(numericVotes)) {
-              console.error('[Vote Calculation Error] Invalid vote count:', {
-                votes: prev.votes,
-                numericVotes,
-                timestamp: new Date().toISOString()
-              });
-              return prev;
-            }
-
-            let actualCount = numericVotes;
-
-            // Handle formatted numbers (e.g., "1.2k" = 1200, "1.5M" = 1500000)
-            if (prev.votes.includes('k')) {
-              actualCount = numericVotes * 1000;
-            } else if (prev.votes.includes('M')) {
-              actualCount = numericVotes * 1000000;
-            }
-
-            const newCount = actualCount + 1;
-            return {
-              ...prev,
-              votes: formatNumber(newCount)
-            };
-          } catch (error) {
-            console.error('[Vote Calculation Error] Failed to calculate new vote count:', {
-              error,
-              votes: prev.votes,
-              timestamp: new Date().toISOString()
-            });
-            return prev;
-          }
-        });
-
-        const result = await novelService.voteNovel(currentUserId, novelId);
-        if (result.success) {
-          setHasVoted(true);
-          showToast('success', 'Vote added');
-          // Reload novel data to get accurate count from database
-          await loadNovelData();
-        } else {
-          console.error('[Vote Operation Error] Failed to add vote:', {
-            result,
-            novelId,
-            userId: currentUserId,
-            timestamp: new Date().toISOString()
-          });
-          // Revert optimistic update on error
-          await loadNovelData();
-          showToast('error', result.message || 'Failed to add vote');
-        }
+        // Revert optimistic update on error
+        await loadNovelData(currentUserId, true);
+        showToast('error', result.message || 'Failed to toggle vote');
       }
     } catch (error) {
       console.error('[Vote Operation Error] Unexpected error toggling vote:', {
@@ -817,12 +722,22 @@ const NovelDetailScreen = () => {
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
         novelId,
         userId: currentUserId,
-        hasVoted,
         timestamp: new Date().toISOString()
       });
       // Revert optimistic update on error
-      await loadNovelData();
+      await loadNovelData(currentUserId, true);
       showToast('error', 'Failed to update vote');
+    }
+  };
+
+  const handleRead = () => {
+    if (chapters.length > 0) {
+      const firstChapter = chapters[0];
+      if (novel && firstChapter) {
+        handleChapterPress(firstChapter);
+      }
+    } else {
+      showToast('error', 'No chapters available');
     }
   };
 
@@ -980,8 +895,8 @@ const NovelDetailScreen = () => {
         setSelectedRating(0);
         showToast('success', 'Review posted successfully');
 
-        // Reload novel data to update rating
-        await loadNovelData();
+        // Reload novel data to update rating silently
+        await loadNovelData(currentUserId, true);
       } else {
         console.error('[Review Operation Error] Failed to create review:', {
           result,
@@ -1003,56 +918,49 @@ const NovelDetailScreen = () => {
     }
   };
 
-  const handleEditReview = () => {
-    // Find user's review from the reviews list
-    const ownReview = reviews.find(r => r.isCurrentUser);
-    if (ownReview) {
-      setReviewText(ownReview.text);
-      setSelectedRating(ownReview.rating);
-      setIsEditingReview(true);
-    }
-  };
+
 
   const handleSaveEdit = async () => {
-    // Find user's review from the reviews list
+    // Check if we have an existing review to edit
     const ownReview = reviews.find(r => r.isCurrentUser);
-    if (!ownReview || !currentUserId) return;
+    if (!ownReview) return;
+
+    if (!currentUserId) return;
+
+    // Validation
+    const trimmedText = reviewText.trim();
+    if (!trimmedText) {
+      showToast('error', 'Review cannot be empty');
+      return;
+    }
+    if (trimmedText.length < 10) {
+      showToast('error', 'Review must be at least 10 characters');
+      return;
+    }
 
     try {
       const result = await reviewService.updateReview(ownReview.id, {
         rating: selectedRating,
-        review_text: reviewText,
+        review_text: trimmedText,
       });
 
-      if (result.success && result.review) {
-        const updatedReview = result.review;
-        // Update the review in the reviews list
-        setReviews(prev => prev.map(review =>
-          review.id === ownReview.id
-            ? {
-              ...review,
-              rating: updatedReview.rating,
-              text: updatedReview.review_text || '',
-            }
-            : review
-        ));
-
-        // Also update userReview state if it exists
-        if (userReview) {
-          setUserReview({
-            ...userReview,
-            rating: updatedReview.rating,
-            text: updatedReview.review_text || '',
-          });
-        }
+      if (result.success) {
+        // Update local state
+        const updatedReview = {
+          ...ownReview,
+          rating: selectedRating,
+          text: trimmedText,
+        };
+        setUserReview(updatedReview);
+        setReviews(reviews.map(r => r.id === ownReview.id ? updatedReview : r));
 
         setIsEditingReview(false);
         setReviewText('');
         setSelectedRating(0);
         showToast('success', 'Review updated successfully');
 
-        // Reload novel data to update rating
-        await loadNovelData();
+        // Reload novel data silently to update rating
+        await loadNovelData(currentUserId, true);
       } else {
         showToast('error', result.message);
       }
@@ -1129,15 +1037,15 @@ const NovelDetailScreen = () => {
               if (result.success) {
                 showToast('success', 'Review deleted');
                 setUserReview(null);
-                loadNovelData(); // Reload to update stats
+                loadNovelData(currentUserId, true); // Reload to update stats
               } else {
                 showToast('error', result.message || 'Failed to delete review');
-                loadNovelData(); // Revert on error
+                loadNovelData(currentUserId, true); // Revert on error
               }
             } catch (error) {
               console.error('Error deleting review:', error);
               showToast('error', 'Failed to delete review');
-              loadNovelData(); // Revert on error
+              loadNovelData(currentUserId, true); // Revert on error
             }
           },
         },
@@ -1172,16 +1080,16 @@ const NovelDetailScreen = () => {
       const result = await reviewService.reactToReview(currentUserId, reviewId, 'like');
       if (result.success) {
         // Reload to get accurate counts from database
-        await loadNovelData();
+        await loadNovelData(currentUserId, true);
       } else {
         // Revert on error
-        await loadNovelData();
+        await loadNovelData(currentUserId, true);
         showToast('error', result.message);
       }
     } catch (error) {
       console.error('Error liking review:', error);
       // Revert on error
-      await loadNovelData();
+      await loadNovelData(currentUserId, true);
       showToast('error', 'Failed to update reaction');
     }
   };
@@ -1213,16 +1121,16 @@ const NovelDetailScreen = () => {
       const result = await reviewService.reactToReview(currentUserId, reviewId, 'dislike');
       if (result.success) {
         // Reload to get accurate counts from database
-        await loadNovelData();
+        await loadNovelData(currentUserId, true);
       } else {
         // Revert on error
-        await loadNovelData();
+        await loadNovelData(currentUserId, true);
         showToast('error', result.message);
       }
     } catch (error) {
       console.error('Error disliking review:', error);
       // Revert on error
-      await loadNovelData();
+      await loadNovelData(currentUserId, true);
       showToast('error', 'Failed to update reaction');
     }
   };
@@ -1648,26 +1556,31 @@ const NovelDetailScreen = () => {
                 <Text style={styles.readButtonText}>Read</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.libraryButton, isInLibrary && styles.libraryButtonActive]}
+                style={styles.libraryButton}
                 onPress={toggleLibrary}
               >
+                <Feather
+                  name="bookmark"
+                  size={16}
+                  color={isInLibrary ? theme.primary : theme.text}
+                />
                 <Text
                   style={[
                     styles.libraryButtonText,
                     isInLibrary && styles.libraryButtonTextActive,
                   ]}
                 >
-                  {isInLibrary ? '✓ In Library' : '+ Library'}
+                  Library
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.voteButton, hasVoted && styles.voteButtonActive]}
+                style={styles.voteButton}
                 onPress={toggleVote}
               >
                 <FontAwesome
                   name={hasVoted ? "thumbs-up" : "thumbs-o-up"}
                   size={16}
-                  color={hasVoted ? colors.white : colors.slate700}
+                  color={hasVoted ? theme.primary : theme.text}
                 />
                 <Text
                   style={[styles.voteButtonText, hasVoted && styles.voteButtonTextActive]}
@@ -2291,7 +2204,7 @@ const NovelDetailScreen = () => {
                       onPress={() => {
                         setOpenReviewMenu(null);
                         setMenuPosition(null);
-                        handleEditReview();
+                        if (selectedReview) handleEditReview(selectedReview);
                       }}
                     >
                       <Feather name="edit-2" size={14} color={theme.text} />
@@ -2302,7 +2215,7 @@ const NovelDetailScreen = () => {
                       onPress={() => {
                         setOpenReviewMenu(null);
                         setMenuPosition(null);
-                        handleDeleteReview();
+                        if (openReviewMenu) handleDeleteReview(openReviewMenu);
                       }}
                     >
                       <Feather name="trash-2" size={14} color="#ef4444" />
@@ -2634,16 +2547,18 @@ const getStyles = (theme: ThemeColors, isDarkMode: boolean) => StyleSheet.create
   },
   libraryButton: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[1],
     borderRadius: borderRadius.xl,
     borderWidth: 1,
     borderColor: theme.border,
     backgroundColor: theme.card,
     paddingVertical: spacing[2.5],
-    alignItems: 'center',
   },
   libraryButtonActive: {
-    backgroundColor: theme.primary,
-    borderColor: colors.sky500,
+    // Keep same background, only text changes color
   },
   libraryButtonText: {
     fontSize: typography.fontSize.sm,
@@ -2651,7 +2566,7 @@ const getStyles = (theme: ThemeColors, isDarkMode: boolean) => StyleSheet.create
     color: theme.text,
   },
   libraryButtonTextActive: {
-    color: colors.white,
+    color: theme.primary,
   },
   voteButton: {
     flexDirection: 'row',
@@ -2664,8 +2579,7 @@ const getStyles = (theme: ThemeColors, isDarkMode: boolean) => StyleSheet.create
     backgroundColor: theme.card,
   },
   voteButtonActive: {
-    backgroundColor: theme.primary,
-    borderColor: colors.sky500,
+    // Keep same background, only icon changes color
   },
   voteButtonText: {
     fontSize: typography.fontSize.xs,
@@ -2673,7 +2587,7 @@ const getStyles = (theme: ThemeColors, isDarkMode: boolean) => StyleSheet.create
     color: theme.text,
   },
   voteButtonTextActive: {
-    color: colors.white,
+    color: theme.primary,
   },
   tabs: {
     flexDirection: 'row',

@@ -7,11 +7,11 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
-  Alert,
   ActivityIndicator
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAlert } from '../../../context/AlertContext';
 import { colors, spacing, borderRadius, typography } from '../../../constants';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useToast } from '../../ToastManager';
@@ -23,6 +23,7 @@ const EditChapterScreen = () => {
   const route = useRoute();
   const { showToast } = useToast();
   const { theme, isDarkMode } = useTheme();
+  const { showAlert } = useAlert();
   const { novelId, chapterId, novelTitle, isDraft, draftData } = (route.params as any) || {};
 
   const [chapterNumber, setChapterNumber] = useState('');
@@ -207,7 +208,8 @@ const EditChapterScreen = () => {
   };
 
   const handleDelete = () => {
-    Alert.alert(
+    showAlert(
+      'warning',
       'Delete Chapter',
       `Are you sure you want to delete this ${isDraft ? 'draft' : 'chapter'}? This action is permanent.`,
       [

@@ -1,0 +1,6 @@
+# Vercel Backend Files
+node_modules/
+.env
+.vercel/
+dist/
+*.log
