@@ -28,6 +28,7 @@ const HomeScreen = () => {
   const [popularNovels, setPopularNovels] = useState<any[]>([]);
   const [recommendedNovels, setRecommendedNovels] = useState<any[]>([]);
   const [youMayLikeNovels, setYouMayLikeNovels] = useState<any[]>([]);
+  const [newArrivals, setNewArrivals] = useState<any[]>([]);
 
   useEffect(() => {
     initializeUser();
@@ -63,36 +64,28 @@ const HomeScreen = () => {
     if (!isMounted) return;
     setIsLoading(true);
     try {
-      let [trending, popular, recommended, editorsPicks] = await Promise.all([
-        novelService.getTrendingNovels(6, language),
-        novelService.getPopularNovels(6, language),
-        novelService.getTopRatedNovels(6, language), // Using top rated as recommended
-        novelService.getEditorsPicks(6, language), // Using editor's picks for "You may like this"
+      // Force 'All' language to ensure we get results, ignoring the language context for now
+      // as per user feedback that single language filtering is hiding content
+      const fetchLanguage = 'All';
+
+      const [trending, popular, recommended, editorsPicks, newNovels] = await Promise.all([
+        novelService.getTrendingNovels(6, fetchLanguage),
+        novelService.getPopularNovels(6, fetchLanguage),
+        novelService.getTopRatedNovels(6, fetchLanguage),
+        novelService.getEditorsPicks(6, fetchLanguage),
+        novelService.getNewArrivals(6, fetchLanguage),
       ]);
-
-      // Fallback logic: If no content found and language is not 'All', try 'All'
-      const hasContent = trending.length > 0 || popular.length > 0;
-      if (!hasContent && language !== 'All') {
-        console.log(`No content found for ${language}, falling back to All`);
-        // showToast('info', `No novels found in ${language}, showing English results`);
-
-        [trending, popular, recommended, editorsPicks] = await Promise.all([
-          novelService.getTrendingNovels(6, 'All'),
-          novelService.getPopularNovels(6, 'All'),
-          novelService.getTopRatedNovels(6, 'All'),
-          novelService.getEditorsPicks(6, 'All'),
-        ]);
-      }
 
       console.log('Home data loaded:', {
         trending: trending.length,
         popular: popular.length,
         recommended: recommended.length,
         editorsPicks: editorsPicks.length,
+        newArrivals: newNovels.length,
       });
 
       // Collect all novel IDs for batch fetching interaction states
-      const allNovels = [...trending, ...popular, ...recommended, ...editorsPicks];
+      const allNovels = [...trending, ...popular, ...recommended, ...editorsPicks, ...newNovels];
       const novelIds = allNovels.map(novel => novel.id);
 
       // Batch fetch user interaction states if user is logged in
@@ -134,6 +127,7 @@ const HomeScreen = () => {
       // Use editor's picks for "You may like this", fallback to popular if empty
       const youMayLike = editorsPicks.length > 0 ? editorsPicks : popular;
       setYouMayLikeNovels(formatNovelsWithStates(youMayLike));
+      setNewArrivals(formatNovelsWithStates(newNovels));
     } catch (error) {
       console.error('Error loading home data:', error);
       showToast('error', 'Failed to load content');
@@ -259,6 +253,22 @@ const HomeScreen = () => {
             </View>
           </TouchableOpacity>
         </View>
+
+        {/* New Arrivals Section */}
+        <HorizontalSection
+          title="New Arrivals"
+          onSeeAll={() => handleSeeAll('new')}
+        >
+          {newArrivals.map((novel) => (
+            <NovelCard
+              key={novel.id}
+              novel={novel}
+              size="medium"
+              badge="New"
+              onPress={() => handleNovelPress(novel.id)}
+            />
+          ))}
+        </HorizontalSection>
 
         {/* Trending Section */}
         <HorizontalSection

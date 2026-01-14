@@ -10,6 +10,7 @@ import {
   Alert,
   Animated,
   Pressable,
+  Platform,
 } from 'react-native';
 import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -21,7 +22,9 @@ import UnlockOverlay from './chapter/UnlockOverlay';
 import authService from '../services/authService';
 import chapterService from '../services/chapterService';
 import commentService from '../services/commentService';
+import reportService from '../services/reportService';
 import { LoadingState, ErrorState, UserAvatar } from './common';
+import { useToast } from './ToastManager';
 
 interface Comment {
   id: string;
@@ -53,6 +56,7 @@ const ChapterScreen = () => {
   const route = useRoute();
   const params = route.params as any;
   const commentInputOpacity = useRef(new Animated.Value(0)).current;
+  const { showToast } = useToast();
 
   const [showSettings, setShowSettings] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -83,6 +87,8 @@ const ChapterScreen = () => {
 
   // Chapter data state
   const [chapter, setChapter] = useState<any>(null);
+  const [nextChapter, setNextChapter] = useState<any>(null);
+  const [prevChapter, setPrevChapter] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -122,6 +128,7 @@ const ChapterScreen = () => {
       setLoading(true);
       setError(null);
 
+      // Fetch current, next, and previous chapters concurrently
       const chapterData = await chapterService.getChapter(chapterId);
 
       if (!chapterData) {
@@ -146,6 +153,17 @@ const ChapterScreen = () => {
       } else if (!chapterData.is_locked) {
         // If chapter is marked as not locked in DB, unlock it
         setIsUnlocked(true);
+      }
+
+      // Fetch Next and Previous chapters
+      // We need novelId and current chapter number
+      if (chapterData.novel_id && chapterData.chapter_number !== undefined) {
+        const [next, prev] = await Promise.all([
+          chapterService.getNextChapter(chapterData.novel_id, chapterData.chapter_number),
+          chapterService.getPreviousChapter(chapterData.novel_id, chapterData.chapter_number),
+        ]);
+        setNextChapter(next);
+        setPrevChapter(prev);
       }
 
       // Increment chapter views
@@ -265,7 +283,69 @@ const ChapterScreen = () => {
       type: 'chapter',
       novelName: chapter?.novel?.title || 'Unknown Novel',
       chapterName: `Chapter ${chapter.number} - ${chapter.title}`,
+      chapterId: chapter?.id,
+      novelId: chapter?.novel?.id,
     });
+  };
+
+  const handleReportComment = (commentId: string) => {
+    setActiveCommentMenu(null); // Close menu first
+    Alert.alert(
+      'Report Comment',
+      'Are you sure you want to report this comment for inappropriate content?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Report',
+          style: 'destructive',
+          onPress: async () => {
+            if (!currentUserId) {
+              Alert.alert('Login Required', 'Please log in to report comments');
+              return;
+            }
+            try {
+              const response = await reportService.submitReport(currentUserId, {
+                reported_type: 'comment',
+                reported_id: commentId,
+                reason: 'Inappropriate Content',
+                description: 'User reported via quick report action.',
+              });
+              if (response.success) {
+                showToast('success', 'Report submitted successfully');
+              } else {
+                showToast('error', response.message || 'Failed to submit report');
+              }
+            } catch (error) {
+              console.error('Error reporting comment:', error);
+              showToast('error', 'Failed to submit report');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleNext = () => {
+    if (nextChapter) {
+      // Push new chapter to navigation stack (or replace to keep history clean?)
+      // Using push allows back button to go to previous chapter
+      (navigation.navigate as any)('Chapter', {
+        novelId: chapter.novel?.id || params?.novelId,
+        chapterId: nextChapter.id,
+      });
+    }
+  };
+
+  const handlePrev = () => {
+    if (prevChapter) {
+      (navigation.navigate as any)('Chapter', {
+        novelId: chapter.novel?.id || params?.novelId,
+        chapterId: prevChapter.id,
+      });
+    }
   };
 
   const toggleLike = async (commentId: string) => {
@@ -596,7 +676,20 @@ const ChapterScreen = () => {
   const themeStyles = getThemeStyles();
 
   // Font family mapping
+  // Fix for Android fonts not applying correctly
   const getFontFamily = () => {
+    if (Platform.OS === 'android') {
+      switch (fontFamily) {
+        case 'Serif':
+          return 'serif'; // Android system serif
+        case 'SF':
+          return 'sans-serif'; // Android system sans-serif (closest to SF)
+        default:
+          return 'sans-serif'; // Android default (closest to Inter/Roboto)
+      }
+    }
+
+    // iOS / Web mappings
     switch (fontFamily) {
       case 'Serif':
         return 'Georgia';
@@ -868,10 +961,25 @@ const ChapterScreen = () => {
 
           {/* Chapter Navigation */}
           <View style={styles.chapterNav}>
-            <TouchableOpacity style={[styles.navButtonPrev, { borderColor: themeStyles.borderColor, backgroundColor: themeStyles.cardBackground }]}>
+            <TouchableOpacity
+              style={[
+                styles.navButtonPrev,
+                { borderColor: themeStyles.borderColor, backgroundColor: themeStyles.cardBackground },
+                !prevChapter && { opacity: 0.5 }
+              ]}
+              onPress={handlePrev}
+              disabled={!prevChapter}
+            >
               <Text style={[styles.navButtonText, { color: themeStyles.textColor }]}>Previous</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navButtonNext}>
+            <TouchableOpacity
+              style={[
+                styles.navButtonNext,
+                !nextChapter && { opacity: 0.5, backgroundColor: colors.slate400 }
+              ]}
+              onPress={handleNext}
+              disabled={!nextChapter}
+            >
               <Text style={styles.navButtonNextText}>Next</Text>
             </TouchableOpacity>
           </View>
@@ -1020,18 +1128,7 @@ const ChapterScreen = () => {
                                 ) : (
                                   <TouchableOpacity
                                     style={styles.commentMenuItem}
-                                    onPress={() => {
-                                      setActiveCommentMenu(null);
-                                      (navigation.navigate as any)('Report', {
-                                        type: 'comment',
-                                        commentId: comment.id,
-                                        novelId: params?.novelId || chapter?.novel?.id,
-                                        novelName: chapter?.novel?.title,
-                                        chapterId: params?.chapterId || chapter?.id,
-                                        chapterNumber: chapter?.number,
-                                        chapterTitle: chapter?.title,
-                                      });
-                                    }}
+                                    onPress={() => handleReportComment(comment.id)}
                                   >
                                     <Feather name="flag" size={16} color={colors.red500} />
                                     <Text style={[styles.commentMenuItemText, { color: colors.red500 }]}>Report</Text>
@@ -1599,40 +1696,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-  },
-  chapterMenuButtonContainer: {
-    position: 'relative',
-    zIndex: 200,
-  },
-  chapterMenuDropdown: {
-    position: 'absolute',
-    top: 40,
-    right: 0,
-    marginRight: 0,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    backgroundColor: colors.white,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 10,
-    minWidth: 160,
-    maxHeight: 200,
-    padding: spacing[1],
-    zIndex: 2001,
-  },
-  menuItem: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing[2],
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
-    borderRadius: borderRadius.md,
-  },
-  menuItemText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.slate700,
+    justifyContent: 'center',
   },
 });
 

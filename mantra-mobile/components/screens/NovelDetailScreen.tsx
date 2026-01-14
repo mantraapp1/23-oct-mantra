@@ -1062,29 +1062,87 @@ const NovelDetailScreen = () => {
     }
   };
 
-  const handleDeleteReview = async () => {
-    // Find user's review from the reviews list
-    const ownReview = reviews.find(r => r.isCurrentUser);
-    if (!ownReview) return;
+  const handleReportReview = (reviewId: string) => {
+    setOpenReviewMenu(null); // Close menu
+    Alert.alert(
+      'Report Review',
+      'Are you sure you want to report this review for inappropriate content?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Report',
+          style: 'destructive',
+          onPress: async () => {
+            if (!currentUserId) {
+              Alert.alert('Login Required', 'Please log in to report reviews');
+              return;
+            }
+            try {
+              const response = await reportService.submitReport(currentUserId, {
+                reported_type: 'review',
+                reported_id: reviewId,
+                reason: 'Inappropriate Content',
+                description: 'User reported via quick report action.',
+              });
+              if (response.success) {
+                showToast('success', 'Report submitted successfully');
+              } else {
+                showToast('error', response.message || 'Failed to submit report');
+              }
+            } catch (error) {
+              console.error('Error reporting review:', error);
+              showToast('error', 'Failed to submit report');
+            }
+          },
+        },
+      ]
+    );
+  };
 
-    try {
-      const result = await reviewService.deleteReview(ownReview.id);
+  const handleEditReview = (review: Review) => {
+    setReviewText(review.text);
+    setSelectedRating(review.rating);
+    setIsEditingReview(true);
+    setOpenReviewMenu(null);
+    setActiveTab('reviews');
+  };
 
-      if (result.success) {
-        setUserReview(null);
-        setIsEditingReview(false);
-        setReviews(reviews.filter(r => r.id !== ownReview.id));
-        showToast('success', 'Review deleted successfully');
+  const handleDeleteReview = (reviewId: string) => {
+    Alert.alert(
+      'Delete Review',
+      'Are you sure you want to delete your review?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setOpenReviewMenu(null);
+            // Optimistic update
+            setReviews(prev => prev.filter(r => r.id !== reviewId));
 
-        // Reload novel data to update rating
-        await loadNovelData();
-      } else {
-        showToast('error', result.message);
-      }
-    } catch (error) {
-      console.error('Error deleting review:', error);
-      showToast('error', 'Failed to delete review');
-    }
+            try {
+              const result = await reviewService.deleteReview(reviewId);
+              if (result.success) {
+                showToast('success', 'Review deleted');
+                setUserReview(null);
+                loadNovelData(); // Reload to update stats
+              } else {
+                showToast('error', result.message || 'Failed to delete review');
+                loadNovelData(); // Revert on error
+              }
+            } catch (error) {
+              console.error('Error deleting review:', error);
+              showToast('error', 'Failed to delete review');
+              loadNovelData(); // Revert on error
+            }
+          },
+        },
+      ]
+    );
   };
 
   const toggleReviewLike = async (reviewId: string) => {
@@ -2257,14 +2315,9 @@ const NovelDetailScreen = () => {
                   <TouchableOpacity
                     style={styles.reviewMenuItem}
                     onPress={() => {
-                      setOpenReviewMenu(null);
-                      setMenuPosition(null);
-                      (navigation.navigate as any)('Report', {
-                        type: 'review',
-                        reviewId: selectedReview?.id,
-                        novelId: novel?.id,
-                        novelName: novel?.title,
-                      });
+                      if (selectedReview) {
+                        handleReportReview(selectedReview.id);
+                      }
                     }}
                   >
                     <Feather name="flag" size={14} color="#ef4444" />
