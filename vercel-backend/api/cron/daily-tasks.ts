@@ -26,6 +26,8 @@ import {
     updateWalletBalance,
     createEarningTransaction,
     getApprovedWithdrawals,
+    getRejectedWithdrawals,
+    refundRejectedWithdrawal,
     updateWithdrawalStatus,
     deductWalletBalance,
     createWithdrawalTransaction,
@@ -156,6 +158,27 @@ export default async function handler(
         logError('process_expired_timers', error);
         result.tasks.push({
             taskName: 'process_expired_timers',
+            success: false,
+            error: error.message,
+        });
+        result.totalFailed++;
+    }
+
+    // =========================================================
+    // TASK 5: Process rejected withdrawals (refund balance)
+    // =========================================================
+    try {
+        const refundCount = await processRejectedWithdrawals();
+        result.tasks.push({
+            taskName: 'process_rejected_withdrawals',
+            success: true,
+            affectedRows: refundCount,
+        });
+        result.totalSuccess++;
+    } catch (error: any) {
+        logError('process_rejected_withdrawals', error);
+        result.tasks.push({
+            taskName: 'process_rejected_withdrawals',
             success: false,
             error: error.message,
         });
@@ -485,4 +508,48 @@ async function processApprovedWithdrawals(): Promise<number> {
     });
 
     return processedCount;
+}
+
+/**
+ * Process rejected withdrawals - refund balance to users
+ */
+async function processRejectedWithdrawals(): Promise<number> {
+    const rejectedWithdrawals = await getRejectedWithdrawals();
+
+    if (rejectedWithdrawals.length === 0) {
+        log(LogLevel.INFO, 'No rejected withdrawals to process');
+        return 0;
+    }
+
+    log(LogLevel.INFO, 'Processing rejected withdrawals', {
+        count: rejectedWithdrawals.length
+    });
+
+    let refundedCount = 0;
+
+    for (const withdrawal of rejectedWithdrawals) {
+        try {
+            const success = await refundRejectedWithdrawal(withdrawal);
+            if (success) {
+                // Notify user of rejection
+                await notifyWithdrawalStatus(
+                    withdrawal.user_id,
+                    'rejected',
+                    withdrawal.amount,
+                    undefined,
+                    'Your withdrawal request was rejected. Balance has been refunded.'
+                );
+                refundedCount++;
+            }
+        } catch (error: any) {
+            logError(`Rejected withdrawal refund ${withdrawal.id}`, error);
+        }
+    }
+
+    log(LogLevel.INFO, 'Rejected withdrawals processed', {
+        refunded: refundedCount,
+        total: rejectedWithdrawals.length
+    });
+
+    return refundedCount;
 }

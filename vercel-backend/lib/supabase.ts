@@ -499,6 +499,85 @@ export async function getApprovedWithdrawals(): Promise<WithdrawalRequest[]> {
 }
 
 /**
+ * Get rejected withdrawal requests (need refund processing)
+ * These have status='rejected' but haven't been refunded yet (no refunded_at timestamp)
+ */
+export async function getRejectedWithdrawals(): Promise<WithdrawalRequest[]> {
+    const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select('*')
+        .eq('status', 'rejected')
+        .is('refunded_at', null)
+        .order('requested_at', { ascending: true })
+        .limit(10);
+
+    if (error) {
+        log(LogLevel.ERROR, 'Failed to fetch rejected withdrawals', { error: error.message });
+        throw new Error(`Failed to fetch rejected withdrawals: ${error.message}`);
+    }
+
+    return data || [];
+}
+
+/**
+ * Process refund for rejected withdrawal
+ * 1. Refund balance to user's wallet
+ * 2. Update pending transaction to 'failed'
+ * 3. Mark withdrawal as refunded
+ */
+export async function refundRejectedWithdrawal(withdrawal: WithdrawalRequest): Promise<boolean> {
+    try {
+        // 1. Refund balance to wallet
+        const wallet = await getOrCreateWallet(withdrawal.user_id);
+        const { error: walletError } = await supabase
+            .from('wallets')
+            .update({
+                balance: wallet.balance + withdrawal.amount,
+                total_withdrawn: Math.max(0, wallet.total_withdrawn - withdrawal.amount),
+                updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', withdrawal.user_id);
+
+        if (walletError) {
+            log(LogLevel.ERROR, 'Failed to refund wallet', { userId: withdrawal.user_id, error: walletError.message });
+            return false;
+        }
+
+        // 2. Update pending transaction to 'failed'
+        await supabase
+            .from('transactions')
+            .update({
+                status: 'failed',
+                error_message: 'Withdrawal rejected by admin',
+                completed_at: new Date().toISOString(),
+            })
+            .eq('user_id', withdrawal.user_id)
+            .eq('type', 'withdrawal')
+            .eq('status', 'pending')
+            .eq('amount', withdrawal.amount);
+
+        // 3. Mark withdrawal as refunded
+        await supabase
+            .from('withdrawal_requests')
+            .update({
+                refunded_at: new Date().toISOString(),
+            })
+            .eq('id', withdrawal.id);
+
+        log(LogLevel.INFO, 'Refunded rejected withdrawal', {
+            withdrawalId: withdrawal.id,
+            userId: withdrawal.user_id,
+            amount: withdrawal.amount
+        });
+
+        return true;
+    } catch (error: any) {
+        log(LogLevel.ERROR, 'Refund failed', { error: error.message });
+        return false;
+    }
+}
+
+/**
  * Update withdrawal request status
  */
 export async function updateWithdrawalStatus(
