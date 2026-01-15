@@ -384,10 +384,15 @@ async function processApprovedWithdrawals(): Promise<number> {
                 continue;
             }
 
-            // Send Stellar payment
+            // Calculate actual payout: amount - network fee
+            // Fee is deducted from author's earnings, not admin wallet
+            const networkFee = withdrawal.network_fee || 0.00001;
+            const actualPayout = withdrawal.amount - networkFee;
+
+            // Send Stellar payment (amount minus fee)
             const paymentResult = await sendPayment(
                 withdrawal.stellar_address,
-                withdrawal.amount.toString(),
+                actualPayout.toFixed(7), // Stellar requires 7 decimal places
                 `Mantra W-${withdrawal.id.substring(0, 8)}`
             );
 
@@ -399,9 +404,10 @@ async function processApprovedWithdrawals(): Promise<number> {
                     paymentResult.transactionId
                 );
 
-                // Deduct from wallet (with balance guard)
+                // Deduct ONLY the requested amount from wallet (not amount+fee)
+                // The fee was already included in the amount going to the user
                 try {
-                    await deductWalletBalance(withdrawal.user_id, withdrawal.total_amount);
+                    await deductWalletBalance(withdrawal.user_id, withdrawal.amount);
                 } catch (e) {
                     // Balance may already be deducted - log but continue
                     log(LogLevel.WARN, 'Wallet deduction issue (may be already deducted)', {
@@ -427,7 +433,7 @@ async function processApprovedWithdrawals(): Promise<number> {
                 logStellarTransaction(
                     'withdrawal',
                     paymentResult.transactionId,
-                    withdrawal.amount,
+                    actualPayout,
                     withdrawal.stellar_address
                 );
 

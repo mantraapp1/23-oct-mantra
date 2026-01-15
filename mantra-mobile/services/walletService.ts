@@ -277,16 +277,10 @@ class WalletService {
         };
       }
 
-      // Calculate network fee
+      // Network fee is deducted FROM the requested amount, not added
+      // User requests 500 XLM, receives 499.99999 XLM (minus fee)
       const networkFee = 0.00001; // Stellar network fee
-      const totalAmount = amount + networkFee;
-
-      if (wallet.balance < totalAmount) {
-        return {
-          success: false,
-          message: 'Insufficient balance to cover network fee',
-        };
-      }
+      const totalAmount = amount; // Total deducted from wallet = amount (fee is taken from this)
 
       // Create withdrawal request
       const { data: request, error } = await supabase
@@ -296,11 +290,22 @@ class WalletService {
           amount,
           stellar_address: stellarAddress,
           network_fee: networkFee,
-          total_amount: totalAmount,
+          total_amount: totalAmount, // Same as amount - fee comes from it
         })
         .select()
         .single();
       if (error) throw error;
+
+      // Create pending transaction record for history
+      await supabase
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          type: 'withdrawal',
+          amount: -amount, // Negative for withdrawal
+          status: 'pending',
+          stellar_transaction_id: null, // Will be updated when processed
+        });
 
       // Verify balance was deducted (should be handled by DB trigger)
       // Re-check wallet balance to confirm deduction
