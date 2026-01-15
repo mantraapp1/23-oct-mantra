@@ -397,7 +397,9 @@ export async function createEarningTransaction(
 }
 
 /**
- * Create withdrawal transaction
+ * Complete withdrawal transaction - UPDATE existing pending transaction
+ * When user requests withdrawal, a pending transaction is created in the app.
+ * When backend processes it, we UPDATE that transaction to 'successful'.
  */
 export async function createWithdrawalTransaction(
     userId: string,
@@ -405,17 +407,52 @@ export async function createWithdrawalTransaction(
     stellarTransactionId: string
 ): Promise<Transaction> {
     // Check for duplicate by stellar transaction ID
-    const { data: existing } = await supabase
+    const { data: existingByTxId } = await supabase
         .from('transactions')
         .select('*')
         .eq('stellar_transaction_id', stellarTransactionId)
         .maybeSingle();
 
-    if (existing) {
+    if (existingByTxId) {
         log(LogLevel.WARN, 'Duplicate withdrawal transaction', { stellarTransactionId });
-        return existing;
+        return existingByTxId;
     }
 
+    // Find existing PENDING withdrawal transaction to update
+    const { data: pendingTx } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('type', 'withdrawal')
+        .eq('status', 'pending')
+        .eq('amount', amount)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (pendingTx) {
+        // UPDATE existing pending transaction to completed
+        const { data: updatedTx, error: updateError } = await supabase
+            .from('transactions')
+            .update({
+                status: 'successful',
+                stellar_transaction_id: stellarTransactionId,
+                completed_at: new Date().toISOString(),
+            })
+            .eq('id', pendingTx.id)
+            .select()
+            .single();
+
+        if (updateError) {
+            log(LogLevel.ERROR, 'Failed to update withdrawal transaction', { userId, error: updateError.message });
+            throw new Error(`Failed to update transaction: ${updateError.message}`);
+        }
+
+        log(LogLevel.INFO, 'Updated pending withdrawal to completed', { userId, amount, stellarTransactionId });
+        return updatedTx;
+    }
+
+    // No pending transaction found - create new one (fallback)
     const { data, error } = await supabase
         .from('transactions')
         .insert({
