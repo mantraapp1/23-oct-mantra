@@ -54,7 +54,8 @@ import {
 } from '../../lib/types';
 
 // Configuration (free tier friendly)
-const MIN_ADMIN_BALANCE = 2; // Keep 2 XLM for fees and account minimum
+// Note: Stellar transaction fees (~0.00001 XLM per tx) are paid from the distribution amount
+const MIN_ADMIN_BALANCE = 2; // Keep 2 XLM to keep wallet active
 const MAX_AUTHORS_PER_RUN = 50; // Limit to stay under 10s timeout
 const MAX_WITHDRAWALS_PER_RUN = 5; // Limit to stay under 10s timeout
 
