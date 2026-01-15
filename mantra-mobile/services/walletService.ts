@@ -297,12 +297,13 @@ class WalletService {
       if (error) throw error;
 
       // Create pending transaction record for history
+      // Store amount as positive - display handles sign based on type
       await supabase
         .from('transactions')
         .insert({
           user_id: userId,
           type: 'withdrawal',
-          amount: -amount, // Negative for withdrawal
+          amount: amount, // Positive - display will show as negative for withdrawals
           status: 'pending',
           stellar_transaction_id: null, // Will be updated when processed
         });
