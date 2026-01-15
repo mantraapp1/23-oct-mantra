@@ -54,8 +54,7 @@ import {
 } from '../../lib/types';
 
 // Configuration (free tier friendly)
-const XLM_PER_AD_VIEW = parseFloat(process.env.XLM_PER_AD_VIEW || '0.001');
-const MIN_ADMIN_BALANCE = 2; // Keep 2 XLM for fees
+const MIN_ADMIN_BALANCE = 2; // Keep 2 XLM for fees and account minimum
 const MAX_AUTHORS_PER_RUN = 50; // Limit to stay under 10s timeout
 const MAX_WITHDRAWALS_PER_RUN = 5; // Limit to stay under 10s timeout
 
@@ -224,15 +223,13 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         totalAdViews
     });
 
-    // Calculate distributable amount
-    const maxDistributable = Math.max(0, adminBalance - MIN_ADMIN_BALANCE);
-    const rateBased = totalAdViews * XLM_PER_AD_VIEW;
-    const actualDistribution = Math.min(rateBased, maxDistributable);
+    // Calculate distributable amount (100% of balance minus reserve for fees)
+    const distributableBalance = Math.max(0, adminBalance - MIN_ADMIN_BALANCE);
 
-    if (actualDistribution <= 0) {
+    if (distributableBalance <= 0) {
         log(LogLevel.WARN, 'Insufficient admin balance for distribution', {
-            available: maxDistributable,
-            required: rateBased
+            available: distributableBalance,
+            minRequired: MIN_ADMIN_BALANCE
         });
         return {
             totalDistributed: 0,
@@ -242,8 +239,15 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         };
     }
 
-    // Calculate per-view rate
-    const actualRatePerView = actualDistribution / totalAdViews;
+    // Calculate DYNAMIC per-view rate: total balance / total unpaid ads
+    // Rate changes based on how much XLM is deposited
+    const ratePerView = distributableBalance / totalAdViews;
+
+    log(LogLevel.INFO, 'Dynamic rate calculated', {
+        distributableBalance,
+        totalAdViews,
+        ratePerView
+    });
 
     // Process each author
     const distributions: AuthorDistribution[] = [];
@@ -251,7 +255,7 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
 
     for (const [authorId, adViews] of authorEntries) {
         const authorViewCount = adViews.length;
-        const authorShare = authorViewCount * actualRatePerView;
+        const authorShare = authorViewCount * ratePerView;
 
         try {
             // Update wallet (with optimistic locking)
@@ -297,7 +301,7 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
 
     // Log distribution
     const result: DistributionResult = {
-        totalDistributed: successfulDistributions > 0 ? actualDistribution : 0,
+        totalDistributed: successfulDistributions > 0 ? distributableBalance : 0,
         totalAdViews,
         authorCount: successfulDistributions,
         distributions,
@@ -306,14 +310,14 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
     if (successfulDistributions > 0) {
         await logDistribution({
             total_deposited: adminBalance,
-            total_distributed: actualDistribution,
+            total_distributed: distributableBalance,
             total_ad_views: totalAdViews,
             distribution_details: result,
         });
 
         log(LogLevel.INFO, 'Distribution completed', {
             authorCount: successfulDistributions,
-            totalDistributed: actualDistribution,
+            totalDistributed: distributableBalance,
             totalAdViews
         });
     }

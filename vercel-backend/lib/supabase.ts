@@ -598,7 +598,7 @@ export async function getAuthorEarningsStats(authorId: string) {
         unpaidAdViews: unpaidCount || 0,
         paidAdViews: (totalCount || 0) - (unpaidCount || 0),
         totalEarnings: wallet.total_earned,
-        pendingEarnings: (unpaidCount || 0) * parseFloat(process.env.XLM_PER_AD_VIEW || '0.001'),
+        pendingEarnings: 0, // Dynamic rate - calculated at distribution time based on admin wallet balance
         withdrawnAmount: wallet.total_withdrawn,
         currentBalance: wallet.balance,
     };
