@@ -31,7 +31,6 @@ import {
     createWithdrawalTransaction,
     lockWithdrawalForProcessing,
     isWithdrawalProcessed,
-    hasDistributedToday,
     expireChapterUnlocks,
     processExpiredTimers,
     logDistribution,
@@ -177,22 +176,17 @@ export default async function handler(
 
 /**
  * Distribute earnings to authors based on ad views
- * Production features: idempotency, batch limits, optimistic locking
+ * Production features: fair rate calculation, batch limits, optimistic locking
+ * 
+ * CRITICAL: Rate is calculated using ALL pending ads globally, not just processed ones.
+ * This ensures every author gets the same rate per ad view.
  */
 async function distributeEarningsToAuthors(): Promise<DistributionResult> {
-    // Idempotency check: prevent double distribution in same day
-    const alreadyDistributed = await hasDistributedToday();
-    if (alreadyDistributed) {
-        log(LogLevel.INFO, 'Distribution already completed today, skipping');
-        return {
-            totalDistributed: 0,
-            totalAdViews: 0,
-            authorCount: 0,
-            distributions: [],
-        };
-    }
+    // NOTE: Removed hasDistributedToday() check
+    // The ads being marked as 'paid' IS the idempotency guard
+    // This allows retries to process remaining authors if previous run didn't complete all
 
-    // Get unpaid ad views grouped by author
+    // Get ALL unpaid ad views grouped by author (uses pagination internally)
     const adViewsByAuthor = await getUnpaidAdViewsByAuthor();
 
     if (adViewsByAuthor.size === 0) {
@@ -205,26 +199,25 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         };
     }
 
-    // Limit authors per run (free tier timeout protection)
-    const authorEntries = Array.from(adViewsByAuthor.entries()).slice(0, MAX_AUTHORS_PER_RUN);
-
-    // Calculate totals
-    let totalAdViews = 0;
-    for (const [, views] of authorEntries) {
-        totalAdViews += views.length;
+    // CRITICAL: Calculate rate using ALL pending ads for FAIR distribution
+    // This must happen BEFORE any limiting for timeout protection
+    let totalAdViewsGlobal = 0;
+    for (const [, views] of adViewsByAuthor.entries()) {
+        totalAdViewsGlobal += views.length;
     }
 
-    // Check admin wallet balance
+    // Check admin wallet balance BEFORE processing
     const adminBalanceStr = await getAdminBalance();
     const adminBalance = parseFloat(adminBalanceStr);
 
     log(LogLevel.INFO, 'Admin wallet status', {
         balance: adminBalance,
         minRequired: MIN_ADMIN_BALANCE,
-        totalAdViews
+        totalAuthors: adViewsByAuthor.size,
+        totalAdViews: totalAdViewsGlobal
     });
 
-    // Calculate distributable amount (100% of balance minus reserve for fees)
+    // Calculate distributable amount (100% of balance minus reserve for wallet minimum)
     const distributableBalance = Math.max(0, adminBalance - MIN_ADMIN_BALANCE);
 
     if (distributableBalance <= 0) {
@@ -234,20 +227,38 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         });
         return {
             totalDistributed: 0,
-            totalAdViews,
+            totalAdViews: totalAdViewsGlobal,
             authorCount: adViewsByAuthor.size,
             distributions: [],
         };
     }
 
-    // Calculate DYNAMIC per-view rate: total balance / total unpaid ads
-    // Rate changes based on how much XLM is deposited
-    const ratePerView = distributableBalance / totalAdViews;
+    // Calculate GLOBAL rate: pool / ALL pending ads
+    // EVERY author gets this SAME rate - fair distribution
+    const ratePerView = distributableBalance / totalAdViewsGlobal;
 
-    log(LogLevel.INFO, 'Dynamic rate calculated', {
+    log(LogLevel.INFO, 'Global rate calculated (fair distribution)', {
         distributableBalance,
-        totalAdViews,
-        ratePerView
+        totalAdViewsGlobal,
+        ratePerView,
+        totalAuthors: adViewsByAuthor.size
+    });
+
+    // Limit authors per run for Vercel 10s timeout protection
+    // But rate was already calculated globally, so this is fair
+    const authorEntries = Array.from(adViewsByAuthor.entries()).slice(0, MAX_AUTHORS_PER_RUN);
+
+    // Count ads in this batch
+    let adViewsThisBatch = 0;
+    for (const [, views] of authorEntries) {
+        adViewsThisBatch += views.length;
+    }
+
+    log(LogLevel.INFO, 'Processing batch', {
+        authorsInBatch: authorEntries.length,
+        totalAuthors: adViewsByAuthor.size,
+        adsInBatch: adViewsThisBatch,
+        totalAds: totalAdViewsGlobal
     });
 
     // Process each author
@@ -314,7 +325,7 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
     // Log distribution
     const result: DistributionResult = {
         totalDistributed: successfulDistributions > 0 ? distributableBalance : 0,
-        totalAdViews,
+        totalAdViews: totalAdViewsGlobal,
         authorCount: successfulDistributions,
         distributions,
     };
@@ -323,14 +334,14 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         await logDistribution({
             total_deposited: adminBalance,
             total_distributed: distributableBalance,
-            total_ad_views: totalAdViews,
+            total_ad_views: totalAdViewsGlobal,
             distribution_details: result,
         });
 
         log(LogLevel.INFO, 'Distribution completed', {
             authorCount: successfulDistributions,
             totalDistributed: distributableBalance,
-            totalAdViews
+            totalAdViews: totalAdViewsGlobal
         });
     }
 

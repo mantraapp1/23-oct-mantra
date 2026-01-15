@@ -131,29 +131,47 @@ export async function hasPendingWithdrawal(userId: string): Promise<boolean> {
 
 /**
  * Get unpaid ad views grouped by author
+ * Uses pagination to fetch ALL records (bypasses Supabase default 1000 limit)
  */
 export async function getUnpaidAdViewsByAuthor(): Promise<Map<string, AdViewRecord[]>> {
-    const { data, error } = await supabase
-        .from('ads_view_records')
-        .select('*')
-        .eq('payment_status', 'pending')
-        .order('viewed_at', { ascending: true });
+    const allRecords: AdViewRecord[] = [];
+    const PAGE_SIZE = 1000;
+    let offset = 0;
+    let hasMore = true;
 
-    if (error) {
-        log(LogLevel.ERROR, 'Failed to fetch ad views', { error: error.message });
-        throw new Error(`Failed to fetch ad views: ${error.message}`);
+    // Paginate to get ALL unpaid ad views
+    while (hasMore) {
+        const { data, error } = await supabase
+            .from('ads_view_records')
+            .select('*')
+            .eq('payment_status', 'pending')
+            .order('viewed_at', { ascending: true })
+            .range(offset, offset + PAGE_SIZE - 1);
+
+        if (error) {
+            log(LogLevel.ERROR, 'Failed to fetch ad views', { error: error.message, offset });
+            throw new Error(`Failed to fetch ad views: ${error.message}`);
+        }
+
+        if (data && data.length > 0) {
+            allRecords.push(...data);
+            offset += data.length;
+            hasMore = data.length === PAGE_SIZE; // More pages if we got full page
+        } else {
+            hasMore = false;
+        }
     }
 
     // Group by author_id
     const grouped = new Map<string, AdViewRecord[]>();
-    for (const record of data || []) {
+    for (const record of allRecords) {
         const existing = grouped.get(record.author_id) || [];
         existing.push(record);
         grouped.set(record.author_id, existing);
     }
 
     log(LogLevel.INFO, 'Fetched unpaid ad views', {
-        totalRecords: data?.length || 0,
+        totalRecords: allRecords.length,
         authorCount: grouped.size
     });
 
