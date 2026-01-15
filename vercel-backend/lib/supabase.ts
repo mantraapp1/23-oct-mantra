@@ -162,32 +162,46 @@ export async function getUnpaidAdViewsByAuthor(): Promise<Map<string, AdViewReco
 
 /**
  * Mark ad views as paid with idempotency check
+ * Uses batching to avoid Supabase's .in() limit
  */
 export async function markAdViewsAsPaid(adViewIds: string[]): Promise<number> {
     if (adViewIds.length === 0) return 0;
 
-    const { data, error } = await supabase
-        .from('ads_view_records')
-        .update({
-            payment_status: 'paid',
-            paid_at: new Date().toISOString(),
-        })
-        .in('id', adViewIds)
-        .eq('payment_status', 'pending') // Only update if still pending (idempotent)
-        .select();
+    // Supabase .in() has a limit, batch in chunks of 100
+    const BATCH_SIZE = 100;
+    let totalUpdated = 0;
 
-    if (error) {
-        log(LogLevel.ERROR, 'Failed to mark ad views as paid', { error: error.message });
-        throw new Error(`Failed to mark ad views as paid: ${error.message}`);
+    for (let i = 0; i < adViewIds.length; i += BATCH_SIZE) {
+        const batch = adViewIds.slice(i, i + BATCH_SIZE);
+
+        const { data, error } = await supabase
+            .from('ads_view_records')
+            .update({
+                payment_status: 'paid',
+                paid_at: new Date().toISOString(),
+            })
+            .in('id', batch)
+            .eq('payment_status', 'pending') // Only update if still pending (idempotent)
+            .select();
+
+        if (error) {
+            log(LogLevel.ERROR, 'Failed to mark ad views as paid', {
+                error: error.message,
+                batchStart: i,
+                batchSize: batch.length
+            });
+            throw new Error(`Failed to mark ad views as paid: ${error.message}`);
+        }
+
+        totalUpdated += data?.length || 0;
     }
 
-    const updatedCount = data?.length || 0;
     log(LogLevel.INFO, 'Marked ad views as paid', {
         requested: adViewIds.length,
-        updated: updatedCount
+        updated: totalUpdated
     });
 
-    return updatedCount;
+    return totalUpdated;
 }
 
 // =========================================================
