@@ -257,12 +257,23 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
     for (const [authorId, adViews] of authorEntries) {
         const authorViewCount = adViews.length;
         const authorShare = authorViewCount * ratePerView;
+        const adViewIds = adViews.map(v => v.id);
 
         try {
-            // Update wallet (with optimistic locking)
+            // CRITICAL: Mark ads as paid FIRST to prevent double-payment on retry
+            // This is the idempotency guard - if this succeeds, ads can't be reprocessed
+            const markedCount = await markAdViewsAsPaid(adViewIds);
+
+            if (markedCount === 0) {
+                // All ads were already paid (possible duplicate run)
+                log(LogLevel.WARN, 'Skipping author - all ads already paid', { authorId });
+                continue;
+            }
+
+            // Now safe to credit wallet (ads are already marked as paid)
             await updateWalletBalance(authorId, authorShare, authorViewCount);
 
-            // Create transaction record (with duplicate check)
+            // Create transaction record (with duplicate check using idempotency key)
             await createEarningTransaction(
                 authorId,
                 authorShare,
@@ -271,12 +282,12 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
                 `dist_${new Date().toISOString().split('T')[0]}_${authorId}` // Idempotency key
             );
 
-            // Mark ad views as paid (idempotent)
-            const adViewIds = adViews.map(v => v.id);
-            await markAdViewsAsPaid(adViewIds);
-
-            // Send notification
-            await notifyAuthorEarnings(authorId, authorShare, authorViewCount);
+            // Send notification (non-critical, can fail)
+            try {
+                await notifyAuthorEarnings(authorId, authorShare, authorViewCount);
+            } catch (notifError) {
+                log(LogLevel.WARN, 'Notification failed but distribution succeeded', { authorId });
+            }
 
             distributions.push({
                 authorId,
