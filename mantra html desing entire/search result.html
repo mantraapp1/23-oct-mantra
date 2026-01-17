@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - Search Results</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+      <div class="px-4 py-3 flex items-center gap-2">
+        <button class="p-2 rounded-lg hover:bg-slate-100 active:scale-95"><i data-lucide="arrow-left" class="w-5 h-5 text-slate-600"></i></button>
+        <div class="relative flex-1">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input id="search-input" class="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="Search novels, authors, tags" value="fantasy">
+        </div>
+        <button class="text-sm text-sky-600 font-semibold">Search</button>
+      </div>
+      <div class="px-4 pb-3 flex gap-2 overflow-x-auto" style="scrollbar-width:none;">
+        <button class="filter-btn px-3 py-1.5 rounded-full bg-sky-500 text-white text-xs font-semibold" data-filter="all">All</button>
+        <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs font-semibold text-slate-700 bg-white" data-filter="novels">Novels</button>
+        <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs font-semibold text-slate-700 bg-white" data-filter="authors">Authors</button>
+        <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs font-semibold text-slate-700 bg-white" data-filter="genres">Genres</button>
+        <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs font-semibold text-slate-700 bg-white" data-filter="tags">Tags</button>
+      </div>
+    </div>
+    
+    <div class="px-4 pt-4 pb-24">
+      <div class="text-xs text-slate-500 mb-4">
+        Found <span class="font-semibold text-slate-700">147 results</span> for "fantasy"
+      </div>
+      
+      <!-- All Results (Mixed) -->
+      <div id="all-results" class="space-y-3">
+        <!-- Novel -->
+        <div class="result-item novel-item flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1472289065668e+12-ce650ac443d2?q=80&w=200&auto=format&fit=crop" class="h-20 w-16 rounded-lg object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">Echoes of Dawn</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Fantasy · 4.8★ · 1.2M views · 45k votes</div>
+            <p class="text-xs text-slate-600 mt-1 line-clamp-2">When the sun rises on a fractured world, only the echoes of the past can guide the future...</p>
+          </div>
+        </div>
+        
+        <!-- Author -->
+        <div class="result-item author-item flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1544005313e+09-94ddf0286df2?q=80&w=200&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Sarah Mitchell</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">@sarahmitchell · 12 novels · 2.4M followers</div>
+          </div>
+          <button class="follow-btn px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold">Follow</button>
+        </div>
+        
+        <!-- Novel -->
+        <div class="result-item novel-item flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1516979187457e+12-637abb4f9353?q=80&w=200&auto=format&fit=crop" class="h-20 w-16 rounded-lg object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">The Last Chronicle</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Fantasy · 4.6★ · 890K views · 32k votes</div>
+            <p class="text-xs text-slate-600 mt-1 line-clamp-2">A journey through time and space to uncover the truth behind ancient legends...</p>
+          </div>
+        </div>
+        
+        <!-- Novel -->
+        <div class="result-item novel-item flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" class="h-20 w-16 rounded-lg object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">Realm of Shadows</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Fantasy · 4.7★ · 650K views · 28k votes</div>
+            <p class="text-xs text-slate-600 mt-1 line-clamp-2">In a world where magic is forbidden, one girl must embrace her destiny...</p>
+          </div>
+        </div>
+        
+        <!-- Author -->
+        <div class="result-item author-item flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1500648767791e+12-00dcc994a43e?q=80&w=200&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">James Anderson</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">@jamesanderson · 8 novels · 1.8M followers</div>
+          </div>
+          <button class="follow-btn px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold">Following</button>
+        </div>
+        
+        <!-- Novel -->
+        <div class="result-item novel-item flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=200&auto=format&fit=crop" class="h-20 w-16 rounded-lg object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">Dragon's Ascent</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Fantasy · 4.9★ · 2.1M views · 67k votes</div>
+            <p class="text-xs text-slate-600 mt-1 line-clamp-2">From a humble village to the throne of dragons, witness an epic transformation...</p>
+          </div>
+        </div>
+        
+        <!-- Author -->
+        <div class="result-item author-item flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1438761681033e+12-6461ffad8d80?q=80&w=200&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Emma Rodriguez</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">@emmarodriguez · 15 novels · 3.1M followers</div>
+          </div>
+          <button class="follow-btn px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold">Follow</button>
+        </div>
+        
+        <!-- Novel -->
+        <div class="result-item novel-item flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=200&auto=format&fit=crop" class="h-20 w-16 rounded-lg object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">Starborn Legacy</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Fantasy · 4.5★ · 780K views · 34k votes</div>
+            <p class="text-xs text-slate-600 mt-1 line-clamp-2">Born under a celestial alignment, destiny calls for a hero to rise...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    lucide.createIcons();
+    
+    // Follow button styles
+    const followStyles = ['bg-sky-500', 'text-white'];
+    const followingStyles = ['border', 'border-slate-200'];
+    
+    // Follow/Following Button Toggle
+    document.querySelectorAll('.follow-btn').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (button.textContent.trim() === 'Follow') {
+          button.textContent = 'Following';
+          button.classList.remove(...followStyles);
+          button.classList.add(...followingStyles);
+        } else {
+          button.textContent = 'Follow';
+          button.classList.remove(...followingStyles);
+          button.classList.add(...followStyles);
+        }
+      });
+    });
+    
+    // Filter functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Remove active state from all buttons
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('bg-sky-500', 'text-white');
+          b.classList.add('border', 'border-slate-200', 'text-slate-700', 'bg-white');
+        });
+        
+        // Add active state to clicked button
+        this.classList.remove('border', 'border-slate-200', 'text-slate-700', 'bg-white');
+        this.classList.add('bg-sky-500', 'text-white');
+        
+        // Show/hide items based on filter
+        const filter = this.getAttribute('data-filter');
+        const novelItems = document.querySelectorAll('.novel-item');
+        const authorItems = document.querySelectorAll('.author-item');
+        
+        if (filter === 'all') {
+          novelItems.forEach(item => item.style.display = 'flex');
+          authorItems.forEach(item => item.style.display = 'flex');
+        } else if (filter === 'novels') {
+          novelItems.forEach(item => item.style.display = 'flex');
+          authorItems.forEach(item => item.style.display = 'none');
+        } else if (filter === 'authors') {
+          novelItems.forEach(item => item.style.display = 'none');
+          authorItems.forEach(item => item.style.display = 'flex');
+        } else {
+          // For genres and tags, hide all (you can customize this)
+          novelItems.forEach(item => item.style.display = 'none');
+          authorItems.forEach(item => item.style.display = 'none');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

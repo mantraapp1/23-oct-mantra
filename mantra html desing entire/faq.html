@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - FAQ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <!-- FAQ Screen -->
+    <section class="min-h-screen">
+      <!-- Header -->
+      <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+        <div class="px-4 py-3 flex items-center gap-2">
+          <button class="p-2 rounded-lg hover:bg-slate-100 active:scale-95" onclick="history.back()">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-600"></i>
+          </button>
+          <div class="text-base font-semibold">Frequently Asked Questions</div>
+        </div>
+      </div>
+
+      <div class="px-4 pt-4 pb-24 space-y-4">
+        <!-- Search Bar -->
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input id="faq-search" type="text" class="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="Search FAQs..." oninput="searchFAQs(this.value)">
+        </div>
+
+        <!-- FAQ Categories -->
+        <div class="flex gap-2 overflow-x-auto" style="scrollbar-width: none;">
+          <button onclick="filterCategory('all')" class="category-btn px-3 py-1.5 rounded-full bg-sky-500 text-white text-xs font-semibold" data-category="all">All</button>
+          <button onclick="filterCategory('account')" class="category-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-category="account">Account</button>
+          <button onclick="filterCategory('reading')" class="category-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-category="reading">Reading</button>
+          <button onclick="filterCategory('writing')" class="category-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-category="writing">Writing</button>
+          <button onclick="filterCategory('earnings')" class="category-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-category="earnings">Earnings</button>
+          <button onclick="filterCategory('technical')" class="category-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-category="technical">Technical</button>
+        </div>
+
+        <!-- FAQ Items Container -->
+        <div id="faq-container" class="space-y-2">
+          <!-- Account Category -->
+          <div class="faq-item" data-category="account" data-keywords="account create sign up register">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I create an account?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Click on "Sign Up" on the login screen, enter your username, email, and password, then verify your email with the code sent to you. Once verified, you can set up your profile and start reading!
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="account" data-keywords="password reset forgot change">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I reset my password?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                On the login screen, click "Forgot?" next to the password field. Enter your email address, and we'll send you a reset link. Follow the instructions in the email to set a new password.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="account" data-keywords="delete account remove close">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Can I delete my account?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Yes. Go to Settings → Account → Delete Account. Please note that this action is permanent and cannot be undone. All your data, including your library and reading history, will be permanently deleted.
+              </div>
+            </button>
+          </div>
+
+          <!-- Reading Category -->
+          <div class="faq-item" data-category="reading" data-keywords="bookmark save library add button">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I add novels to my library?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                On any novel detail page, tap the "Library" button below the cover image. The novel will be added to your library and you can access it anytime from the Library tab in the bottom navigation.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="reading" data-keywords="ads advertisements why">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Why do I see ads while reading?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Ads help support our writers! All novels on Mantra are free to read. When you view ads, the revenue is distributed directly to the authors whose novels you're reading. This keeps the platform free while fairly compensating writers.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="reading" data-keywords="font size theme change customize settings">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I change reading settings?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                While reading a chapter, you'll see reading controls at the top. You can adjust font size, font family, line spacing, brightness, and choose between Light, Sepia, or Dark themes.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="reading" data-keywords="notifications updates new chapter">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I get notified about new chapters?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Add the novel to your library and enable notifications in Settings → Preferences. You'll receive alerts whenever a new chapter is published for novels in your library.
+              </div>
+            </button>
+          </div>
+
+          <!-- Writing Category -->
+          <div class="faq-item" data-category="writing" data-keywords="publish write author novel create">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I publish my own novel?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Go to Profile → Author Dashboard → + Novel. Fill in your novel's title, synopsis, select genres, and upload a cover image. Once created, you can start adding chapters. Your novel will be visible to readers immediately after publishing your first chapter.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="writing" data-keywords="edit chapter update change">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Can I edit chapters after publishing?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Yes! Go to Author Dashboard → Your Novel → Edit, then select the chapter you want to edit. Make your changes and save. Readers will see the updated version immediately.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="writing" data-keywords="cover image guidelines requirements">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">What are the cover image requirements?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Cover images should be at least 800x1200 pixels (2:3 ratio), under 5MB, in JPG or PNG format. The image must be appropriate and not infringe on any copyrights.
+              </div>
+            </button>
+          </div>
+
+          <!-- Earnings Category -->
+          <div class="faq-item" data-category="earnings" data-keywords="earnings money monetize revenue ads">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do authors earn money on Mantra?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Authors earn when readers view ads while reading their novels. All ad revenue is distributed among writers based on how many ads readers watch on their content. The more readers engage with your novel, the more you earn!
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="earnings" data-keywords="stellar xlm cryptocurrency crypto">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">What is Stellar (XLM)? Why cryptocurrency?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Stellar (XLM) is a cryptocurrency that enables fast, low-cost international payments. We use Stellar to pay authors because it's instant, has minimal fees, and works globally—perfect for our international community of writers.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="earnings" data-keywords="payment calculate distribution how much">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How are earnings calculated?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Earnings are based on ad views on your novel. Each ad view generates revenue that's credited to your account in Stellar (XLM). You can track your ad views and earnings in real-time on your Author Dashboard.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="earnings" data-keywords="withdraw payout cash stellar xlm">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I withdraw my Stellar (XLM) earnings?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Go to Wallet → Withdraw. You'll need a Stellar wallet address to receive payments. You can create a free Stellar wallet using services like Lobstr, Solar Wallet, or any Stellar-compatible wallet. Enter your wallet address and withdraw your XLM instantly.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="earnings" data-keywords="minimum withdraw threshold amount">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Is there a minimum withdrawal amount?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Yes, the minimum withdrawal is 10 XLM to cover network fees. Once you reach this threshold, you can withdraw anytime. There are no withdrawal limits or fees charged by Mantra.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="earnings" data-keywords="wallet stellar xlm setup create">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">How do I set up a Stellar wallet?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Download a Stellar wallet app like Lobstr or Solar Wallet from your app store. Create an account and securely save your recovery phrase. Once set up, copy your Stellar address (starts with 'G') and add it to your Mantra wallet settings.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="earnings" data-keywords="convert stellar xlm cash fiat money">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Can I convert Stellar (XLM) to regular money?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Yes! You can convert XLM to your local currency using cryptocurrency exchanges like Binance, Coinbase, or Kraken. Transfer your XLM from your Stellar wallet to the exchange, sell it, and withdraw to your bank account.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="earnings" data-keywords="free reading cost pay">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Is reading completely free?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Yes! All novels on Mantra are 100% free to read. There are no premium chapters, coins, or subscriptions. Readers only watch ads, and that's how we support our authors. Everyone wins!
+              </div>
+            </button>
+          </div>
+
+          <!-- Technical Category -->
+          <div class="faq-item" data-category="technical" data-keywords="app crash freeze bug error">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">The app keeps crashing. What should I do?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Try these steps: 1) Force close and restart the app 2) Clear app cache in Settings 3) Update to the latest version 4) Restart your device 5) Reinstall the app. If issues persist, contact support with your device model and OS version.
+              </div>
+            </button>
+          </div>
+
+       <div class="faq-item" data-category="technical" data-keywords="loading slow performance speed">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Why is the app loading slowly?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Slow loading can be due to poor internet connection, server issues, or too much cached data. Check your connection, clear the app cache in Settings, or try switching between WiFi and mobile data.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="technical" data-keywords="sync data backup restore">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">Will my data sync across devices?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Yes! Your library, reading progress, bookmarks, and preferences automatically sync across all devices when you're logged in with the same account.
+              </div>
+            </button>
+          </div>
+
+          <div class="faq-item" data-category="technical" data-keywords="notification not working push">
+            <button onclick="toggleFAQ(this)" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold pr-2">I'm not receiving notifications. Why?</div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transform transition-transform"></i>
+              </div>
+              <div class="faq-answer hidden mt-2 text-xs text-slate-600">
+                Check: 1) Notifications are enabled in-app (Settings → Preferences) 2) App has notification permissions in your device settings 3) Battery saver isn't blocking notifications. Re-enable if needed.
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="no-results" class="hidden text-center py-8">
+          <i data-lucide="search-x" class="w-12 h-12 mx-auto text-slate-300 mb-2"></i>
+          <div class="text-sm font-semibold text-slate-700">No results found</div>
+          <div class="text-xs text-slate-500 mt-1">Try different keywords or browse all FAQs</div>
+        </div>
+
+        <!-- Still Need Help -->
+        <div class="mt-6 rounded-xl border border-slate-100 p-4 bg-gradient-to-br from-sky-50 to-purple-50">
+          <div class="flex items-start gap-3">
+            <div class="h-8 w-8 rounded-lg bg-white flex items-center justify-center flex-shrink-0">
+              <i data-lucide="help-circle" class="w-4 h-4 text-sky-600"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold">Still need help?</div>
+              <p class="text-xs text-slate-600 mt-1">
+                Can't find what you're looking for? Our support team is here to help.
+              </p>
+              <button onclick="window.location.href='contact-us.html'" class="mt-2 text-xs text-sky-600 font-semibold hover:text-sky-700">
+                Contact Support →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    function toggleFAQ(button) {
+      const answer = button.querySelector('.faq-answer');
+      const icon = button.querySelector('[data-lucide="chevron-down"]');
+      
+      // Close all other FAQs
+      document.querySelectorAll('.faq-answer').forEach(a => {
+        if (a !== answer) {
+          a.classList.add('hidden');
+          a.parentElement.querySelector('[data-lucide="chevron-down"]').classList.remove('rotate-180');
+        }
+      });
+      
+      // Toggle current FAQ
+      answer.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+      
+      // Reinitialize icons
+      lucide.createIcons();
+    }
+
+    function filterCategory(category) {
+      // Update button styles
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        if (btn.dataset.category === category) {
+          btn.classList.add('bg-sky-500', 'text-white');
+          btn.classList.remove('border', 'border-slate-200');
+        } else {
+          btn.classList.remove('bg-sky-500', 'text-white');
+          btn.classList.add('border', 'border-slate-200');
+        }
+      });
+      
+      // Filter FAQ items
+      const items = document.querySelectorAll('.faq-item');
+      let visibleCount = 0;
+      
+      items.forEach(item => {
+        if (category === 'all' || item.dataset.category === category) {
+          item.style.display = 'block';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      // Show/hide no results message
+      document.getElementById('no-results').classList.toggle('hidden', visibleCount > 0);
+    }
+
+    function searchFAQs(query) {
+      const searchTerm = query.toLowerCase().trim();
+      const items = document.querySelectorAll('.faq-item');
+      let visibleCount = 0;
+      
+      if (searchTerm === '') {
+        // Show all items if search is empty
+        items.forEach(item => {
+          item.style.display = 'block';
+          visibleCount++;
+        });
+      } else {
+        // Filter based on search
+        items.forEach(item => {
+          const question = item.querySelector('.text-sm.font-semibold').textContent.toLowerCase();
+          const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+          const keywords = item.dataset.keywords || '';
+          
+          if (question.includes(searchTerm) || answer.includes(searchTerm) || keywords.includes(searchTerm)) {
+            item.style.display = 'block';
+            visibleCount++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      }
+      
+      // Show/hide no results message
+      document.getElementById('no-results').classList.toggle('hidden', visibleCount > 0);
+      
+      // Reinitialize icons
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

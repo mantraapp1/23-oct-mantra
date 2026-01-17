@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mantra - Header Only</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .motion { transition: none !important; }
+    }
+    /* Optional demo background to see translucency while testing header alone */
+    body { background: linear-gradient(180deg, #f8fafc 0%, #ffffff 40%, #f1f5f9 100%); }
+  </style>
+</head>
+<body class="font-inter antialiased text-slate-800 selection:bg-sky-100 selection:text-sky-900">
+
+  <!-- Header: sticky, glassy, beautiful -->
+  <header id="appHeader"
+          class="sticky top-0 z-50 motion border-b border-slate-200 bg-white/85 supports-[backdrop-filter]:backdrop-blur-md">
+    <!-- iOS notch padding -->
+    <div class="pt-[env(safe-area-inset-top)]"></div>
+
+    <!-- Top bar -->
+    <div class="px-4 py-2.5 flex items-center justify-between gap-3">
+      <!-- Brand -->
+      <a href="/" class="flex items-center gap-2 min-w-0" aria-label="Mantra Home">
+        <img src="assets/Mantra logo.jpeg" alt="Mantra logo"
+             class="w-8 h-8 object-contain rounded-md ring-1 ring-sky-100 shadow-sm" />
+        <span class="font-semibold tracking-tight text-base text-slate-900">Mantra</span>
+      </a>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Search -->
+        <button id="searchBtn"
+                class="w-11 h-11 rounded-full flex items-center justify-center hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-sky-500/50 active:scale-95 transition"
+                aria-label="Search">
+          <i data-lucide="search" class="w-5 h-5 text-slate-700"></i>
+        </button>
+
+        <!-- Notifications -->
+        <button id="notifBtn"
+                class="w-11 h-11 rounded-full flex items-center justify-center hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-sky-500/50 active:scale-95 transition relative"
+                aria-label="Notifications">
+          <i data-lucide="bell" class="w-5 h-5 text-slate-700"></i>
+          <span id="notifDot" class="hidden absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+        </button>
+
+        <!-- Language -->
+        <div class="relative" id="langSelect">
+          <button id="langBtn"
+                  class="flex items-center gap-1.5 px-3 py-2 rounded-full border border-slate-200 bg-white/70 hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-sky-500/50 active:scale-95 transition"
+                  aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+            <i data-lucide="globe" class="w-4 h-4 text-slate-600"></i>
+            <span id="langCode" class="text-xs font-semibold text-slate-700">EN</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500"></i>
+          </button>
+
+          <!-- Dropdown -->
+          <div id="langMenu"
+               class="hidden absolute right-0 top-full mt-2 w-44 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
+            <button class="lang-option w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition font-semibold text-slate-800"
+                    data-lang="EN">English</button>
+            <button class="lang-option w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition text-slate-700"
+                    data-lang="HI">हिन्दी</button>
+            <button class="lang-option w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition text-slate-700"
+                    data-lang="ES">Español</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide-down mini search row -->
+    <div id="searchRow" class="hidden px-4 pb-3">
+      <div class="relative">
+        <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input id="searchField"
+               class="w-full rounded-xl border border-slate-200 pl-10 pr-10 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+               placeholder="Search novels, authors, tags" />
+        <button id="closeSearch"
+                class="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-sky-500/50"
+                aria-label="Close search">
+          <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Optional spacer so you can scroll and see elevation (remove in integration) -->
+  <!-- <div style="height: 100vh"></div> -->
+
+  <script>
+    // Icons
+    lucide.createIcons();
+
+    // Elevation on scroll
+    const headerEl = document.getElementById('appHeader');
+    const onScroll = () => {
+      const scrolled = window.scrollY > 8;
+      headerEl.classList.toggle('shadow-sm', scrolled);
+      headerEl.classList.toggle('bg-white/90', scrolled);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Search interactions
+    const searchBtn = document.getElementById('searchBtn');
+    const searchRow = document.getElementById('searchRow');
+    const searchFld = document.getElementById('searchField');
+    const closeSrch = document.getElementById('closeSearch');
+
+    function openSearch(){ searchRow.classList.remove('hidden'); setTimeout(()=> searchFld?.focus(), 0); }
+    function closeSearch(){ searchRow.classList.add('hidden'); searchFld?.blur(); }
+
+    searchBtn?.addEventListener('click', openSearch);
+    closeSrch?.addEventListener('click', closeSearch);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && !searchRow.classList.contains('hidden')) closeSearch(); });
+    document.addEventListener('click', (e)=>{ if(!headerEl.contains(e.target) && !searchRow.classList.contains('hidden')) closeSearch(); });
+    searchFld?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ /* TODO: navigate or run search */ } });
+
+    // Language dropdown + persistence
+    const langBtn = document.getElementById('langBtn');
+    const langMenu = document.getElementById('langMenu');
+    const langCodeEl = document.getElementById('langCode');
+    const LS_LANG_KEY = 'mantra_lang';
+
+    const savedLang = localStorage.getItem(LS_LANG_KEY);
+    if(savedLang) langCodeEl.textContent = savedLang;
+
+    langBtn?.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      langMenu.classList.toggle('hidden');
+      langBtn.setAttribute('aria-expanded', String(!langMenu.classList.contains('hidden')));
+    });
+
+    document.querySelectorAll('.lang-option').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const lang = btn.dataset.lang || 'EN';
+        langCodeEl.textContent = lang;
+        localStorage.setItem(LS_LANG_KEY, lang);
+        langMenu.classList.add('hidden');
+        langBtn.setAttribute('aria-expanded', 'false');
+        // TODO: apply localization
+      });
+    });
+
+    document.addEventListener('click', (e)=>{
+      if(!document.getElementById('langSelect')?.contains(e.target)){
+        langMenu?.classList.add('hidden');
+        langBtn?.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Notifications dot example (hide after first open)
+    const notifDot = document.getElementById('notifDot');
+    const LS_NOTIF_KEY = 'mantra_notif_seen';
+    if(!localStorage.getItem(LS_NOTIF_KEY)) notifDot.classList.remove('hidden');
+    document.getElementById('notifBtn')?.addEventListener('click', ()=>{
+      notifDot.classList.add('hidden');
+      localStorage.setItem(LS_NOTIF_KEY, '1');
+      // TODO: open notifications sheet
+    });
+  </script>
+</body>
+</html>

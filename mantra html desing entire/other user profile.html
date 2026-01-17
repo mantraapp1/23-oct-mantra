@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>WebNovel - Author Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  .menu-dropdown { display: none; }
+  .menu-dropdown.active { display: block; }
+</style>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <!-- Header -->
+    <div class="px-4 pt-6 pb-4 flex items-center justify-between">
+      <button onclick="window.history.back()" class="p-2 -ml-2 rounded-lg hover:bg-slate-100 active:scale-95 transition-all">
+        <i data-lucide="arrow-left" class="w-6 h-6"></i>
+      </button>
+      <div class="relative">
+        <button onclick="toggleMenu()" class="p-2 -mr-2 rounded-lg hover:bg-slate-100 active:scale-95 transition-all">
+          <i data-lucide="more-vertical" class="w-6 h-6"></i>
+        </button>
+        <div id="menuDropdown" class="menu-dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+          <button onclick="shareProfile()" class="w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 flex items-center gap-3">
+            <i data-lucide="share-2" class="w-4 h-4"></i><span>Share</span>
+          </button>
+          <button onclick="reportProfile()" class="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3">
+            <i data-lucide="flag" class="w-4 h-4"></i><span>Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="px-4 pb-24">
+      <div class="flex flex-col items-center">
+        <img src="https://images.unsplash.com/photo-1.527980965255e+12-d3b416303d12?q=80&w=200&auto=format&fit=crop" alt="" class="h-24 w-24 rounded-full object-cover border-2 border-slate-200" />
+        <div class="mt-4 text-center">
+          <div class="text-xl font-bold">A. L. Winters</div>
+          <div class="text-sm text-slate-500 mt-0.5">@alwinters</div>
+        </div>
+
+        <div class="flex items-center gap-4 mt-4 text-sm">
+          <button onclick="navigateToFollowers()" class="hover:text-sky-500 transition-colors">
+            <span class="font-semibold text-slate-800">152k</span>
+            <span class="text-slate-500 ml-1">followers</span>
+          </button>
+          <button onclick="navigateToFollowing()" class="hover:text-sky-500 transition-colors">
+            <span class="font-semibold text-slate-800">1.2k</span>
+            <span class="text-slate-500 ml-1">following</span>
+          </button>
+          <div>
+            <span class="font-semibold text-slate-800">47</span>
+            <span class="text-slate-500 ml-1">novels</span>
+          </div>
+        </div>
+
+        <!-- Follow button -->
+        <button id="followBtn" class="mt-4 px-6 py-2 rounded-lg bg-sky-500 text-white text-sm font-semibold shadow-sm hover:bg-sky-600 transition-all active:scale-95">
+          Follow
+        </button>
+      </div>
+
+      <p class="mt-6 text-sm text-slate-700 text-center px-4">Crime and mystery author. Writing about secrets, debts, and choices that haunt.</p>
+
+      <div class="mt-6">
+        <div class="text-base font-semibold mb-3">Works</div>
+        <div class="grid grid-cols-2 gap-3">
+
+          <!-- Novel Card 1 -->
+          <div class="relative rounded-xl overflow-hidden shadow-md active:scale-95 transition-transform cursor-pointer" onclick="openNovel('crimson-ledger')">
+            <img src="https://images.unsplash.com/photo-1.529651737248e+12-dad5e287768e?q=80&w=500&auto=format&fit=crop" class="h-48 w-full object-cover" alt="" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-3 text-white">
+              <div class="text-sm font-semibold line-clamp-2 mb-1">Crimson Ledger</div>
+              <div class="text-[11px] text-slate-200">Thriller · Ongoing</div>
+            </div>
+            <!-- bookmark button: event.stopPropagation prevents card click -->
+            <button onclick="event.stopPropagation(); toggleBookmark(this)" class="absolute top-2 right-2 p-2 bg-white/90 rounded-full shadow-md hover:bg-white">
+              <i data-lucide="bookmark" class="w-4 h-4 text-slate-700"></i>
+            </button>
+          </div>
+
+          <!-- Novel Card 2 -->
+          <div class="relative rounded-xl overflow-hidden shadow-md active:scale-95 transition-transform cursor-pointer" onclick="openNovel('night-vault')">
+            <img src="https://images.unsplash.com/photo-1.541963463532e+12-d68292c34b19?q=80&w=500&auto=format&fit=crop" class="h-48 w-full object-cover" alt="" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-3 text-white">
+              <div class="text-sm font-semibold line-clamp-2 mb-1">Night Vault</div>
+              <div class="text-[11px] text-slate-200">Mystery · Completed</div>
+            </div>
+            <button onclick="event.stopPropagation(); toggleBookmark(this)" class="absolute top-2 right-2 p-2 bg-white/90 rounded-full shadow-md hover:bg-white">
+              <i data-lucide="bookmark" class="w-4 h-4 text-slate-700"></i>
+            </button>
+          </div>
+
+          <!-- Novel Card 3 -->
+          <div class="relative rounded-xl overflow-hidden shadow-md active:scale-95 transition-transform cursor-pointer" onclick="openNovel('silent-cipher')">
+            <img src="https://images.unsplash.com/photo-1.621619856624e+12-42fd193a0661?w=1080&q=80" class="h-48 w-full object-cover" alt="" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-3 text-white">
+              <div class="text-sm font-semibold line-clamp-2 mb-1">Silent Cipher</div>
+              <div class="text-[11px] text-slate-200">Thriller · Ongoing</div>
+            </div>
+            <button onclick="event.stopPropagation(); toggleBookmark(this)" class="absolute top-2 right-2 p-2 bg-white/90 rounded-full shadow-md hover:bg-white">
+              <i data-lucide="bookmark" class="w-4 h-4 text-slate-700"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- INITIALIZE ICONS ---------- */
+lucide.createIcons();
+
+/* ---------- MENU ---------- */
+function toggleMenu() {
+  document.getElementById("menuDropdown").classList.toggle("active");
+}
+function shareProfile() { alert("Share profile functionality"); toggleMenu(); }
+function reportProfile() { if (confirm("Are you sure?")) alert("Reported"); toggleMenu(); }
+
+/* ---------- FOLLOW BUTTON (UPDATED) ---------- */
+const followBtn = document.getElementById('followBtn');
+const followStyles = ['bg-sky-500', 'text-white', 'hover:bg-sky-600'];
+const followingStyles = ['border', 'border-slate-200', 'bg-white', 'text-slate-700'];
+
+followBtn.addEventListener('click', function() {
+  if (this.textContent.trim() === 'Follow') {
+    // Change to Following
+    this.textContent = 'Following';
+    this.classList.remove(...followStyles);
+    this.classList.add(...followingStyles);
+  } else {
+    // Change back to Follow
+    this.textContent = 'Follow';
+    this.classList.remove(...followingStyles);
+    this.classList.add(...followStyles);
+  }
+});
+
+/* ---------- BOOKMARK BUTTON (RELIABLE WITH LUICDE) ---------- */
+function toggleBookmark(btn) {
+  // btn: the <button> element (has onclick event that stops propagation)
+  const isBookmarked = btn.classList.contains("bookmarked");
+
+  if (!isBookmarked) {
+    // Add bookmark: set button styles and replace inner icon HTML with bookmark-check
+    btn.classList.add("bookmarked");
+    btn.classList.remove("bg-white/90", "hover:bg-white");
+    btn.classList.add("bg-sky-500", "hover:bg-sky-600");
+    // replace inner HTML with an <i data-lucide="bookmark-check"> so lucide can render SVG
+    // keep the button's onclick attribute intact (we only replace inner content)
+    btn.innerHTML = '<i data-lucide="bookmark-check" class="w-4 h-4 text-white"></i>';
+  } else {
+    // Remove bookmark: reset styles and icon
+    btn.classList.remove("bookmarked");
+    btn.classList.remove("bg-sky-500", "hover:bg-sky-600");
+    btn.classList.add("bg-white/90", "hover:bg-white");
+    btn.innerHTML = '<i data-lucide="bookmark" class="w-4 h-4 text-slate-700"></i>';
+  }
+
+  // Re-create icons (lucide will replace the <i> with an SVG)
+  lucide.createIcons();
+
+  // OPTIONAL: here you can call an API to persist the bookmark (e.g., save to Supabase)
+  // Example: saveBookmarkToServer(novelId, btn.classList.contains('bookmarked'));
+}
+
+/* ---------- NAVIGATION ---------- */
+function navigateToFollowers() { window.location.href = "followers.html"; }
+function navigateToFollowing() { window.location.href = "following.html"; }
+function openNovel(novelId) { window.location.href = `novel-details.html?id=${novelId}`; }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - Toast Messages</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  }
+  
+  .toast-enter {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  .toast-exit {
+    animation: slideOut 0.3s ease-out;
+  }
+</style>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <!-- Demo Screen -->
+    <section class="min-h-screen">
+      <!-- Header -->
+      <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+        <div class="px-4 py-3 flex items-center gap-2">
+          <button class="p-2 rounded-lg hover:bg-slate-100 active:scale-95" onclick="history.back()">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-600"></i>
+          </button>
+          <div class="text-base font-semibold">Toast Messages Demo</div>
+        </div>
+      </div>
+
+      <div class="px-4 pt-4 pb-24 space-y-3">
+        <div class="text-sm font-semibold mb-2">Try different toast types:</div>
+        
+        <button onclick="showToast('success', 'Chapter published successfully!')" class="w-full rounded-xl bg-emerald-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Success Toast
+        </button>
+
+        <button onclick="showToast('error', 'Failed to load chapter. Please try again.')" class="w-full rounded-xl bg-rose-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Error Toast
+        </button>
+
+        <button onclick="showToast('warning', 'Your session will expire in 5 minutes')" class="w-full rounded-xl bg-amber-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Warning Toast
+        </button>
+
+        <button onclick="showToast('info', 'New chapter available for Crimson Ledger')" class="w-full rounded-xl bg-sky-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Info Toast
+        </button>
+
+        <button onclick="showToast('loading', 'Uploading chapter...', 5000)" class="w-full rounded-xl bg-slate-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Loading Toast (5s)
+        </button>
+
+        <div class="mt-6 text-sm font-semibold mb-2">Transaction toasts (matching wallet colors):</div>
+
+        <button onclick="showTransactionToast('successful', '+12.50 XLM', 'Chapter Earnings', 'Crimson Ledger Ch 148')" class="w-full rounded-xl bg-emerald-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Successful Earnings
+        </button>
+
+        <button onclick="showTransactionToast('pending', '-50.00 XLM', 'Withdrawal', 'To Stellar Wallet')" class="w-full rounded-xl bg-amber-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Pending Withdrawal
+        </button>
+
+        <button onclick="showTransactionToast('failed', '-75.00 XLM', 'Withdrawal', 'To Stellar Wallet')" class="w-full rounded-xl bg-rose-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Failed Transaction
+        </button>
+
+        <div class="mt-6 text-sm font-semibold mb-2">With actions:</div>
+
+        <button onclick="showActionToast()" class="w-full rounded-xl bg-sky-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Toast with Action Button
+        </button>
+
+        <button onclick="showUndoToast()" class="w-full rounded-xl bg-sky-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition">
+          Toast with Undo
+        </button>
+
+        <div class="mt-6 text-sm font-semibold mb-2">Real-world examples:</div>
+
+        <button onclick="showToast('success', 'Added to library')" class="w-full rounded-xl border border-slate-200 text-sm font-semibold py-2.5 hover:bg-slate-50 transition">
+          Add to Library
+        </button>
+
+        <button onclick="showToast('success', 'Vote submitted successfully')" class="w-full rounded-xl border border-slate-200 text-sm font-semibold py-2.5 hover:bg-slate-50 transition">
+          Submit Vote
+        </button>
+
+        <button onclick="showToast('error', 'Please log in to continue')" class="w-full rounded-xl border border-slate-200 text-sm font-semibold py-2.5 hover:bg-slate-50 transition">
+          Login Required
+        </button>
+
+        <!-- Usage Instructions -->
+        <div class="mt-8 rounded-xl border border-slate-100 p-4 bg-slate-50">
+          <div class="text-sm font-semibold mb-2">How to use:</div>
+          <div class="text-xs text-slate-600 space-y-2">
+            <p><code class="bg-white px-1.5 py-0.5 rounded border">showToast('success', 'Message')</code></p>
+            <p><code class="bg-white px-1.5 py-0.5 rounded border">showTransactionToast('successful', '+12.50 XLM', 'Title', 'Description')</code></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast Container (Fixed at top) -->
+  <div id="toast-container" class="fixed top-4 left-4 right-4 max-w-md mx-auto z-50 space-y-2">
+    <!-- Toasts will be inserted here -->
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Toast configuration
+    const toastConfig = {
+      success: {
+        icon: 'check-circle',
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-200',
+        iconColor: 'text-emerald-600',
+        textColor: 'text-emerald-900'
+      },
+      error: {
+        icon: 'x-circle',
+        bg: 'bg-rose-50',
+        border: 'border-rose-200',
+        iconColor: 'text-rose-600',
+        textColor: 'text-rose-900'
+      },
+      warning: {
+        icon: 'alert-triangle',
+        bg: 'bg-amber-50',
+        border: 'border-amber-200',
+        iconColor: 'text-amber-600',
+        textColor: 'text-amber-900'
+      },
+      info: {
+        icon: 'info',
+        bg: 'bg-sky-50',
+        border: 'border-sky-200',
+        iconColor: 'text-sky-600',
+        textColor: 'text-sky-900'
+      },
+      loading: {
+        icon: 'loader-2',
+        bg: 'bg-slate-50',
+        border: 'border-slate-200',
+        iconColor: 'text-slate-600',
+        textColor: 'text-slate-900',
+        spin: true
+      }
+    };
+
+    // Show toast function
+    function showToast(type = 'info', message = 'Notification', duration = 3000) {
+      const container = document.getElementById('toast-container');
+      const config = toastConfig[type];
+      const toastId = 'toast-' + Date.now();
+
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.id = toastId;
+      toast.className = `toast-enter rounded-xl border ${config.border} ${config.bg} p-3 shadow-lg`;
+      
+      toast.innerHTML = `
+        <div class="flex items-center gap-3">
+          <i data-lucide="${config.icon}" class="w-5 h-5 ${config.iconColor} flex-shrink-0 ${config.spin ? 'animate-spin' : ''}"></i>
+          <div class="flex-1 text-sm ${config.textColor} font-medium">${message}</div>
+          <button onclick="closeToast('${toastId}')" class="p-1 rounded hover:bg-black/5 transition">
+            <i data-lucide="x" class="w-4 h-4 ${config.iconColor}"></i>
+          </button>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      // Auto close after duration
+      if (duration > 0) {
+        setTimeout(() => {
+          closeToast(toastId);
+        }, duration);
+      }
+
+      return toastId;
+    }
+
+    // Show transaction toast (matching wallet design with SOLID backgrounds)
+    function showTransactionToast(status, amount, title, subtitle, duration = 4000) {
+      const container = document.getElementById('toast-container');
+      const toastId = 'toast-' + Date.now();
+
+      let icon, iconBg, bgClass, borderClass, iconColorClass, textColorClass, statusIcon;
+
+      switch(status) {
+        case 'successful':
+          icon = 'trending-up';
+          iconBg = 'bg-emerald-50';
+          bgClass = 'bg-emerald-50'; // SOLID
+          borderClass = 'border-emerald-200';
+          iconColorClass = 'text-emerald-600';
+          textColorClass = 'text-emerald-900';
+          statusIcon = 'check-circle';
+          break;
+        case 'pending':
+          icon = 'arrow-down-right';
+          iconBg = 'bg-amber-100';
+          bgClass = 'bg-amber-50'; // SOLID
+          borderClass = 'border-amber-200';
+          iconColorClass = 'text-amber-600';
+          textColorClass = 'text-amber-900';
+          statusIcon = 'clock';
+          break;
+        case 'failed':
+          icon = 'arrow-down-right';
+          iconBg = 'bg-rose-100';
+          bgClass = 'bg-rose-50'; // SOLID
+          borderClass = 'border-rose-200';
+          iconColorClass = 'text-rose-600';
+          textColorClass = 'text-rose-900';
+          statusIcon = 'x-circle';
+          break;
+        default:
+          icon = 'dollar-sign';
+          iconBg = 'bg-sky-50';
+          bgClass = 'bg-sky-50';
+          borderClass = 'border-sky-200';
+          iconColorClass = 'text-sky-600';
+          textColorClass = 'text-sky-900';
+          statusIcon = 'info';
+      }
+
+      const toast = document.createElement('div');
+      toast.id = toastId;
+      toast.className = `toast-enter rounded-xl border ${borderClass} ${bgClass} p-3 shadow-lg`;
+      
+      toast.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0">
+            <i data-lucide="${icon}" class="w-4 h-4 ${iconColorClass}"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-sm font-semibold ${textColorClass}">${title}</div>
+            <div class="text-[11px] text-slate-500">${subtitle}</div>
+            <div class="flex items-center gap-1 mt-0.5">
+              <i data-lucide="${statusIcon}" class="w-3 h-3 ${iconColorClass}"></i>
+              <span class="text-[10px] ${iconColorClass} font-semibold capitalize">${status}</span>
+            </div>
+          </div>
+          <div class="text-sm font-semibold ${iconColorClass}">${amount}</div>
+          <button onclick="closeToast('${toastId}')" class="p-1 rounded hover:bg-black/5 transition ml-1">
+            <i data-lucide="x" class="w-4 h-4 ${iconColorClass}"></i>
+          </button>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        closeToast(toastId);
+      }, duration);
+    }
+
+    // Show toast with action button
+    function showActionToast() {
+      const container = document.getElementById('toast-container');
+      const toastId = 'toast-' + Date.now();
+
+      const toast = document.createElement('div');
+      toast.id = toastId;
+      toast.className = 'toast-enter rounded-xl border border-sky-200 bg-sky-50 p-3 shadow-lg';
+      
+      toast.innerHTML = `
+        <div class="flex items-center gap-3">
+          <i data-lucide="bell" class="w-5 h-5 text-sky-600 flex-shrink-0"></i>
+          <div class="flex-1">
+            <div class="text-sm text-sky-900 font-medium">New chapter available</div>
+            <button onclick="alert('Opening chapter...'); closeToast('${toastId}')" class="text-xs text-sky-600 font-semibold hover:text-sky-700 mt-1">
+              Read Now →
+            </button>
+          </div>
+          <button onclick="closeToast('${toastId}')" class="p-1 rounded hover:bg-black/5 transition">
+            <i data-lucide="x" class="w-4 h-4 text-sky-600"></i>
+          </button>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        closeToast(toastId);
+      }, 5000);
+    }
+
+    // Show toast with undo
+    function showUndoToast() {
+      const container = document.getElementById('toast-container');
+      const toastId = 'toast-' + Date.now();
+
+      const toast = document.createElement('div');
+      toast.id = toastId;
+      toast.className = 'toast-enter rounded-xl border border-slate-700 bg-slate-900 p-3 shadow-lg';
+      
+      toast.innerHTML = `
+        <div class="flex items-center gap-3">
+          <i data-lucide="trash-2" class="w-5 h-5 text-white flex-shrink-0"></i>
+          <div class="flex-1 text-sm text-white font-medium">Novel removed from library</div>
+          <button onclick="alert('Undo action'); closeToast('${toastId}')" class="text-xs text-sky-400 font-semibold hover:text-sky-300 px-2 py-1 transition">
+            UNDO
+          </button>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        closeToast(toastId);
+      }, 4000);
+    }
+
+    // Close toast function
+    function closeToast(toastId) {
+      const toast = document.getElementById(toastId);
+      if (toast) {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-exit');
+        
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }
+    }
+
+    // Example: Show welcome toast on load
+    setTimeout(() => {
+      showToast('info', 'Welcome to the toast demo! Click buttons to try different types.', 4000);
+    }, 500);
+  </script>
+</body>
+</html>

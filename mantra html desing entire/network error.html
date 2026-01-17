@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - Network Error</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <!-- Network Error Screen -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-4">
+      <div class="text-center">
+        <!-- Error Icon -->
+        <div class="mx-auto w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center mb-6">
+          <i data-lucide="wifi-off" class="w-12 h-12 text-slate-400"></i>
+        </div>
+
+        <!-- Error Message -->
+        <h1 class="text-xl font-semibold tracking-tight text-slate-900 mb-2">No Internet Connection</h1>
+        <p class="text-sm text-slate-500 mb-8 max-w-xs mx-auto">
+          Please check your network settings and try again.
+        </p>
+
+        <!-- Retry Button -->
+        <button onclick="retryConnection()" class="w-full max-w-xs mx-auto rounded-xl bg-sky-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95 transition flex items-center justify-center gap-2">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          Retry
+        </button>
+
+       
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Retry connection function
+    function retryConnection() {
+      // Show loading state
+      const button = document.querySelector('button[onclick="retryConnection()"]');
+      const originalContent = button.innerHTML;
+      button.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Connecting...';
+      button.disabled = true;
+      lucide.createIcons();
+
+      // Simulate checking connection
+      setTimeout(() => {
+        // Check if online
+        if (navigator.onLine) {
+          // Success - redirect to home or reload
+          window.location.href = 'index.html'; // or location.reload()
+        } else {
+          // Still offline - reset button
+          button.innerHTML = originalContent;
+          button.disabled = false;
+          lucide.createIcons();
+          
+          // Show error feedback
+          showErrorFeedback();
+        }
+      }, 1500);
+    }
+
+    function showErrorFeedback() {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'fixed top-4 left-4 right-4 max-w-md mx-auto bg-rose-50 border border-rose-200 rounded-xl p-3 shadow-lg animate-fade-in';
+      errorDiv.innerHTML = `
+        <div class="flex items-center gap-2">
+          <i data-lucide="wifi-off" class="w-4 h-4 text-rose-600 flex-shrink-0"></i>
+          <div class="flex-1 text-sm text-rose-900">Still unable to connect. Please check your internet.</div>
+        </div>
+      `;
+      document.body.appendChild(errorDiv);
+      lucide.createIcons();
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        errorDiv.remove();
+      }, 3000);
+    }
+
+    // Auto-retry when connection is restored
+    window.addEventListener('online', () => {
+      retryConnection();
+    });
+
+    // Add animation for fade in
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - Rankings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  select {
+    appearance: none;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2rem;
+    transition: all 0.2s;
+  }
+  select:focus {
+    outline: 2px solid #0ea5e9;
+    outline-offset: 2px;
+    border-color: #0ea5e9;
+  }
+</style>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <section class="min-h-screen pb-24">
+      <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+        <div class="px-4 py-3">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="text-base font-semibold">Rankings</div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <select class="px-3 py-1.5 text-xs font-semibold text-slate-700">
+              <option>Trending</option>
+              <option>Most Viewed</option>
+              <option>Most Voted</option>
+              <option>Highest Rated</option>
+            </select>
+            <select class="px-3 py-1.5 text-xs font-semibold text-slate-700">
+              <option>Today</option>
+              <option>Weekly</option>
+              <option>Monthly</option>
+              <option>Yearly</option>
+            </select>
+            <select class="px-3 py-1.5 text-xs font-semibold text-slate-700">
+              <option>All Genres</option>
+              <option>Fantasy</option>
+              <option>Romance</option>
+              <option>Adventure</option>
+              <option>Thriller</option>
+              <option>Slice of Life</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-4 pt-2 pb-24 space-y-2">
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 shadow-sm">
+          <div class="h-8 w-8 rounded-lg bg-sky-100 text-sky-700 text-sm font-bold flex items-center justify-center">1</div>
+          <img src="https://images.unsplash.com/photo-1529651737248-dad5e287768e?w=400&q=80" class="h-14 w-10 rounded-md object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Crimson Ledger</div>
+            <div class="text-[11px] text-slate-500">Thriller · 4.7★ · 1.2M views</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold">+2</span>
+        </div>
+
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 shadow-sm">
+          <div class="h-8 w-8 rounded-lg bg-sky-100 text-sky-700 text-sm font-bold flex items-center justify-center">2</div>
+          <img src="https://images.unsplash.com/photo-1526318472351-c75fcf070305?w=400&q=80" class="h-14 w-10 rounded-md object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Silver Ember</div>
+            <div class="text-[11px] text-slate-500">Romance · 4.8★ · 980k views</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-semibold">-1</span>
+        </div>
+
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 shadow-sm">
+          <div class="h-8 w-8 rounded-lg bg-sky-100 text-sky-700 text-sm font-bold flex items-center justify-center">3</div>
+          <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&q=80" class="h-14 w-10 rounded-md object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Voyage of Seraph</div>
+            <div class="text-[11px] text-slate-500">Adventure · 4.6★ · 870k views</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold">+4</span>
+        </div>
+
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 shadow-sm">
+          <div class="h-8 w-8 rounded-lg bg-slate-100 text-slate-700 text-sm font-bold flex items-center justify-center">4</div>
+          <img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&q=80" class="h-14 w-10 rounded-md object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Moonlit Vale</div>
+            <div class="text-[11px] text-slate-500">Fantasy · 4.8★ · 750k views</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold">-</span>
+        </div>
+
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 shadow-sm">
+          <div class="h-8 w-8 rounded-lg bg-slate-100 text-slate-700 text-sm font-bold flex items-center justify-center">5</div>
+          <img src="https://images.unsplash.com/photo-1635151227785-429f420c6b9d?w=400&q=80" class="h-14 w-10 rounded-md object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Blue Horizon</div>
+            <div class="text-[11px] text-slate-500">Adventure · 4.6★ · 650k views</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold">+3</span>
+        </div>
+
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 shadow-sm">
+          <div class="h-8 w-8 rounded-lg bg-slate-100 text-slate-700 text-sm font-bold flex items-center justify-center">6</div>
+          <img src="https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=400&q=80" class="h-14 w-10 rounded-md object-cover" alt="">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold line-clamp-1">Skyline Dreams</div>
+            <div class="text-[11px] text-slate-500">Slice of Life · 4.7★ · 580k views</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-semibold">-2</span>
+        </div>
+      </div>
+    </section>
+
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-100 z-50">
+      <div class="flex items-center justify-around py-2">
+        <button class="flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-slate-600">
+          <i data-lucide="home" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Home</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sky-600">
+          <i data-lucide="trophy" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Rankings</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-slate-600">
+          <i data-lucide="bookmark" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Library</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-slate-600">
+          <i data-lucide="user" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold">Profile</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

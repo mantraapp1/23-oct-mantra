@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - Author Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+      <div class="px-4 py-3 flex items-center gap-2">
+        <button class="p-2 rounded-lg hover:bg-slate-100 active:scale-95"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+        <div class="text-base font-semibold">Author Dashboard</div>
+        <div class="ml-auto">
+          <button class="px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold">+ Novel</button>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pt-4 pb-24">
+      <div class="grid grid-cols-3 gap-2 mb-6">
+        <div class="rounded-xl border border-slate-100 p-3 text-center">
+          <div class="text-sm font-semibold">3</div>
+          <div class="text-[11px] text-slate-500">Novels</div>
+        </div>
+        <div class="rounded-xl border border-slate-100 p-3 text-center">
+          <div class="text-sm font-semibold">2.4M</div>
+          <div class="text-[11px] text-slate-500">Views</div>
+        </div>
+        <div class="rounded-xl border border-slate-100 p-3 text-center">
+          <div class="text-sm font-semibold">$1.2k</div>
+          <div class="text-[11px] text-slate-500">Earnings</div>
+        </div>
+      </div>
+
+      <div class="text-sm font-semibold mb-2">Your Novels</div>
+      <div class="space-y-3">
+        <div class="flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1529651737248-dad5e287768e?q=80&w=200&auto=format&fit=crop" class="h-16 w-12 rounded-md object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">Crimson Ledger</div>
+            <div class="text-xs text-slate-500">148 chapters · 1.2M views</div>
+            <div class="flex gap-2 mt-2">
+              <button class="text-xs text-sky-600 font-semibold">Edit</button>
+              <button class="text-xs text-sky-600 font-semibold">+ Chapter</button>
+              <button class="text-xs text-rose-600 font-semibold">Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=200&auto=format&fit=crop" class="h-16 w-12 rounded-md object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">Night Vault</div>
+            <div class="text-xs text-slate-500">95 chapters · 850k views</div>
+            <div class="flex gap-2 mt-2">
+              <button class="text-xs text-sky-600 font-semibold">Edit</button>
+              <button class="text-xs text-sky-600 font-semibold">+ Chapter</button>
+              <button class="text-xs text-rose-600 font-semibold">Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-3 p-3 rounded-xl border border-slate-100 hover:shadow-sm transition">
+          <img src="https://images.unsplash.com/photo-1621619856624-42fd193a0661?w=1080&q=80" class="h-16 w-12 rounded-md object-cover" alt="">
+          <div class="flex-1">
+            <div class="text-sm font-semibold line-clamp-1">Silent Cipher</div>
+            <div class="text-xs text-slate-500">42 chapters · 320k views</div>
+            <div class="flex gap-2 mt-2">
+              <button class="text-xs text-sky-600 font-semibold">Edit</button>
+              <button class="text-xs text-sky-600 font-semibold">+ Chapter</button>
+              <button class="text-xs text-rose-600 font-semibold">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

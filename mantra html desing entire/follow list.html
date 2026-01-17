@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - Followers</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+      <div class="px-4 py-3">
+        <div class="flex items-center gap-2 mb-3">
+          <button class="p-2 rounded-lg hover:bg-slate-100 active:scale-95"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+          <div id="header-title" class="text-base font-semibold">Followers</div>
+        </div>
+        <div class="flex gap-2">
+          <button id="followers-tab" class="px-3 py-1.5 rounded-full bg-sky-500 text-white text-xs font-semibold">Followers</button>
+          <button id="following-tab" class="px-3 py-1.5 rounded-full border border-slate-200 text-xs">Following</button>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pt-4 pb-24">
+    
+      <div id="followers-list" class="space-y-3">
+        <div class="user-card flex items-center gap-3">
+          <a href="profile.html" class="flex flex-1 items-center gap-3 min-w-0">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate">Yi Chen</div>
+              <div class="text-xs text-slate-500 truncate">@yi_reads</div>
+            </div>
+          </a>
+          <button class="follow-btn px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold">Follow</button>
+          <button class="remove-icon-btn p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        
+        <div class="user-card flex items-center gap-3">
+          <a href="profile.html" class="flex flex-1 items-center gap-3 min-w-0">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate">Sarah Miller</div>
+              <div class="text-xs text-slate-500 truncate">@sarahm</div>
+            </div>
+          </a>
+          <button class="follow-btn px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold">Following</button>
+          <button class="remove-icon-btn p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        
+        <div class="user-card flex items-center gap-3">
+          <a href="profile.html" class="flex flex-1 items-center gap-3 min-w-0">
+            <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=200&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate">Alex Rivera</div>
+              <div class="text-xs text-slate-500 truncate">@alex_r</div>
+            </div>
+          </a>
+          <button class="follow-btn px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold">Follow</button>
+          <button class="remove-icon-btn p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        
+        <div id="no-followers-msg" class="text-center text-slate-500 text-sm py-8 hidden">
+          You don't have any followers yet.
+        </div>
+      </div>
+      
+      <div id="following-list" class="space-y-3 hidden">
+         <div class="user-card flex items-center gap-3">
+          <a href="profile.html" class="flex flex-1 items-center gap-3 min-w-0">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate">Mark Johnson</div>
+              <div class="text-xs text-slate-500 truncate">@markj</div>
+            </div>
+          </a>
+          <button class="follow-btn px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold">Following</button>
+        </div>
+         <div class="user-card flex items-center gap-3">
+          <a href="profile.html" class="flex flex-1 items-center gap-3 min-w-0">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" class="h-10 w-10 rounded-full object-cover" alt="">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold truncate">Emily Davis</div>
+              <div class="text-xs text-slate-500 truncate">@em_davis</div>
+            </div>
+          </a>
+          <button class="follow-btn px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold">Following</button>
+        </div>
+        
+        <div id="no-following-msg" class="text-center text-slate-500 text-sm py-8 hidden">
+          You aren't following anyone yet.
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div id="remove-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-64 mx-auto p-4 text-center">
+      <h3 class="font-semibold text-sm mb-2">Remove follower?</h3>
+      <p class="text-xs text-slate-500 mb-4">
+        Are you sure you want to remove <strong id="modal-username" class="font-bold"></strong>?
+      </p>
+      <div class="flex flex-col gap-2">
+        <button id="confirm-remove-btn" class="w-full py-2 rounded-lg text-sm font-semibold text-red-500 hover:bg-slate-50">Remove</button>
+        <button id="cancel-remove-btn" class="w-full py-2 rounded-lg text-sm font-semibold hover:bg-slate-50">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      // --- Element Selection ---
+      const followersTab = document.getElementById('followers-tab');
+      const followingTab = document.getElementById('following-tab');
+      const followersList = document.getElementById('followers-list');
+      const followingList = document.getElementById('following-list');
+      const headerTitle = document.getElementById('header-title');
+      const noFollowersMsg = document.getElementById('no-followers-msg');
+      const noFollowingMsg = document.getElementById('no-following-msg');
+      
+      // Added: Modal Elements
+      const removeModal = document.getElementById('remove-modal');
+      const modalUsername = document.getElementById('modal-username');
+      const confirmRemoveBtn = document.getElementById('confirm-remove-btn');
+      const cancelRemoveBtn = document.getElementById('cancel-remove-btn');
+      
+      // Added: Variable to store which user to remove
+      let userToRemove = null;
+
+      // --- Style Definitions ---
+      const activeTabStyles = ['bg-sky-500', 'text-white', 'font-semibold'];
+      const inactiveTabStyles = ['border', 'border-slate-200']; 
+      const followStyles = ['bg-sky-500', 'text-white'];
+      const followingStyles = ['border', 'border-slate-200'];
+
+      // --- Function to check for empty lists ---
+      function updateEmptyStates() {
+        const followerCards = followersList.querySelectorAll('.user-card');
+        noFollowersMsg.classList.toggle('hidden', followerCards.length > 0);
+        
+        const followingCards = followingList.querySelectorAll('.user-card');
+        noFollowingMsg.classList.toggle('hidden', followingCards.length > 0);
+      }
+
+      // --- Tab Switching Logic (No changes) ---
+      followersTab.addEventListener('click', () => {
+        headerTitle.textContent = 'Followers';
+        followersList.classList.remove('hidden');
+        followingList.classList.add('hidden');
+        followersTab.classList.add(...activeTabStyles);
+        followersTab.classList.remove(...inactiveTabStyles);
+        followingTab.classList.add(...inactiveTabStyles);
+        followingTab.classList.remove(...activeTabStyles);
+      });
+      followingTab.addEventListener('click', () => {
+        headerTitle.textContent = 'Following';
+        followingList.classList.remove('hidden');
+        followersList.classList.add('hidden');
+        followingTab.classList.add(...activeTabStyles);
+        followingTab.classList.remove(...inactiveTabStyles);
+        followersTab.classList.add(...inactiveTabStyles);
+        followersTab.classList.remove(...activeTabStyles);
+      });
+      
+      // --- Follow/Following Button (Works on BOTH lists) ---
+      // This will now find .follow-btn in both #followers-list and #following-list
+      document.querySelectorAll('.follow-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault(); 
+          if (button.textContent.trim() === 'Follow') {
+            button.textContent = 'Following';
+            button.classList.remove(...followStyles);
+            button.classList.add(...followingStyles);
+          } else {
+            button.textContent = 'Follow';
+            button.classList.remove(...followingStyles);
+            button.classList.add(...followStyles);
+          }
+        });
+      });
+      
+      // --- Added: Remove Icon Button (on Followers List) ---
+      document.querySelectorAll('.remove-icon-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          // Find the user card and get the name
+          userToRemove = button.closest('.user-card');
+          const userName = userToRemove.querySelector('.font-semibold').textContent;
+          
+          // Update modal text and show it
+          modalUsername.textContent = userName;
+          removeModal.classList.remove('hidden');
+        });
+      });
+      
+      // --- Added: Modal Button Logic ---
+      
+      // Click "Cancel" button
+      cancelRemoveBtn.addEventListener('click', () => {
+        removeModal.classList.add('hidden');
+        userToRemove = null; // Clear the selection
+      });
+      
+      // Click "Remove" button
+      confirmRemoveBtn.addEventListener('click', () => {
+        if (userToRemove) {
+          userToRemove.remove(); // Remove the card from the DOM
+        }
+        removeModal.classList.add('hidden');
+        userToRemove = null; // Clear the selection
+        updateEmptyStates(); // Check if the list is now empty
+      });
+      
+      // --- Initial Check ---
+      updateEmptyStates();
+      
+    });
+  </script>
+  
+  <script>
+    // This MUST run after the new icons are in the HTML
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add Chapter - Mantra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; }
+        .error-message { color: #ef4444; font-size: 12px; margin-top: 4px; display: none; }
+        .word-count { font-size: 12px; color: #64748b; text-align: right; margin-top: 4px; }
+        .success-message { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-white">
+    <div id="successMessage" class="success-message"></div>
+    <div class="min-h-screen max-w-md mx-auto bg-white">
+        
+        <header class="sticky top-0 z-50 bg-white border-b border-slate-100">
+            <div class="flex items-center justify-between px-4 py-3">
+                <button type="button" onclick="goBack()" class="p-2 -ml-2 rounded-lg hover:bg-slate-100 active:scale-95 transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-slate-700"></i>
+                </button>
+                <h1 class="text-base font-semibold text-slate-900">Add Chapter</h1>
+                <div class="w-8"></div>
+            </div>
+        </header>
+
+        <main class="px-4 py-5 pb-20">
+            <div class="mb-6 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <p class="text-xs text-slate-500 mb-1">Adding chapter to:</p>
+                <p class="text-sm font-semibold text-slate-900" id="novelTitle">My Novel</p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-medium text-slate-500 mb-2.5">Chapter Number *</label>
+                <input type="number" id="chapterNumber" min="1" value="1" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition" placeholder="1">
+                <p class="error-message" id="numberError">Chapter number is required</p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-medium text-slate-500 mb-2.5">Chapter Title *</label>
+                <input type="text" id="chapterTitle" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition" placeholder="Enter chapter title">
+                <p class="text-xs text-slate-400 mt-1.5">Example: "The Beginning" or "First Encounter"</p>
+                <p class="error-message" id="titleError">Chapter title is required</p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-medium text-slate-500 mb-2.5">Chapter Content *</label>
+                
+                <textarea id="contentInput" rows="15" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-700 leading-relaxed outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition resize-none" placeholder="Start writing your chapter here..."></textarea>
+                
+                <div class="word-count">
+                    <span id="wordCount">0</span> words • <span id="charCount">0</span> characters
+                </div>
+                
+                <p class="error-message" id="contentError">Chapter content is required (minimum 100 words)</p>
+            </div>
+
+            <div class="flex flex-col gap-3 mt-8">
+                <button type="button" onclick="publishChapter()" class="w-full px-5 py-3 bg-sky-500 text-white text-sm font-semibold rounded-lg active:scale-95 transition shadow-sm">Publish Chapter</button>
+                <button type="button" onclick="saveDraft()" class="w-full px-5 py-3 bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg active:scale-95 transition">Save as Draft</button>
+            </div>
+
+            <div class="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                <div class="flex items-start gap-2">
+                    <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600 mt-0.5"></i>
+                    <div>
+                        <p class="text-sm font-medium text-amber-900">Writing Tips</p>
+                        <ul class="text-xs text-amber-700 mt-1 space-y-1">
+                            <li>• Keep paragraphs short for better mobile reading</li>
+                            <li>• Aim for 1000-3000 words per chapter</li>
+                            <li>• End with a hook to keep readers engaged</li>
+                            <li>• Proofread before publishing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        var novelId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded');
+            
+            try {
+                lucide.createIcons();
+            } catch (e) {
+                console.error("Lucide icons failed", e);
+            }
+            
+            var urlParams = new URLSearchParams(window.location.search);
+            novelId = urlParams.get('novelId');
+            
+            loadNovelInfo();
+            setNextChapterNumber();
+            
+            // Setup word counter
+            var textarea = document.getElementById('contentInput');
+            textarea.addEventListener('input', updateCount);
+            textarea.addEventListener('keyup', updateCount);
+            
+            updateCount();
+        });
+
+        function updateCount() {
+            var textarea = document.getElementById('contentInput');
+            if (!textarea) return;
+            
+            var text = textarea.value;
+            
+            // Count characters (simple and accurate)
+            var charCount = text.length;
+            
+            // Count words using a simpler, more reliable method
+            var wordCount = 0;
+            var trimmed = text.trim();
+            
+            if (trimmed.length > 0) {
+                // Replace multiple spaces with single space, then split
+                var cleaned = trimmed.replace(/s+/g, ' ');
+                var wordsArray = cleaned.split(' ');
+                wordCount = wordsArray.length;
+            }
+            
+            // Update display
+            document.getElementById('wordCount').textContent = wordCount;
+            document.getElementById('charCount').textContent = charCount;
+            
+            console.log('Trimmed text:', trimmed);
+            console.log('Word count:', wordCount, 'Char count:', charCount);
+        }
+
+        function loadNovelInfo() {
+            var novels = JSON.parse(localStorage.getItem('novels') || '[]');
+            var novel = novels.find(function(n) { return n.id == novelId; });
+            if (novel) document.getElementById('novelTitle').textContent = novel.title;
+        }
+
+        function setNextChapterNumber() {
+            var novels = JSON.parse(localStorage.getItem('novels') || '[]');
+            var novel = novels.find(function(n) { return n.id == novelId; });
+            if (novel && novel.chapters && novel.chapters.length > 0) {
+                document.getElementById('chapterNumber').value = novel.chapters.length + 1;
+            }
+        }
+
+        function validateChapter() {
+            var isValid = true;
+            document.querySelectorAll('.error-message').forEach(function(err) { err.style.display = 'none'; });
+            
+            if (!document.getElementById('chapterNumber').value || document.getElementById('chapterNumber').value < 1) {
+                document.getElementById('numberError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!document.getElementById('chapterTitle').value.trim()) {
+                document.getElementById('titleError').style.display = 'block';
+                isValid = false;
+            }
+            
+            var content = document.getElementById('contentInput').value.trim();
+            var wordCount = 0;
+            
+            if (content.length > 0) {
+                var cleaned = content.replace(/s+/g, ' ');
+                wordCount = cleaned.split(' ').length;
+            }
+            
+            if (wordCount < 100) {
+                document.getElementById('contentError').style.display = 'block';
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function getChapterData() {
+            var content = document.getElementById('contentInput').value.trim();
+            var wordCount = 0;
+            
+            if (content.length > 0) {
+                var cleaned = content.replace(/s+/g, ' ');
+                wordCount = cleaned.split(' ').length;
+            }
+            
+            return {
+                id: Date.now(),
+                chapterNumber: parseInt(document.getElementById('chapterNumber').value),
+                title: document.getElementById('chapterTitle').value.trim(),
+                content: document.getElementById('contentInput').value,
+                wordCount: wordCount,
+                characterCount: document.getElementById('contentInput').value.length,
+                createdAt: new Date().toISOString(),
+                views: 0,
+                likes: 0
+            };
+        }
+
+        function publishChapter() {
+            if (!validateChapter()) {
+                var firstError = document.querySelector('.error-message[style*="block"]');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            
+            var chapterData = getChapterData();
+            chapterData.status = 'published';
+            chapterData.publishedAt = new Date().toISOString();
+            
+            var novels = JSON.parse(localStorage.getItem('novels') || '[]');
+            var novelIndex = novels.findIndex(function(n) { return n.id == novelId; });
+            
+            if (novelIndex !== -1) {
+                if (!novels[novelIndex].chapters) novels[novelIndex].chapters = [];
+                novels[novelIndex].chapters.push(chapterData);
+                localStorage.setItem('novels', JSON.stringify(novels));
+                
+                console.log('Chapter published:', chapterData);
+                showSuccess('Chapter published successfully!');
+                
+                // Clear draft after publishing
+                localStorage.removeItem('chapterDraft_' + novelId);
+                
+                setTimeout(clearForm, 2000);
+            } else {
+                showError('Error: Novel not found');
+            }
+        }
+
+        function saveDraft() {
+            var content = document.getElementById('contentInput').value.trim();
+            var title = document.getElementById('chapterTitle').value.trim();
+            
+            if (!title && !content) {
+                return;
+            }
+            
+            var chapterData = getChapterData();
+            chapterData.status = 'draft';
+            chapterData.savedAt = new Date().toISOString();
+            localStorage.setItem('chapterDraft_' + novelId, JSON.stringify(chapterData));
+            console.log('Draft saved:', chapterData);
+            showSuccess('Chapter saved as draft!');
+        }
+
+        function clearForm() {
+            document.getElementById('chapterTitle').value = '';
+            document.getElementById('contentInput').value = '';
+            var currentNum = parseInt(document.getElementById('chapterNumber').value);
+            document.getElementById('chapterNumber').value = currentNum + 1;
+            updateCount();
+        }
+
+        function showSuccess(message) {
+            var msg = document.getElementById('successMessage');
+            msg.textContent = '✓ ' + message;
+            msg.style.background = '#10b981';
+            msg.style.display = 'block';
+            setTimeout(function() { msg.style.display = 'none'; }, 3000);
+        }
+
+        function showError(message) {
+            var msg = document.getElementById('successMessage');
+            msg.style.background = '#ef4444';
+            msg.textContent = message;
+            msg.style.display = 'block';
+            setTimeout(function() { msg.style.display = 'none'; }, 3000);
+        }
+
+        function goBack() {
+            var hasContent = document.getElementById('contentInput').value.trim() || document.getElementById('chapterTitle').value.trim();
+            if (hasContent) {
+                if (confirm('You have unsaved changes. Do you want to save as draft before leaving?')) {
+                    saveDraft();
+                    setTimeout(function() { window.history.back(); }, 500);
+                    return;
+                }
+            }
+            window.history.back();
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(function() {
+            var content = document.getElementById('contentInput').value.trim();
+            var title = document.getElementById('chapterTitle').value.trim();
+            if (content || title) {
+                var chapterData = getChapterData();
+                chapterData.status = 'auto-draft';
+                chapterData.savedAt = new Date().toISOString();
+                localStorage.setItem('chapterDraft_' + novelId, JSON.stringify(chapterData));
+                console.log("Auto-saved at", new Date().toLocaleTimeString());
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

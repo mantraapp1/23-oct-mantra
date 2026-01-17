@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Author Novel Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .like-btn.active svg, .dislike-btn.active svg { fill: currentColor !important; }
+        .like-btn svg, .dislike-btn svg { fill: none; }
+    </style>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+    <div id="app" class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+        <section id="screen-author-novel-manage" class="screen min-h-screen">
+            <div class="pb-24">
+                <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+                    <div class="px-4 py-3 flex items-center gap-2">
+                        <button class="p-2 rounded-lg hover:bg-slate-100 active:scale-95" onclick="history.back()">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div class="flex-1">
+                            <div class="text-base font-semibold">Manage Novel</div>
+                            <div class="text-xs text-slate-500">Analytics & Management</div>
+                        </div>
+                        <button class="p-2 rounded-lg hover:bg-slate-100">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="relative -mx-4 mb-4">
+                    <div class="relative h-60 rounded-3xl overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1529651737248-dad5e287768e?q=80&w=1200&auto=format&fit=crop" class="h-full w-full object-cover" alt="">
+                        <div class="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent"></div>
+                    </div>
+                    <div class="px-4 -mt-20 relative z-10">
+                        <div class="flex gap-3 items-start">
+                            <img src="https://images.unsplash.com/photo-1529651737248-dad5e287768e?q=80&w=300&auto=format&fit=crop" class="h-28 w-20 rounded-xl object-cover border-4 border-white shadow-lg" alt="">
+                            <div class="flex-1">
+                                <div class="text-xl font-semibold tracking-tight">Crimson Ledger</div>
+                                <div class="flex flex-wrap gap-1.5 mt-2">
+                                    <span class="px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px] font-semibold">THRILLER</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-semibold">MYSTERY</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold">ONGOING</span>
+                                </div>
+                                <div class="flex gap-2 mt-3">
+                                    <button class="px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold">Edit Info</button>
+                                    <button class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold">+ Chapter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 flex gap-2 overflow-x-auto px-4" style="scrollbar-width: none;">
+                    <button type="button" class="tab-btn px-3 py-1.5 rounded-full bg-sky-500 text-white text-xs font-semibold" data-tab="overview">Overview</button>
+                    <button type="button" class="tab-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-tab="chapters">Chapters</button>
+                    <button type="button" class="tab-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-tab="reviews">Reviews</button>
+                    <button type="button" class="tab-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-tab="analytics">Analytics</button>
+                </div>
+                                <div id="tab-overview" class="tab-content px-4 pt-4">
+                    <div class="mt-4">
+                        <div class="text-xs text-slate-500 mb-1">Description</div>
+                        <p class="text-sm text-slate-700">A high-stakes thriller tracing a detective's descent into a shadow syndicate. Betrayals multiply as the ledger reveals secrets that can topple empires.</p>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-xs text-slate-500 mb-1">Tags</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px]">detective</span>
+                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px]">noir</span>
+                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px]">crime</span>
+                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px]">conspiracy</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-4 mt-4">
+                        <div class="rounded-xl border border-slate-100 p-3 shadow-sm">
+                            <div class="flex items-center gap-2 mb-2"><i data-lucide="eye" class="w-4 h-4 text-sky-600"></i><div class="text-xs text-slate-500">Total Views</div></div>
+                            <div class="text-xl font-semibold">1.24M</div><div class="text-[10px] text-emerald-600 mt-1">+12.5% this week</div>
+                        </div>
+                        <div class="rounded-xl border border-slate-100 p-3 shadow-sm">
+                            <div class="flex items-center gap-2 mb-2"><i data-lucide="thumbs-up" class="w-4 h-4 text-amber-600"></i><div class="text-xs text-slate-500">Total Votes</div></div>
+                            <div class="text-xl font-semibold">45.2k</div><div class="text-[10px] text-emerald-600 mt-1">+8.3% this week</div>
+                        </div>
+                        <div class="rounded-xl border border-slate-100 p-3 shadow-sm">
+                            <div class="flex items-center gap-2 mb-2"><i data-lucide="book-open" class="w-4 h-4 text-indigo-600"></i><div class="text-xs text-slate-500">Chapters</div></div>
+                            <div class="text-xl font-semibold">148</div><div class="text-[10px] text-slate-500 mt-1">Last 2 days ago</div>
+                        </div>
+                        <div class="rounded-xl border border-slate-100 p-3 shadow-sm">
+                            <div class="flex items-center gap-2 mb-2"><i data-lucide="star" class="w-4 h-4 text-amber-500"></i><div class="text-xs text-slate-500">Rating</div></div>
+                            <div class="text-xl font-semibold">4.7</div><div class="text-[10px] text-slate-500 mt-1">2,184 ratings</div>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-100 p-4 shadow-sm mb-4">
+                        <div class="text-sm font-semibold mb-3">Performance Summary</div>
+                        <div class="space-y-3">
+                            <div><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-500">Bookmarks</span><span class="font-semibold">34.5k</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 bg-sky-500 rounded-full" style="width: 78%"></div></div></div>
+                            <div><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-500">Comments</span><span class="font-semibold">12.8k</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 bg-indigo-500 rounded-full" style="width: 65%"></div></div></div>
+                            <div><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-500">Completion Rate</span><span class="font-semibold">42%</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 bg-emerald-500 rounded-full" style="width: 42%"></div></div></div>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-100 p-4 shadow-sm">
+                        <div class="flex items-center justify-between mb-3"><div class="text-sm font-semibold">Earnings</div><button class="text-xs text-sky-600 font-semibold">View Details</button></div>
+                        <div class="flex items-center justify-between">
+                            <div><div class="text-2xl font-semibold text-emerald-600">$1,245.50</div><div class="text-xs text-slate-500 mt-1">Total earnings</div></div>
+                            <div class="text-right"><div class="text-sm font-semibold">$125.40</div><div class="text-xs text-slate-500 mt-1">This month</div></div>
+                        </div>
+                    </div>
+                </div>
+                
+                                <div id="tab-chapters" class="tab-content px-4 pt-4 hidden">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="relative flex-1">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input id="chapter-search" class="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="Search chapters...">
+                        </div>
+                        <button class="px-3 py-2 rounded-lg bg-sky-500 text-white text-xs font-semibold">+ New</button>
+                    </div>
+                    <div class="flex gap-2 mb-4 overflow-x-auto" style="scrollbar-width: none;">
+                        <button class="sort-btn px-3 py-1.5 rounded-full bg-sky-500 text-white text-xs font-semibold" data-sort="newest">Newest</button>
+                        <button class="sort-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-sort="oldest">Oldest</button>
+                        <button class="sort-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-sort="most-views">Most Views</button>
+                    </div>
+                    <div id="chapters-list" class="space-y-2">
+                        <div class="chapter-item rounded-xl border border-slate-100 p-3 shadow-sm" data-views="32500" data-date="2023-10-11" data-title="The Final Entry">
+                            <div class="flex items-start gap-3">
+                                <div class="h-10 w-10 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">148</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-semibold line-clamp-1">The Final Entry</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">32,500 views • 1,200 comments • 11/10/2023</div>
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold mt-2 inline-block">Published</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-item rounded-xl border border-slate-100 p-3 shadow-sm" data-views="28200" data-date="2023-10-09" data-title="Shadows Converge">
+                            <div class="flex items-start gap-3">
+                                <div class="h-10 w-10 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">147</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-semibold line-clamp-1">Shadows Converge</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">28,200 views • 945 comments • 09/10/2023</div>
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold mt-2 inline-block">Published</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-item rounded-xl border border-slate-100 p-3 shadow-sm" data-views="25400" data-date="2023-10-07" data-title="Breaking Point">
+                            <div class="flex items-start gap-3">
+                                <div class="h-10 w-10 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">146</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-semibold line-clamp-1">Breaking Point</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">25,400 views • 834 comments • 07/10/2023</div>
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold mt-2 inline-block">Published</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                                <div id="tab-reviews" class="tab-content px-4 pt-4 hidden">
+                    <div class="space-y-4">
+                        <div class="rounded-2xl border border-slate-100 p-4 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="text-center">
+                                    <div class="text-3xl font-semibold leading-none">4.7</div>
+                                    <div class="flex items-center justify-center gap-0.5 mt-1">
+                                        <i data-lucide="star" class="w-4 h-4 text-amber-400 fill-amber-400"></i>
+                                        <i data-lucide="star" class="w-4 h-4 text-amber-400 fill-amber-400"></i>
+                                        <i data-lucide="star" class="w-4 h-4 text-amber-400 fill-amber-400"></i>
+                                        <i data-lucide="star" class="w-4 h-4 text-amber-400 fill-amber-400"></i>
+                                        <i data-lucide="star-half" class="w-4 h-4 text-amber-400"></i>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 mt-1">2,184 ratings</div>
+                                </div>
+                                <div class="flex-1 space-y-1.5">
+                                    <div class="flex items-center gap-2"><div class="w-6 text-[11px] text-slate-500">5★</div><div class="flex-1 h-2 rounded-full bg-slate-100"><div class="h-2 bg-emerald-500 rounded-full" style="width:68%"></div></div><div class="w-10 text-right text-[11px] text-slate-500">68%</div></div>
+                                    <div class="flex items-center gap-2"><div class="w-6 text-[11px] text-slate-500">4★</div><div class="flex-1 h-2 rounded-full bg-slate-100"><div class="h-2 bg-emerald-400 rounded-full" style="width:22%"></div></div><div class="w-10 text-right text-[11px] text-slate-500">22%</div></div>
+                                    <div class="flex items-center gap-2"><div class="w-6 text-[11px] text-slate-500">3★</div><div class="flex-1 h-2 rounded-full bg-slate-100"><div class="h-2 bg-amber-400 rounded-full" style="width:7%"></div></div><div class="w-10 text-right text-[11px] text-slate-500">7%</div></div>
+                                    <div class="flex items-center gap-2"><div class="w-6 text-[11px] text-slate-500">2★</div><div class="flex-1 h-2 rounded-full bg-slate-100"><div class="h-2 bg-orange-400 rounded-full" style="width:2%"></div></div><div class="w-10 text-right text-[11px] text-slate-500">2%</div></div>
+                                    <div class="flex items-center gap-2"><div class="w-6 text-[11px] text-slate-500">1★</div><div class="flex-1 h-2 rounded-full bg-slate-100"><div class="h-2 bg-red-500 rounded-full" style="width:1%"></div></div><div class="w-10 text-right text-[11px] text-slate-500">1%</div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 overflow-x-auto" style="scrollbar-width:none;">
+                            <button class="filter-btn px-3 py-1.5 rounded-full bg-sky-500 text-white text-xs font-semibold whitespace-nowrap" data-filter="all">All</button>
+                            <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs whitespace-nowrap" data-filter="5">5★</button>
+                            <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs whitespace-nowrap" data-filter="4">4★</button>
+                            <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs whitespace-nowrap" data-filter="3">3★</button>
+                            
+                      <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs whitespace-nowrap" data-filter="2">2★</button>      
+                      <button class="filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs whitespace-nowrap" data-filter="1">1★</button>
+                        </div>
+                        <div id="reviews-container" class="space-y-3">
+                            <div class="review-item rounded-2xl border border-slate-100 p-3 shadow-sm" data-rating="5">
+                                <div class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100" class="h-9 w-9 rounded-full object-cover">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <div class="text-xs font-semibold">Sarah</div>
+                                                <div class="flex gap-0.5"><i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i><i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i><i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i><i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i><i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i></div>
+                                                <div class="text-[10px] text-slate-500">3h ago</div>
+                                            </div>
+                                            <div class="relative">
+                                                <button class="menu-btn p-1 rounded hover:bg-slate-100" onclick="toggleMenu(this)"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+                                                <div class="menu-dropdown hidden absolute right-0 mt-1 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[120px]">
+                                                    <button class="w-full px-4 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2" onclick="reportReview(this)"><i data-lucide="flag" class="w-3.5 h-3.5"></i>Report</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs mt-1 text-slate-700">Absolutely amazing! Best novel I've read this year!</p>
+                                        <div class="mt-2 flex items-center gap-3">
+                                            <button class="like-btn text-xs text-slate-500 hover:text-sky-500 flex items-center gap-1" onclick="toggleLike(this)"><i data-lucide="thumbs-up" class="w-4 h-4"></i><span class="like-count">124</span></button>
+                                            <button class="dislike-btn text-xs text-slate-500 hover:text-red-500 flex items-center gap-1" onclick="toggleDislike(this)"><i data-lucide="thumbs-down" class="w-4 h-4"></i><span class="dislike-count">2</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
+                        
+                        
+                        
+                        
+                        
+                        <!-- Review 2 - 5 Stars -->
+                            <div class="review-item rounded-2xl border border-slate-100 p-3 shadow-sm" data-rating="3">
+                                <div class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100" class="h-9 w-9 rounded-full object-cover">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <div class="text-xs font-semibold">Emma Chen</div>
+                                                <div class="flex gap-0.5">
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-slate-300"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-slate-300 "></i>
+                                                </div>
+                                                <div class="text-[10px] text-slate-500">3h ago</div>
+                                            </div>
+                                            <div class="relative">
+                                                <button class="menu-btn p-1 rounded hover:bg-slate-100" onclick="toggleMenu(this)"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+                                                <div class="menu-dropdown hidden absolute right-0 mt-1 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[120px]">
+                                                    <button class="w-full px-4 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2" onclick="reportReview(this)"><i data-lucide="flag" class="w-3.5 h-3.5"></i>Report</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs mt-1 text-slate-700">Absolutely amazing! Best novel I've read this year. Can't wait for the next chapter!</p>
+                                        <div class="mt-2 flex items-center gap-3">
+                                            <button class="like-btn text-xs text-slate-500 hover:text-sky-500 flex items-center gap-1" onclick="toggleLike(this)"><i data-lucide="thumbs-up" class="w-4 h-4"></i><span class="like-count">142</span></button>
+                                            <button class="dislike-btn text-xs text-slate-500 hover:text-red-500 flex items-center gap-1" onclick="toggleDislike(this)"><i data-lucide="thumbs-down" class="w-4 h-4"></i><span class="dislike-count">2</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+<!-----review card 2 end -->
+
+<!-- Review 3 - 5 Stars -->
+                            <div class="review-item rounded-2xl border border-slate-100 p-3 shadow-sm" data-rating="">
+                                <div class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100" class="h-9 w-9 rounded-full object-cover">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <div class="text-xs font-semibold">jack sparrow</div>
+                                                <div class="flex gap-0.5">
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-slate-300"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-slate-300"></i>
+                                            <i data-lucide="star" class="w-3.5 h-3.5 text-slate-300"></i>
+                                                </div>
+                                                <div class="text-[10px] text-slate-500">4d ago</div>
+                                            </div>
+                                            <div class="relative">
+                                                <button class="menu-btn p-1 rounded hover:bg-slate-100" onclick="toggleMenu(this)"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+                                                <div class="menu-dropdown hidden absolute right-0 mt-1 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[120px]">
+                                                    <button class="w-full px-4 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2" onclick="reportReview(this)"><i data-lucide="flag" class="w-3.5 h-3.5"></i>Report</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs mt-1 text-slate-700">I like it to much ,i completed 147 chapters</p>
+                                        <div class="mt-2 flex items-center gap-3">
+                                            <button class="like-btn text-xs text-slate-500 hover:text-sky-500 flex items-center gap-1" onclick="toggleLike(this)"><i data-lucide="thumbs-up" class="w-4 h-4"></i><span class="like-count">12</span></button>
+                                            <button class="dislike-btn text-xs text-slate-500 hover:text-red-500 flex items-center gap-1" onclick="toggleDislike(this)"><i data-lucide="thumbs-down" class="w-4 h-4"></i><span class="dislike-count">2</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+<!-- 3 review end-->
+<div class="review-item rounded-2xl border border-slate-100 p-3 shadow-sm" data-rating="4">
+                                <div class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100" class="h-9 w-9 rounded-full object-cover">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <div class="text-xs font-semibold">James Cooper</div>
+                                                <div class="flex gap-0.5">
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+                                                    <i data-lucide="star" class="w-3.5 h-3.5 text-slate-300"></i>
+                                                </div>
+                                                <div class="text-[10px] text-slate-500">8h ago</div>
+                                            </div>
+                                            <div class="relative">
+                                                <button class="menu-btn p-1 rounded hover:bg-slate-100" onclick="toggleMenu(this)"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+                                                <div class="menu-dropdown hidden absolute right-0 mt-1 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[120px]">
+                                                    <button class="w-full px-4 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2" onclick="reportReview(this)"><i data-lucide="flag" class="w-3.5 h-3.5"></i>Report</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs mt-1 text-slate-700">Really solid mystery thriller. Some parts could be tightened up but overall very enjoyable.</p>
+                                        <div class="mt-2 flex items-center gap-3">
+                                            <button class="like-btn text-xs text-slate-500 hover:text-sky-500 flex items-center gap-1" onclick="toggleLike(this)"><i data-lucide="thumbs-up" class="w-4 h-4"></i><span class="like-count">76</span></button>
+                                            <button class="dislike-btn text-xs text-slate-500 hover:text-red-500 flex items-center gap-1" onclick="toggleDislike(this)"><i data-lucide="thumbs-down" class="w-4 h-4"></i><span class="dislike-count">5</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-analytics" class="tab-content px-4 pt-4 hidden">
+                    <div class="flex gap-2 mb-4 overflow-x-auto" style="scrollbar-width:none;">
+                        <button class="analytics-filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-period="7">7 Days</button>
+                        <button class="analytics-filter-btn px-3 py-1.5 rounded-full bg-sky-500 text-white text-xs font-semibold" data-period="30">30 Days</button>
+                        <button class="analytics-filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-period="90">90 Days</button>
+                        <button class="analytics-filter-btn px-3 py-1.5 rounded-full border border-slate-200 text-xs" data-period="all">All Time</button>
+                    </div>
+                    <div class="rounded-xl border border-slate-100 p-4 shadow-sm mb-4">
+                        <div class="text-sm font-semibold mb-3">Views Trend</div>
+                       <div style="height: 200;"> <canvas id="viewsChart" height="180"></canvas> </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-100 p-4 shadow-sm mb-4">
+                        <div class="text-sm font-semibold mb-3">Engagement Metrics</div>
+                        <div class="space-y-3">
+                            <div><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-500">Avg. Reading Time</span><span class="font-semibold" id="avg-reading-time">8.5 min</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 bg-sky-500 rounded-full" id="reading-time-bar" style="width:85%"></div></div></div>
+                            <div><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-500">Chapter Completion</span><span class="font-semibold" id="completion-rate">72%</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 bg-indigo-500 rounded-full" id="completion-bar" style="width:72%"></div></div></div>
+                            <div><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-500">Comment Rate</span><span class="font-semibold" id="comment-rate">3.2%</span></div><div class="h-2 rounded-full bg-slate-100"><div class="h-2 bg-emerald-500 rounded-full" id="comment-bar" style="width:32%"></div></div></div>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-100 p-4 shadow-sm mb-4">
+                        <div class="text-sm font-semibold mb-3">Reader Demographics</div>
+                    <div style="height: 400;"> <canvas id="demographicsChart" ></canvas> </div>
+                        <div class="mt-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-sky-500"></div><span>18-24 years</span></div><span class="font-semibold">35%</span></div>
+                            <div class="flex items-center justify-between text-xs"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-indigo-500"></div><span>25-34 years</span></div><span class="font-semibold">40%</span></div>
+                            <div class="flex items-center justify-between text-xs"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-purple-500"></div><span>35-44 years</span></div><span class="font-semibold">18%</span></div>
+                            <div class="flex items-center justify-between text-xs"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-pink-500"></div><span>45+ years</span></div><span class="font-semibold">7%</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+        <script>
+        lucide.createIcons();
+        const analyticsData = {'7':{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],data:[12000,15000,14500,16000,18000,19500,17800],avgReading:'7.2 min',completion:'68%',commentRate:'2.8%'},'30':{labels:['Week 1','Week 2','Week 3','Week 4'],data:[28000,35000,42000,38000],avgReading:'8.5 min',completion:'72%',commentRate:'3.2%'},'90':{labels:['Month 1','Month 2','Month 3'],data:[85000,95000,115000],avgReading:'9.1 min',completion:'75%',commentRate:'3.5%'},'all':{labels:['Q1','Q2','Q3','Q4'],data:[150000,280000,350000,415000],avgReading:'10.2 min',completion:'78%',commentRate:'4.1%'}};
+        let currentPeriod='30',viewsChartInstance=null,demographicsChartInstance=null;
+        
+        function switchTab(t){document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('bg-sky-500','text-white','font-semibold');b.classList.add('border','border-slate-200')});const s=document.getElementById('tab-'+t);if(s)s.classList.remove('hidden');const a=document.querySelector(`[data-tab="${t}"]`);if(a){a.classList.add('bg-sky-500','text-white','font-semibold');a.classList.remove('border','border-slate-200')}lucide.createIcons();if(t==='analytics')setTimeout(initCharts,100)}
+        
+        function sortChapters(t){const l=document.getElementById('chapters-list');if(!l)return;const i=Array.from(l.querySelectorAll('.chapter-item'));i.sort((a,b)=>{if(t==='newest')return new Date(b.dataset.date)-new Date(a.dataset.date);if(t==='oldest')return new Date(a.dataset.date)-new Date(b.dataset.date);if(t==='most-views')return parseInt(b.dataset.views)-parseInt(a.dataset.views)});l.innerHTML='';i.forEach(item=>l.appendChild(item));lucide.createIcons()}
+        
+        function searchChapters(q){document.querySelectorAll('.chapter-item').forEach(i=>{i.style.display=i.dataset.title.toLowerCase().includes(q.toLowerCase())?'block':'none'})}
+        
+        function updateAnalytics(p){currentPeriod=p;const d=analyticsData[p];document.getElementById('avg-reading-time').textContent=d.avgReading;document.getElementById('completion-rate').textContent=d.completion;document.getElementById('comment-rate').textContent=d.commentRate;document.getElementById('reading-time-bar').style.width=d.avgReading.replace(' min','')*10+'%';document.getElementById('completion-bar').style.width=d.completion;document.getElementById('comment-bar').style.width=parseFloat(d.commentRate)*10+'%';if(viewsChartInstance){viewsChartInstance.data.labels=d.labels;viewsChartInstance.data.datasets[0].data=d.data;viewsChartInstance.update()}}
+        
+        function initCharts(){const v=document.getElementById('viewsChart');if(v){if(viewsChartInstance)viewsChartInstance.destroy();const d=analyticsData[currentPeriod];viewsChartInstance=new Chart(v,{type:'line',data:{labels:d.labels,datasets:[{label:'Views',data:d.data,borderColor:'#0ea5e9',backgroundColor:'rgba(14,165,233,0.1)',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>(v/1000)+'k'}}}}})}const dc=document.getElementById('demographicsChart');if(dc){if(demographicsChartInstance)demographicsChartInstance.destroy();demographicsChartInstance=new Chart(dc,{type:'doughnut',data:{labels:['18-24','25-34','35-44','45+'],datasets:[{data:[35,40,18,7],backgroundColor:['#0ea5e9','#6366f1','#8b5cf6','#ec4899'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}})}}
+        
+        function toggleLike(b){const c=b.querySelector('.like-count'),d=b.parentElement.querySelector('.dislike-btn');if(b.classList.contains('active')){b.classList.remove('active','text-sky-500');b.classList.add('text-slate-500');c.textContent=parseInt(c.textContent)-1}else{b.classList.add('active','text-sky-500');b.classList.remove('text-slate-500');c.textContent=parseInt(c.textContent)+1;if(d&&d.classList.contains('active')){d.classList.remove('active','text-red-500');d.classList.add('text-slate-500');d.querySelector('.dislike-count').textContent=Math.max(0,parseInt(d.querySelector('.dislike-count').textContent)-1)}}lucide.createIcons()}
+        
+        function toggleDislike(b){const c=b.querySelector('.dislike-count'),l=b.parentElement.querySelector('.like-btn');if(b.classList.contains('active')){b.classList.remove('active','text-red-500');b.classList.add('text-slate-500');c.textContent=Math.max(0,parseInt(c.textContent)-1)}else{b.classList.add('active','text-red-500');b.classList.remove('text-slate-500');c.textContent=parseInt(c.textContent)+1;if(l&&l.classList.contains('active')){l.classList.remove('active','text-sky-500');l.classList.add('text-slate-500');l.querySelector('.like-count').textContent=Math.max(0,parseInt(l.querySelector('.like-count').textContent)-1)}}lucide.createIcons()}
+        
+        function toggleMenu(b){const m=b.nextElementSibling;document.querySelectorAll('.menu-dropdown').forEach(d=>{if(d!==m)d.classList.add('hidden')});m.classList.toggle('hidden')}
+        function reportReview(b){alert('Review reported. Thank you!');b.closest('.menu-dropdown').classList.add('hidden')}
+        
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();switchTab(b.getAttribute('data-tab'))}));document.querySelectorAll('.sort-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.sort-btn').forEach(s=>{s.classList.remove('bg-sky-500','text-white','font-semibold');s.classList.add('border','border-slate-200')});this.classList.add('bg-sky-500','text-white','font-semibold');this.classList.remove('border','border-slate-200');sortChapters(this.getAttribute('data-sort'))}));const s=document.getElementById('chapter-search');if(s)s.addEventListener('input',e=>searchChapters(e.target.value));document.querySelectorAll('.analytics-filter-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.analytics-filter-btn').forEach(a=>{a.classList.remove('bg-sky-500','text-white','font-semibold');a.classList.add('border','border-slate-200')});this.classList.add('bg-sky-500','text-white','font-semibold');this.classList.remove('border','border-slate-200');updateAnalytics(this.getAttribute('data-period'))}));document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',function(){const f=this.getAttribute('data-filter');document.querySelectorAll('.filter-btn').forEach(a=>{a.classList.remove('bg-sky-500','text-white','font-semibold');a.classList.add('border','border-slate-200')});this.classList.add('bg-sky-500','text-white','font-semibold');this.classList.remove('border','border-slate-200');document.querySelectorAll('.review-item').forEach(r=>r.style.display=(f==='all'||r.getAttribute('data-rating')===f)?'block':'none')}));document.addEventListener('click',e=>{if(!e.target.closest('.menu-btn')&&!e.target.closest('.menu-dropdown'))document.querySelectorAll('.menu-dropdown').forEach(m=>m.classList.add('hidden'))});switchTab('overview')});
+    </script>
+</body>
+</html>

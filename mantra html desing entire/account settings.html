@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WebNovel - Account Settings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="font-inter antialiased bg-white text-slate-800">
+  <div class="min-h-screen flex flex-col max-w-md mx-auto bg-white">
+    <!-- Account Settings Screen -->
+    <section class="min-h-screen">
+      <!-- Header -->
+      <div class="sticky top-0 bg-white z-40 border-b border-slate-100">
+        <div class="px-4 py-3 flex items-center gap-2">
+          <button class="p-2 rounded-lg hover:bg-slate-100 active:scale-95" onclick="history.back()">
+            <i data-lucide="arrow-left" class="w-5 h-5 text-slate-600"></i>
+          </button>
+          <div class="text-base font-semibold">Account Settings</div>
+        </div>
+      </div>
+
+      <div class="px-4 pt-4 pb-24 space-y-6">
+        <!-- Email Section -->
+        <div>
+          <div class="text-sm font-semibold mb-2">Email Address</div>
+          <div class="space-y-2">
+            <div class="rounded-xl border border-slate-100 p-3">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="text-xs text-slate-500">Current Email</div>
+                  <div class="text-sm font-semibold mt-0.5" id="current-email">you@example.com</div>
+                </div>
+                <button onclick="showChangeEmail()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs bg-white hover:bg-slate-50">
+                  Change
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Email Form (Hidden by default) -->
+        <div id="change-email-form" class="hidden space-y-3">
+          <div class="rounded-xl border border-sky-100 bg-sky-50 p-3">
+            <div class="flex gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5"></i>
+              <div class="text-xs text-sky-900">
+                We'll send a verification code to your new email address to confirm the change.
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">New Email Address <span class="text-slate-400">*</span></label>
+            <input id="new-email" type="email" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="new@example.com">
+            <div id="email-error" class="text-xs text-red-500 mt-1 hidden">Please enter a valid email address</div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Current Password <span class="text-slate-400">*</span></label>
+            <div class="relative">
+              <input id="email-password" type="password" class="w-full rounded-xl border border-slate-200 px-3 py-2 pr-10 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="Enter current password">
+              <button onclick="togglePasswordVisibility('email-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div id="email-password-error" class="text-xs text-red-500 mt-1 hidden">Password is required</div>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="hideChangeEmail()" class="flex-1 rounded-xl border border-slate-200 bg-white text-sm font-semibold py-2.5 hover:bg-slate-50">
+              Cancel
+            </button>
+            <button onclick="submitEmailChange()" class="flex-1 rounded-xl bg-sky-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95">
+              Update Email
+            </button>
+          </div>
+        </div>
+
+        <!-- Password Section -->
+        <div>
+          <div class="text-sm font-semibold mb-2">Password</div>
+          <button onclick="showChangePassword()" class="w-full flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50">
+            <span class="text-sm">Change Password</span>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </button>
+        </div>
+
+        <!-- Change Password Form (Hidden by default) -->
+        <div id="change-password-form" class="hidden space-y-3">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Current Password <span class="text-slate-400">*</span></label>
+            <div class="relative">
+              <input id="current-password" type="password" class="w-full rounded-xl border border-slate-200 px-3 py-2 pr-10 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="Enter current password">
+              <button onclick="togglePasswordVisibility('current-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div id="current-password-error" class="text-xs text-red-500 mt-1 hidden">Please enter your current password</div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">New Password <span class="text-slate-400">*</span></label>
+            <div class="relative">
+              <input id="new-password" type="password" class="w-full rounded-xl border border-slate-200 px-3 py-2 pr-10 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="Enter new password">
+              <button onclick="togglePasswordVisibility('new-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="text-xs text-slate-400 mt-1">Minimum 8 characters</div>
+            <div id="new-password-error" class="text-xs text-red-500 mt-1 hidden">Password must be at least 8 characters</div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Confirm New Password <span class="text-slate-400">*</span></label>
+            <div class="relative">
+              <input id="confirm-password" type="password" class="w-full rounded-xl border border-slate-200 px-3 py-2 pr-10 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white" placeholder="Re-enter new password">
+              <button onclick="togglePasswordVisibility('confirm-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div id="confirm-password-error" class="text-xs text-red-500 mt-1 hidden">Passwords don't match</div>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="hideChangePassword()" class="flex-1 rounded-xl border border-slate-200 bg-white text-sm font-semibold py-2.5 hover:bg-slate-50">
+              Cancel
+            </button>
+            <button onclick="submitPasswordChange()" class="flex-1 rounded-xl bg-sky-500 text-white text-sm font-semibold py-2.5 shadow-sm active:scale-95">
+              Update Password
+            </button>
+          </div>
+        </div>
+
+        <!-- Delete Account Section -->
+        <div>
+          <div class="text-sm font-semibold mb-2 text-rose-600">Danger Zone</div>
+          <button onclick="showDeleteAccount()" class="w-full flex items-center justify-between p-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100">
+            <div class="text-left">
+              <div class="text-sm font-semibold text-rose-600">Delete Account</div>
+              <div class="text-xs text-rose-500 mt-0.5">Permanently delete your account and data</div>
+            </div>
+            <i data-lucide="trash-2" class="w-4 h-4 text-rose-600"></i>
+          </button>
+        </div>
+
+        <!-- Account Info -->
+        <div class="rounded-xl border border-slate-100 p-4 bg-slate-50">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-500">Account Created</span>
+              <span class="text-xs text-slate-700 font-semibold">January 15, 2024</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-500">Account ID</span>
+              <span class="text-xs text-slate-700 font-mono">USR-2024-12345</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-500">Last Login</span>
+              <span class="text-xs text-slate-700">Today, 2:45 PM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Delete Account Confirmation Modal -->
+  <div id="delete-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
+      <div class="flex items-center justify-center w-12 h-12 rounded-full bg-rose-100 mx-auto mb-4">
+        <i data-lucide="alert-triangle" class="w-6 h-6 text-rose-600"></i>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-center mb-2">Delete Account?</h3>
+      <p class="text-sm text-slate-600 text-center mb-4">
+        This action cannot be undone. All your data including your library, novels, and reading history will be permanently deleted.
+      </p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Type "DELETE" to confirm</label>
+          <input id="delete-confirm-input" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-500 bg-white" placeholder="DELETE">
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Enter your password</label>
+          <div class="relative">
+            <input id="delete-password" type="password" class="w-full rounded-xl border border-slate-200 px-3 py-2 pr-10 text-sm outline-none focus:ring-2 focus:ring-rose-500 bg-white" placeholder="Your password">
+            <button onclick="togglePasswordVisibility('delete-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="delete-error" class="text-xs text-red-500 text-center hidden">Please type DELETE and enter your password</div>
+      </div>
+
+      <div class="flex gap-2 mt-6">
+        <button onclick="hideDeleteAccount()" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+          Cancel
+        </button>
+        <button onclick="confirmDeleteAccount()" class="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700 active:scale-95">
+          Delete Forever
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Email change functions
+    function showChangeEmail() {
+      document.getElementById('change-email-form').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function hideChangeEmail() {
+      document.getElementById('change-email-form').classList.add('hidden');
+      clearEmailErrors();
+      document.getElementById('new-email').value = '';
+      document.getElementById('email-password').value = '';
+    }
+
+    function clearEmailErrors() {
+      document.getElementById('email-error').classList.add('hidden');
+      document.getElementById('email-password-error').classList.add('hidden');
+    }
+
+    function validateEmail(email) {
+      const re = /^[^s@]+@[^s@]+.[^s@]+$/;
+      return re.test(email);
+    }
+
+    function submitEmailChange() {
+      clearEmailErrors();
+      let isValid = true;
+
+      const newEmail = document.getElementById('new-email').value.trim();
+      const password = document.getElementById('email-password').value;
+
+      if (!newEmail || !validateEmail(newEmail)) {
+        document.getElementById('email-error').classList.remove('hidden');
+        isValid = false;
+      }
+
+      if (!password) {
+        document.getElementById('email-password-error').classList.remove('hidden');
+        isValid = false;
+      }
+
+      if (isValid) {
+        // Simulate API call
+        alert(`Email change request sent to ${newEmail}. Please check your email to verify.`);
+        hideChangeEmail();
+      }
+    }
+
+    // Password change functions
+    function showChangePassword() {
+      document.getElementById('change-password-form').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function hideChangePassword() {
+      document.getElementById('change-password-form').classList.add('hidden');
+      clearPasswordErrors();
+      document.getElementById('current-password').value = '';
+      document.getElementById('new-password').value = '';
+      document.getElementById('confirm-password').value = '';
+    }
+
+    function clearPasswordErrors() {
+      document.getElementById('current-password-error').classList.add('hidden');
+      document.getElementById('new-password-error').classList.add('hidden');
+      document.getElementById('confirm-password-error').classList.add('hidden');
+    }
+
+    function submitPasswordChange() {
+      clearPasswordErrors();
+      let isValid = true;
+
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (!currentPassword) {
+        document.getElementById('current-password-error').classList.remove('hidden');
+        isValid = false;
+      }
+
+      if (newPassword.length < 8) {
+        document.getElementById('new-password-error').classList.remove('hidden');
+        isValid = false;
+      }
+
+      if (newPassword !== confirmPassword) {
+        document.getElementById('confirm-password-error').classList.remove('hidden');
+        isValid = false;
+      }
+
+      if (isValid) {
+        alert('Password updated successfully!');
+        hideChangePassword();
+      }
+    }
+
+    // Toggle password visibility
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = input.parentElement.querySelector('button i');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-lucide', 'eye-off');
+      } else {
+        input.type = 'password';
+        icon.setAttribute('data-lucide', 'eye');
+      }
+      
+      lucide.createIcons();
+    }
+
+    // Delete account functions
+    function showDeleteAccount() {
+      document.getElementById('delete-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function hideDeleteAccount() {
+      document.getElementById('delete-modal').classList.add('hidden');
+      document.getElementById('delete-confirm-input').value = '';
+      document.getElementById('delete-password').value = '';
+      document.getElementById('delete-error').classList.add('hidden');
+    }
+
+    function confirmDeleteAccount() {
+      const confirmText = document.getElementById('delete-confirm-input').value;
+      const password = document.getElementById('delete-password').value;
+
+      if (confirmText !== 'DELETE' || !password) {
+        document.getElementById('delete-error').classList.remove('hidden');
+        return;
+      }
+
+      // Simulate account deletion
+      alert('Account deleted successfully. You will be logged out.');
+      hideDeleteAccount();
+      // In real app, redirect to login page
+      // window.location.href = '/login';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('delete-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideDeleteAccount();
+      }
+    });
+  </script>
+</body>
+</html>

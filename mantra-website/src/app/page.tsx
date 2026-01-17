@@ -1,196 +1,192 @@
+'use client';
+
 import Link from 'next/link';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState } from 'react';
+import { getNovelCover } from '@/lib/defaultImages';
 
-// Reusable Novel Card Component
-function NovelCard({ novel }: { novel: any }) {
-  return (
-    <Link
-      href={`/novel/${novel.id}`}
-      className="group block bg-[var(--card)] rounded-xl overflow-hidden border border-[var(--border)] hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-    >
-      <div className="aspect-[3/4] relative overflow-hidden bg-slate-200">
-        {novel.cover_image_url ? (
-          <img
-            src={novel.cover_image_url}
-            alt={novel.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-500/20 to-indigo-500/20">
-            <span className="text-4xl">📖</span>
-          </div>
-        )}
-        {/* Status Badge */}
-        {novel.status && (
-          <span className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${novel.status === 'ongoing' ? 'bg-emerald-500 text-white' : 'bg-slate-500 text-white'
-            }`}>
-            {novel.status}
-          </span>
-        )}
-      </div>
-      <div className="p-3">
-        <h3 className="font-semibold text-[var(--foreground)] line-clamp-2 text-sm group-hover:text-[var(--primary)] transition-colors">
-          {novel.title}
-        </h3>
-        <p className="text-xs text-[var(--foreground-secondary)] mt-1 line-clamp-1">
-          {novel.author_name || 'Unknown Author'}
-        </p>
-        <div className="flex items-center gap-3 mt-2 text-xs text-[var(--foreground-secondary)]">
-          <span className="flex items-center gap-1">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-              <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-            </svg>
-            {novel.view_count?.toLocaleString() || 0}
-          </span>
-          <span className="flex items-center gap-1">
-            ❤️ {novel.like_count?.toLocaleString() || 0}
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
+interface Novel {
+  id: string;
+  title: string;
+  cover_image_url: string;
+  genres: string[];
+  total_views: number;
+  total_votes: number;
+  average_rating: number;
+  author: { username: string; display_name: string } | { username: string; display_name: string }[];
+  updated_at: string;
+  status: string;
 }
 
-// Section Component
-function Section({ title, viewAllLink, children }: { title: string; viewAllLink?: string; children: React.ReactNode }) {
+export default function HomePage() {
+  const [trendingNovels, setTrendingNovels] = useState<Novel[]>([]);
+  const [topRankedNovels, setTopRankedNovels] = useState<Novel[]>([]);
+  const [latestNovels, setLatestNovels] = useState<Novel[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function loadData() {
+      // Trending (by views)
+      const { data: trending } = await supabase
+        .from('novels')
+        .select(`id, title, cover_image_url, genres, total_views, total_votes, average_rating, status, updated_at, author:profiles!novels_author_id_fkey(username, display_name)`)
+        .order('total_views', { ascending: false })
+        .limit(8);
+
+      // Top Ranked (by votes)
+      const { data: ranked } = await supabase
+        .from('novels')
+        .select(`id, title, cover_image_url, genres, total_views, total_votes, average_rating, status, updated_at, author:profiles!novels_author_id_fkey(username, display_name)`)
+        .order('total_votes', { ascending: false })
+        .limit(8);
+
+      // Latest Updated
+      const { data: latest } = await supabase
+        .from('novels')
+        .select(`id, title, cover_image_url, genres, total_views, total_votes, average_rating, status, updated_at, author:profiles!novels_author_id_fkey(username, display_name)`)
+        .order('updated_at', { ascending: false })
+        .limit(5);
+
+      setTrendingNovels((trending as any) || []);
+      setTopRankedNovels((ranked as any) || []);
+      setLatestNovels((latest as any) || []);
+      setIsLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const formatViews = (count: number) => {
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
+    return (count || 0).toString();
+  };
+
+  const getAuthorName = (author: any) => {
+    if (Array.isArray(author)) {
+      return author[0]?.display_name || author[0]?.username || 'Unknown';
+    }
+    return author?.display_name || author?.username || 'Unknown';
+  };
+
+  const getGenre = (novel: Novel) => {
+    return novel.genres?.[0] || 'Unknown';
+  };
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-white flex items-center justify-center"><div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div></div>;
+  }
+
   return (
-    <section className="mb-12">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-[var(--foreground)]">{title}</h2>
-        {viewAllLink && (
-          <Link href={viewAllLink} className="text-sm text-[var(--primary)] hover:underline font-medium">
-            See all →
+    <div className="min-h-screen bg-white text-slate-800 pb-24">
+      {/* Header */}
+      <div className="w-full px-4 pt-6 md:px-8">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-slate-900">Mantra</h1>
+          <Link href="/search" className="p-2 rounded-full hover:bg-slate-100 transition-colors">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
           </Link>
-        )}
+        </div>
       </div>
-      {children}
-    </section>
-  );
-}
 
-export default async function HomePage() {
-  const supabase = await createServerSupabaseClient();
-
-  // Fetch trending novels
-  const { data: trendingNovels } = await supabase
-    .from('novels')
-    .select(`
-      id, title, cover_image_url, status, view_count, like_count,
-      author:profiles!novels_author_id_fkey(username)
-    `)
-    .eq('is_published', true)
-    .order('view_count', { ascending: false })
-    .limit(8);
-
-  // Fetch latest updates
-  const { data: latestNovels } = await supabase
-    .from('novels')
-    .select(`
-      id, title, cover_image_url, status, view_count, like_count,
-      author:profiles!novels_author_id_fkey(username)
-    `)
-    .eq('is_published', true)
-    .order('updated_at', { ascending: false })
-    .limit(8);
-
-  // Fetch genres
-  const { data: genres } = await supabase
-    .from('genres')
-    .select('*')
-    .limit(12);
-
-  // Format novels with author name
-  const formatNovels = (novels: any[]) =>
-    novels?.map(n => ({ ...n, author_name: n.author?.username })) || [];
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-12 bg-gradient-to-r from-sky-500 to-indigo-600 p-8 md:p-12">
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Discover Your Next Favorite Story
-          </h1>
-          <p className="text-white/90 mb-6 text-lg">
-            Thousands of web novels from talented authors. Read for free, support creators, or start writing your own masterpiece.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/ranking"
-              className="px-6 py-3 bg-white text-sky-600 rounded-lg font-semibold hover:bg-white/90 transition-colors"
-            >
-              Browse Novels
-            </Link>
-            <Link
-              href="/author/dashboard"
-              className="px-6 py-3 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition-colors border border-white/30"
-            >
-              Start Writing
-            </Link>
+      <div className="w-full">
+        {/* Featured Banner */}
+        <div className="px-4 md:px-8">
+          <div className="relative rounded-2xl overflow-hidden h-44 shadow-sm md:h-[400px] lg:h-[450px]">
+            <img
+              src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200&auto=format&fit=crop"
+              className="h-full w-full object-cover"
+              alt="Featured"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+            <div className="absolute bottom-3 left-3 right-3 text-white md:bottom-6 md:left-6 md:right-6">
+              <div className="text-lg font-semibold tracking-tight md:text-2xl">Weekly Featured</div>
+              <div className="text-xs text-white/80 mt-0.5 line-clamp-1 md:text-sm">Handpicked stories loved by editors</div>
+            </div>
           </div>
         </div>
-        {/* Decorative elements */}
-        <div className="absolute right-0 top-0 w-1/3 h-full opacity-20">
-          <div className="absolute right-10 top-10 w-32 h-32 border-4 border-white rounded-full"></div>
-          <div className="absolute right-20 bottom-10 w-24 h-24 border-4 border-white rounded-full"></div>
-        </div>
-      </div>
 
-      {/* Genres */}
-      <Section title="Browse by Genre" viewAllLink="/genre">
-        <div className="flex flex-wrap gap-2">
-          {genres?.map((genre) => (
-            <Link
-              key={genre.id}
-              href={`/genre/${genre.slug}`}
-              className="px-4 py-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full text-sm font-medium text-[var(--foreground)] hover:bg-[var(--primary)] hover:text-white hover:border-[var(--primary)] transition-all"
-            >
-              {genre.emoji} {genre.name}
-            </Link>
-          )) || (
-              <p className="text-[var(--foreground-secondary)]">No genres found</p>
+        {/* Trending Section */}
+        <div className="mt-6">
+          <div className="px-4 flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold tracking-tight">Trending</h2>
+            <Link href="/ranking" className="text-xs text-sky-600 font-semibold hover:text-sky-700">See all</Link>
+          </div>
+          <div className="overflow-x-auto px-4 no-scrollbar">
+            <div className="flex gap-3 min-w-max">
+              {trendingNovels.map((novel) => (
+                <Link key={novel.id} href={`/novel/${novel.id}`} className="w-36 md:w-44 flex-shrink-0 block group">
+                  <div className="relative rounded-xl overflow-hidden bg-slate-100 h-48 md:h-60 shadow-sm group-hover:shadow-md transition-shadow">
+                    <img src={getNovelCover(novel.cover_image_url)} className="h-full w-full object-cover" alt={novel.title} />
+                  </div>
+                  <div className="mt-2">
+                    <div className="text-sm font-semibold line-clamp-1 group-hover:text-sky-600 transition-colors">{novel.title}</div>
+                    <div className="text-xs text-slate-500">{getGenre(novel)}</div>
+                  </div>
+                </Link>
+              ))}
+              {trendingNovels.length === 0 && (
+                <div className="text-sm text-slate-500 py-8">No trending novels yet</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Top Rankings */}
+        <div className="mt-6">
+          <div className="px-4 flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold tracking-tight">Top Rankings</h2>
+            <Link href="/ranking" className="text-xs text-sky-600 font-semibold hover:text-sky-700">View all</Link>
+          </div>
+          <div className="overflow-x-auto px-4 no-scrollbar">
+            <div className="flex gap-3 min-w-max">
+              {topRankedNovels.map((novel) => (
+                <Link key={novel.id} href={`/novel/${novel.id}`} className="w-44 md:w-52 flex-shrink-0 block group">
+                  <div className="relative rounded-xl overflow-hidden bg-slate-100 h-56 md:h-72 shadow-sm group-hover:shadow-md transition-shadow">
+                    <img src={getNovelCover(novel.cover_image_url)} className="h-full w-full object-cover" alt={novel.title} />
+                  </div>
+                  <div className="mt-2">
+                    <div className="text-sm font-semibold line-clamp-1 group-hover:text-sky-600 transition-colors">{novel.title}</div>
+                    <div className="text-xs text-slate-500">{getGenre(novel)} · {novel.average_rating || '0'}★</div>
+                  </div>
+                </Link>
+              ))}
+              {topRankedNovels.length === 0 && (
+                <div className="text-sm text-slate-500 py-8">No novels ranked yet</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Recently Updated */}
+        <div className="mt-6">
+          <div className="px-4 mb-2">
+            <h2 className="text-lg font-semibold tracking-tight">Recently Updated</h2>
+          </div>
+          <div className="px-4 space-y-3 md:grid md:grid-cols-2 md:space-y-0 md:gap-4 lg:grid-cols-3">
+            {latestNovels.map(novel => (
+              <Link key={novel.id} href={`/novel/${novel.id}`} className="flex gap-3 p-3 rounded-xl border border-slate-100 shadow-sm hover:shadow transition bg-white block">
+                <div className="h-16 w-12 rounded-md overflow-hidden bg-slate-100 flex-shrink-0">
+                  <img src={getNovelCover(novel.cover_image_url)} className="h-full w-full object-cover" alt={novel.title} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold line-clamp-1">{novel.title}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">
+                    {getGenre(novel)} · {new Date(novel.updated_at).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${novel.status === 'ongoing' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-50 text-slate-700'}`}>
+                      {novel.status || 'Ongoing'}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            {latestNovels.length === 0 && (
+              <div className="text-sm text-slate-500 py-8 col-span-full text-center">No novels updated yet</div>
             )}
+          </div>
         </div>
-      </Section>
-
-      {/* Trending Novels */}
-      <Section title="🔥 Trending Now" viewAllLink="/see-all/trending">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {formatNovels(trendingNovels || []).slice(0, 6).map((novel) => (
-            <NovelCard key={novel.id} novel={novel} />
-          ))}
-          {(!trendingNovels || trendingNovels.length === 0) && (
-            <p className="col-span-full text-center text-[var(--foreground-secondary)] py-8">
-              No novels found. Check back later!
-            </p>
-          )}
-        </div>
-      </Section>
-
-      {/* Latest Updates */}
-      <Section title="📚 Latest Updates" viewAllLink="/see-all/latest">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {formatNovels(latestNovels || []).slice(0, 6).map((novel) => (
-            <NovelCard key={novel.id} novel={novel} />
-          ))}
-        </div>
-      </Section>
-
-      {/* Call to Action */}
-      <div className="bg-[var(--background-secondary)] rounded-2xl p-8 text-center border border-[var(--border)]">
-        <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">
-          Ready to Share Your Story?
-        </h2>
-        <p className="text-[var(--foreground-secondary)] mb-6 max-w-xl mx-auto">
-          Join thousands of authors on Mantra Novel. Share your stories, build your audience, and earn from your creativity.
-        </p>
-        <Link
-          href="/signup"
-          className="inline-block px-8 py-3 bg-[var(--primary)] text-white rounded-lg font-semibold hover:bg-sky-600 transition-colors"
-        >
-          Get Started Free
-        </Link>
       </div>
     </div>
   );
