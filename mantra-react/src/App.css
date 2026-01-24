@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* 
+  Removed default Vite styles that cause centering issues.
+  The global styles are now handled in index.css
+*/

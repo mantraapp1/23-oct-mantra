@@ -1,10 +1,8 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useNavigate, Link } from 'react-router-dom';
 import { ThumbsUp, ThumbsDown, MessageCircle, Send, MoreVertical, Flag, Trash2, Edit3, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import commentService, { CommentWithUser } from '@/lib/services/commentService';
+import commentService from '@/lib/services/commentService';
+import type { CommentWithUser } from '@/lib/services/commentService';
 import { getUserDisplayName, getUserProfileImage } from '@/lib/utils/profileUtils';
 import type { User } from '@supabase/supabase-js';
 
@@ -32,7 +30,7 @@ function formatTimeAgo(dateString: string): string {
 }
 
 export default function ChapterComments({ chapterId, currentUser, theme = 'light' }: ChapterCommentsProps) {
-    const router = useRouter();
+    const navigate = useNavigate();
     const [comments, setComments] = useState<CommentWithUser[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState<'newest' | 'most_liked'>('newest');
@@ -117,7 +115,7 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
 
     const handleReaction = async (commentId: string, type: 'like' | 'dislike') => {
         if (!currentUser) {
-            router.push('/login');
+            navigate('/login');
             return;
         }
 
@@ -370,7 +368,7 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
                 </div>
             ) : (
                 <div className={`rounded-xl p-6 text-center mb-6 border border-dashed ${theme === 'dark' ? 'bg-gray-800/50 text-gray-400 border-gray-700' : theme === 'sepia' ? 'bg-[#e6dec1] text-[#8b7355] border-[#d5c9a8]' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
-                    <Link href="/login" className="text-sky-600 font-semibold hover:underline">Log in</Link> to join the discussion.
+                    <Link to="/login" className="text-sky-600 font-semibold hover:underline">Log in</Link> to join the discussion.
                 </div>
             )}
 

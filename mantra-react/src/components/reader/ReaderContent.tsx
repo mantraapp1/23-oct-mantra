@@ -1,9 +1,6 @@
-'use client';
-
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, Settings, Home, Menu, Share2, Flag, BookOpen, User, X, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Settings, Menu, Share2, Flag, BookOpen, User } from 'lucide-react';
 import ChapterComments from '@/components/novel/ChapterComments';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -17,7 +14,6 @@ interface ReaderContentProps {
 }
 
 export default function ReaderContent({ chapter, novel, prevChapter, nextChapter, novelId, currentUser }: ReaderContentProps) {
-    const router = useRouter();
     const [showSettings, setShowSettings] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
 
@@ -84,7 +80,7 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                 } backdrop-blur-sm`}>
 
                 <div className="flex items-center gap-3">
-                    <Link href={`/novel/${novelId}`} className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-black/5 text-slate-600'
+                    <Link to={`/novel/${novelId}`} className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-black/5 text-slate-600'
                         }`}>
                         <ChevronLeft className="w-6 h-6" />
                     </Link>
@@ -117,14 +113,14 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                             <>
                                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
                                 <div className={`absolute right-0 top-full mt-2 w-48 rounded-xl shadow-xl border py-2 z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200 ${theme === 'dark' ? 'bg-[#1a1a1a] border-gray-700' :
-                                        theme === 'sepia' ? 'bg-[#f6f1d1] border-[#e6dec1]' :
-                                            'bg-white border-slate-100'
+                                    theme === 'sepia' ? 'bg-[#f6f1d1] border-[#e6dec1]' :
+                                        'bg-white border-slate-100'
                                     }`}>
-                                    <Link href={`/novel/${novelId}`} className={`flex items-center gap-3 px-4 py-2.5 text-sm ${theme === 'dark' ? 'text-gray-300 hover:bg-gray-800' : theme === 'sepia' ? 'text-[#5b4636] hover:bg-[#e6dec1]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                    <Link to={`/novel/${novelId}`} className={`flex items-center gap-3 px-4 py-2.5 text-sm ${theme === 'dark' ? 'text-gray-300 hover:bg-gray-800' : theme === 'sepia' ? 'text-[#5b4636] hover:bg-[#e6dec1]' : 'text-slate-700 hover:bg-slate-50'}`}>
                                         <BookOpen className="w-4 h-4" /> View Novel
                                     </Link>
                                     {novel?.author?.id && (
-                                        <Link href={`/user/${novel.author.id}`} className={`flex items-center gap-3 px-4 py-2.5 text-sm ${theme === 'dark' ? 'text-gray-300 hover:bg-gray-800' : theme === 'sepia' ? 'text-[#5b4636] hover:bg-[#e6dec1]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                        <Link to={`/user/${novel.author.id}`} className={`flex items-center gap-3 px-4 py-2.5 text-sm ${theme === 'dark' ? 'text-gray-300 hover:bg-gray-800' : theme === 'sepia' ? 'text-[#5b4636] hover:bg-[#e6dec1]' : 'text-slate-700 hover:bg-slate-50'}`}>
                                             <User className="w-4 h-4" /> View Author
                                         </Link>
                                     )}
@@ -268,7 +264,7 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                 <div className={`flex items-center gap-4 mt-12 py-6 border-t border-b ${theme === 'dark' ? 'border-gray-800' : theme === 'sepia' ? 'border-[#e6dec1]' : 'border-slate-200'}`}>
                     {prevChapter ? (
                         <Link
-                            href={`/novel/${novelId}/chapter/${prevChapter.id}`}
+                            to={`/novel/${novelId}/chapter/${prevChapter.id}`}
                             className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-colors ${theme === 'dark' ? 'bg-gray-800 hover:bg-gray-700 text-white' :
                                 theme === 'sepia' ? 'bg-[#e6dec1] hover:bg-[#dcd3b5] text-[#5b4636]' :
                                     'bg-slate-100 hover:bg-slate-200 text-slate-700'
@@ -289,7 +285,7 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
 
                     {nextChapter ? (
                         <Link
-                            href={`/novel/${novelId}/chapter/${nextChapter.id}`}
+                            to={`/novel/${novelId}/chapter/${nextChapter.id}`}
                             className="flex-1 py-3 px-4 bg-sky-500 text-white rounded-xl flex items-center justify-center gap-2 hover:bg-sky-600 font-medium transition-colors shadow-sm"
                         >
                             Next <ChevronRight className="w-4 h-4" />

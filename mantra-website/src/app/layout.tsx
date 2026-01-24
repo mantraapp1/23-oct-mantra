@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BottomNav from "@/components/layout/BottomNav";
+import { headers } from 'next/headers';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,22 +26,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check if we're on a chapter reading route - hide global header/footer for immersive reading
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || headersList.get('referer') || '';
+  const isReaderRoute = pathname.includes('/chapter/');
+
   return (
     <html lang="en">
       <body
         className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
-        <Header />
-        <main className="flex-1 pb-16 md:pb-0">
+        {!isReaderRoute && <Header />}
+        <main className={`flex-1 ${!isReaderRoute ? 'pb-16 md:pb-0' : ''}`}>
           {children}
         </main>
-        <BottomNav />
-        <Footer />
+        {!isReaderRoute && <BottomNav />}
+        {!isReaderRoute && <Footer />}
       </body>
     </html>
   );

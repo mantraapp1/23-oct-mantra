@@ -1,8 +1,6 @@
-'use client';
-
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, MoreVertical, Share2, User, Flag, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, MoreVertical, Share2, User, Flag } from 'lucide-react';
 
 interface NovelHeroProps {
     novel: {
@@ -42,7 +40,7 @@ export default function NovelHero({ novel }: NovelHeroProps) {
     const handleReport = () => {
         setShowMenu(false);
         // Navigate to report page with novel info
-        window.location.href = `/report?type=novel&novelId=${novel.id}&novelName=${encodeURIComponent(novel.title)}`;
+        navigate(`/report?type=novel&novelId=${novel.id}&novelName=${encodeURIComponent(novel.title)}`);
     };
 
     return (
@@ -57,9 +55,9 @@ export default function NovelHero({ novel }: NovelHeroProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent"></div>
 
                 {/* Navigation Buttons */}
-                <div className="absolute top-4 left-4 md:left-[calc(50%-40rem)] md:translate-x-4 max-w-7xl mx-auto w-full z-20 pointer-events-none">
-                    <div className="flex justify-between w-full pr-8 pointer-events-auto">
-                        <Link href="/" className="p-2 rounded-xl bg-white/90 hover:bg-white shadow-sm flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
+                <div className="absolute top-4 inset-x-0 z-20 pointer-events-none">
+                    <div className="max-w-7xl mx-auto px-4 w-full flex justify-between pointer-events-auto">
+                        <Link to="/" className="p-2 rounded-xl bg-white/90 hover:bg-white shadow-sm flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
                             <ArrowLeft className="w-5 h-5 text-slate-700" />
                         </Link>
 
@@ -67,7 +65,7 @@ export default function NovelHero({ novel }: NovelHeroProps) {
                         <div className="relative">
                             <button
                                 onClick={() => setShowMenu(!showMenu)}
-                                className="p-2 rounded-xl bg-white/90 hover:bg-white shadow-sm flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+                                className="p-2 rounded-xl bg-white/90 hover:bg-white shadow-sm flex items-center justify-center transition-transform hover:scale-105 active:scale-95 cursor-pointer"
                             >
                                 <MoreVertical className="w-5 h-5 text-slate-700" />
                             </button>
@@ -78,7 +76,7 @@ export default function NovelHero({ novel }: NovelHeroProps) {
                                     <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
                                         {novel.author?.id && (
                                             <Link
-                                                href={`/user/${novel.author.id}`}
+                                                to={`/user/${novel.author.id}`}
                                                 onClick={() => setShowMenu(false)}
                                                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-sm text-slate-700"
                                             >
@@ -123,7 +121,7 @@ export default function NovelHero({ novel }: NovelHeroProps) {
                             <div className="flex items-center gap-2 text-slate-600 text-lg mb-4">
                                 <span>by</span>
                                 <Link
-                                    href={novel.author?.id ? `/user/${novel.author.id}` : '#'}
+                                    to={novel.author?.id ? `/user/${novel.author.id}` : '#'}
                                     className="font-semibold text-slate-900 underline decoration-slate-300 underline-offset-4 hover:text-sky-600"
                                 >
                                     {novel.author?.username || 'Unknown'}

@@ -1,7 +1,4 @@
-'use client';
-
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { Search, ArrowUpDown } from 'lucide-react';
 import ChapterList from './ChapterList';
 import ReviewSection from './ReviewSection';

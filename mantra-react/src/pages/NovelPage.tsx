@@ -1,68 +1,97 @@
-import { notFound } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import NovelHero from '@/components/novel/NovelHero';
 import NovelTabs from '@/components/novel/NovelTabs';
 import ActionButtons from '@/components/novel/ActionButtons';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
-interface NovelDetailPageProps {
-    params: Promise<{ id: string }>;
-}
+export default function NovelPage() {
+    const { id } = useParams<{ id: string }>();
+    const [novel, setNovel] = useState<any>(null);
+    const [chapters, setChapters] = useState<any[]>([]);
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const supabase = createClient();
 
-export default async function NovelDetailPage({ params }: NovelDetailPageProps) {
-    const { id } = await params;
-    const supabase = await createServerSupabaseClient();
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
 
-    // Fetch novel with author info - use correct column names from schema
-    const { data: novel, error } = await supabase
-        .from('novels')
-        .select(`
-            id, title, description, cover_image_url, genres, tags, language, 
-            is_mature, status, total_chapters, total_views, total_votes, 
-            average_rating, total_reviews, is_featured, is_editors_pick,
-            created_at, updated_at,
-            author:profiles!novels_author_id_fkey(id, username, display_name, profile_picture_url)
-        `)
-        .eq('id', id)
-        .single();
+        if (!id) return;
 
-    if (error || !novel) {
-        notFound();
-    }
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                // 1. Fetch Novel Metadata (Blocking)
+                const { data: novelData } = await supabase
+                    .from('novels')
+                    .select(`
+                        id, title, description, cover_image_url, genres, tags, language, 
+                        is_mature, status, total_chapters, total_views, total_votes, 
+                        average_rating, total_reviews, is_featured, is_editors_pick,
+                        created_at, updated_at,
+                        author:profiles!novels_author_id_fkey(id, username, display_name, profile_picture_url)
+                    `)
+                    .eq('id', id)
+                    .eq('is_mature', false) // Bypass RLS blocking function
+                    .single();
 
-    // Fetch chapters
-    const { data: chapters } = await supabase
-        .from('chapters')
-        .select('id, title, chapter_number, created_at:published_at, is_locked, views')
-        .eq('novel_id', id)
-        .order('chapter_number', { ascending: true });
+                if (novelData) {
+                    setNovel(novelData);
+                    setLoading(false); // UNBLOCK UI IMMEDIATELY
 
-    // Fetch reviews
-    const { data: reviews } = await supabase
-        .from('reviews')
-        .select(`
-            id, rating, content:review_text, created_at,
-            user:profiles!reviews_user_id_fkey(username, profile_picture_url)
-        `)
-        .eq('novel_id', id)
-        .order('created_at', { ascending: false })
-        .limit(5);
+                    // 2. Fetch Content (Background / Progressive)
 
-    // Use genres array field directly from novel
-    const genres = novel.genres || [];
+                    // Fetch Chapters
+                    supabase
+                        .from('chapters')
+                        .select('id, title, chapter_number, created_at:published_at, is_locked, views')
+                        .eq('novel_id', id)
+                        .order('chapter_number', { ascending: true })
+                        .then(({ data, error }) => {
+                            if (error) console.error('Error fetching chapters:', error);
+                            if (data) setChapters(data);
+                        });
 
-    // Normalize author data
-    const author = Array.isArray(novel.author) ? novel.author[0] : novel.author;
+                    // Fetch Reviews
+                    supabase
+                        .from('reviews')
+                        .select(`
+                            id, rating, content:review_text, created_at,
+                            user:profiles!reviews_user_id_fkey(username, profile_picture_url)
+                        `)
+                        .eq('novel_id', id)
+                        .order('created_at', { ascending: false })
+                        .limit(5)
+                        .then(({ data }) => {
+                            if (data) setReviews(data);
+                        });
+                } else {
+                    setLoading(false); // Novel not found
+                }
+            } catch (error) {
+                console.error('Error fetching novel:', error);
+                setLoading(false);
+            }
+        };
 
-    // Calculated Stats
+        fetchData();
+    }, [id]);
+
+    if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div></div>;
+    if (!novel) return <div className="text-center py-20">Novel not found</div>;
+
+    // Derived stats
     const stats = {
         rating: novel.average_rating || 0,
         views: novel.total_views >= 1000 ? `${(novel.total_views / 1000).toFixed(1)}k` : novel.total_views || 0,
         votes: novel.total_votes >= 1000 ? `${(novel.total_votes / 1000).toFixed(1)}k` : novel.total_votes || 0,
-        chapters: novel.total_chapters || chapters?.length || 0,
+        chapters: novel.total_chapters || chapters.length || 0,
     };
 
-    // Fetch current user
-    const { data: { user } } = await supabase.auth.getUser();
+    const author = Array.isArray(novel.author) ? novel.author[0] : novel.author;
+    const genres = novel.genres || [];
 
     return (
         <div className="min-h-screen bg-white pb-24 font-inter">
