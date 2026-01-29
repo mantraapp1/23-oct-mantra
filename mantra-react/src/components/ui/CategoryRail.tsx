@@ -5,7 +5,7 @@ export default function CategoryRail({ categories = [] }: { categories: any[] })
     const currentGenre = searchParams.get('genre');
 
     return (
-        <div className="sticky top-16 z-40 bg-[var(--background)]/95 backdrop-blur-sm border-b border-[var(--border)] py-3">
+        <div className="sticky top-16 z-40 bg-background border-b border-border py-3">
             <div className="flex overflow-x-auto px-4 sm:px-6 lg:px-8 gap-3 scrollbar-hide">
                 <Link
                     to="/"

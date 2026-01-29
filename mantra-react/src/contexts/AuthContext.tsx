@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import { FullScreenLoader } from '@/components/ui/LoadingSpinner';
 
 // ============================================
 // Types
@@ -12,6 +14,11 @@ export interface Profile {
     display_name: string | null;
     profile_picture_url: string | null;
     bio: string | null;
+    gender: string | null;
+    age: number | null;
+    show_mature_content: boolean;
+    preferred_language: string | null;
+    favorite_genres: string[] | null;
     created_at: string;
     updated_at: string;
 }
@@ -45,29 +52,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-    const supabase = createClient();
+    const queryClient = useQueryClient();
 
     // Fetch profile data for a user
     const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
         try {
+            console.log('[Auth] Fetching profile for:', userId);
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, username, display_name, profile_picture_url, bio, created_at, updated_at')
+                .select('id, username, display_name, profile_picture_url, bio, gender, age, preferred_language, favorite_genres, created_at, updated_at')
                 .eq('id', userId)
                 .single();
 
             if (error) {
-                console.error('Error fetching profile:', error.message);
+                console.error('[Auth] Error fetching profile:', error.message);
                 return null;
             }
 
+            console.log('[Auth] Profile fetched');
             return data as Profile;
         } catch (error) {
-            console.error('Error in fetchProfile:', error);
+            console.error('[Auth] Error in fetchProfile:', error);
             return null;
         }
-    }, [supabase]);
+    }, []); // supabase is static now
 
     // Refresh profile data
     const refreshProfile = useCallback(async () => {
@@ -79,77 +89,91 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Sign out
     const signOut = useCallback(async () => {
         try {
+            console.log('[Auth] Signing out...');
             await supabase.auth.signOut();
             setUser(null);
             setProfile(null);
             setSession(null);
+            console.log('[Auth] Signed out');
         } catch (error) {
-            console.error('Error signing out:', error);
+            console.error('[Auth] Error signing out:', error);
         }
-    }, [supabase]);
+    }, []);
 
-    // Initialize auth state
+    // Initialize auth state - use ONLY onAuthStateChange pattern
+    // This is the production-grade approach recommended by Supabase
     useEffect(() => {
         let mounted = true;
+        let initialized = false;
 
-        const initializeAuth = async () => {
-            try {
-                // Get initial session
-                const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        console.log('[Auth] Setting up auth listener...');
 
-                if (error) {
-                    console.error('Error getting session:', error.message);
-                    if (mounted) setIsLoading(false);
-                    return;
-                }
-
-                if (mounted && initialSession) {
-                    setSession(initialSession);
-                    setUser(initialSession.user);
-
-                    // Fetch profile
-                    const profileData = await fetchProfile(initialSession.user.id);
-                    if (mounted) setProfile(profileData);
-                }
-            } catch (error: any) {
-                if (error.name !== 'AbortError') {
-                    console.error('Error initializing auth:', error);
-                }
-            } finally {
-                if (mounted) setIsLoading(false);
+        // Safety timeout - guarantee loading clears after 3 seconds
+        const timeoutId = setTimeout(() => {
+            if (mounted && !initialized) {
+                console.warn('[Auth] Safety timeout - forcing loading complete');
+                setIsLoading(false);
+                setIsInitialLoad(false);
+                initialized = true;
             }
-        };
+        }, 3000);
 
-        initializeAuth();
-
-        // Listen for auth changes
+        // Use onAuthStateChange as the SINGLE source of truth
+        // This handles: initial session, sign in, sign out, token refresh
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, currentSession) => {
                 if (!mounted) return;
 
+                console.log('[Auth] Auth event:', event, { hasSession: !!currentSession });
+
+                // For any session-related event, update state
                 setSession(currentSession);
                 setUser(currentSession?.user ?? null);
 
+                // Fetch profile if we have a user
                 if (currentSession?.user) {
-                    // Fetch profile on auth change
-                    const profileData = await fetchProfile(currentSession.user.id);
-                    if (mounted) setProfile(profileData);
+                    // Use setTimeout to avoid blocking the auth state update
+                    // This is important for preventing race conditions
+                    setTimeout(async () => {
+                        if (!mounted) return;
+                        try {
+                            const profileData = await fetchProfile(currentSession.user.id);
+                            if (mounted) setProfile(profileData);
+                        } catch (e) {
+                            console.error('[Auth] Profile fetch error:', e);
+                        }
+                    }, 0);
                 } else {
                     setProfile(null);
+                }
+
+                // Mark initialization complete on first event
+                if (!initialized) {
+                    console.log('[Auth] Initialization complete via', event);
+                    setIsLoading(false);
+                    setIsInitialLoad(false);
+                    initialized = true;
+                    clearTimeout(timeoutId);
                 }
 
                 // Handle specific events
                 if (event === 'SIGNED_OUT') {
                     setProfile(null);
+                    queryClient.clear();
+                }
+
+                if (event === 'TOKEN_REFRESHED') {
+                    queryClient.invalidateQueries();
                 }
             }
         );
 
         return () => {
             mounted = false;
+            clearTimeout(timeoutId);
             subscription.unsubscribe();
         };
-    }, [supabase, fetchProfile]);
+    }, [fetchProfile, queryClient]);
 
     const value: AuthContextType = {
         user,
@@ -160,6 +184,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signOut,
         refreshProfile,
     };
+
+    // Only show full screen loader on initial load (first visit)
+    // On page reloads after login, show content immediately while session loads in background
+    if (isLoading && isInitialLoad) {
+        return <FullScreenLoader />;
+    }
 
     return (
         <AuthContext.Provider value={value}>
@@ -197,11 +227,7 @@ export function withAuth<P extends object>(
         const { isAuthenticated, isLoading } = useAuth();
 
         if (isLoading) {
-            return (
-                <div className="flex justify-center items-center min-h-screen">
-                    <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
-                </div>
-            );
+            return <FullScreenLoader />;
         }
 
         if (!isAuthenticated) {

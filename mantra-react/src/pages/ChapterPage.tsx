@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReaderContent from '@/components/reader/ReaderContent';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import novelService from '@/services/novelService';
 
 export default function ChapterPage() {
     const { novelId, chapterId } = useParams<{ novelId: string; chapterId: string }>();
@@ -12,7 +13,6 @@ export default function ChapterPage() {
     const [nextChapter, setNextChapter] = useState<any>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const supabase = createClient();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -69,6 +69,8 @@ export default function ChapterPage() {
 
                 // Increment View (optional, silently)
                 supabase.rpc('increment_chapter_view', { chapter_id_param: chapterId });
+                // Also increment novel views
+                novelService.incrementViews(novelId);
 
             } catch (error) {
                 console.error('Error fetching chapter:', error);
@@ -80,8 +82,8 @@ export default function ChapterPage() {
         fetchData();
     }, [novelId, chapterId]);
 
-    if (loading) return <div className="flex justify-center items-center min-h-screen bg-white"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div></div>;
-    if (!chapter) return <div className="text-center py-20">Chapter not found</div>;
+    if (loading) return <div className="flex justify-center items-center min-h-screen bg-background"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div></div>;
+    if (!chapter) return <div className="text-center py-20 bg-background text-foreground min-h-screen">Chapter not found</div>;
 
     return (
         <ReaderContent

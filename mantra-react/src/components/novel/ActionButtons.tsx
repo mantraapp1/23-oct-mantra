@@ -1,50 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ThumbsUp, Bookmark, Check, Loader2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { ThumbsUp, BookOpen, Plus, Check } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { supabase } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import novelService from '@/services/novelService';
 
 interface ActionButtonsProps {
     novelId: string;
     currentUser: User | null;
+    onVoteChange?: (increment: boolean) => void;
 }
 
-export default function ActionButtons({ novelId, currentUser }: ActionButtonsProps) {
+export default function ActionButtons({ novelId, currentUser, onVoteChange }: ActionButtonsProps) {
     const navigate = useNavigate();
-    const supabase = createClient();
     const [isInLibrary, setIsInLibrary] = useState(false);
     const [hasVoted, setHasVoted] = useState(false);
     const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
     const [isLoadingVote, setIsLoadingVote] = useState(false);
 
-    // Check library status on mount
-    useState(() => {
-        if (currentUser) {
-            checkLibraryStatus();
-            checkVoteStatus();
+    // Initial Status Check
+    useEffect(() => {
+        if (currentUser && novelId) {
+            checkStatus();
         }
-    });
+    }, [currentUser, novelId]);
 
-    const checkLibraryStatus = async () => {
+    const checkStatus = async () => {
         if (!currentUser) return;
-        const { data } = await supabase
-            .from('library')
-            .select('id')
-            .eq('user_id', currentUser.id)
-            .eq('novel_id', novelId)
-            .maybeSingle();
-        setIsInLibrary(!!data);
-    };
 
-    const checkVoteStatus = async () => {
-        if (!currentUser) return;
-        const { data } = await supabase
-            .from('votes')
-            .select('id')
-            .eq('user_id', currentUser.id)
-            .eq('novel_id', novelId)
-            .maybeSingle();
-        setHasVoted(!!data);
+        try {
+            // Check Library
+            const { data: libraryData } = await supabase
+                .from('library')
+                .select('id')
+                .eq('user_id', currentUser.id)
+                .eq('novel_id', novelId)
+                .maybeSingle();
+            setIsInLibrary(!!libraryData);
+
+            // Check Vote using service
+            const voted = await novelService.hasVoted(currentUser.id, novelId);
+            setHasVoted(voted);
+        } catch (error) {
+            console.error('Error checking status:', error);
+        }
     };
 
     const handleAddToLibrary = async () => {
@@ -54,27 +54,30 @@ export default function ActionButtons({ novelId, currentUser }: ActionButtonsPro
         }
 
         setIsLoadingLibrary(true);
-
-        if (isInLibrary) {
-            // Remove from library
-            await supabase
-                .from('library')
-                .delete()
-                .eq('user_id', currentUser.id)
-                .eq('novel_id', novelId);
-            setIsInLibrary(false);
-        } else {
-            // Add to library
-            await supabase
-                .from('library')
-                .insert({
-                    user_id: currentUser.id,
-                    novel_id: novelId,
-                });
-            setIsInLibrary(true);
+        try {
+            if (isInLibrary) {
+                const { error } = await supabase
+                    .from('library')
+                    .delete()
+                    .eq('user_id', currentUser.id)
+                    .eq('novel_id', novelId);
+                if (error) throw error;
+                setIsInLibrary(false);
+            } else {
+                const { error } = await supabase
+                    .from('library')
+                    .insert({
+                        user_id: currentUser.id,
+                        novel_id: novelId,
+                    });
+                if (error) throw error;
+                setIsInLibrary(true);
+            }
+        } catch (error) {
+            console.error('Error updating library:', error);
+        } finally {
+            setIsLoadingLibrary(false);
         }
-
-        setIsLoadingLibrary(false);
     };
 
     const handleVote = async () => {
@@ -84,68 +87,71 @@ export default function ActionButtons({ novelId, currentUser }: ActionButtonsPro
         }
 
         setIsLoadingVote(true);
+        try {
+            const result = await novelService.toggleVote(currentUser.id, novelId);
+            if (result.success) {
+                const newVotedState = result.hasVoted;
+                setHasVoted(newVotedState);
 
-        if (hasVoted) {
-            // Remove vote
-            await supabase
-                .from('votes')
-                .delete()
-                .eq('user_id', currentUser.id)
-                .eq('novel_id', novelId);
-
-            // Decrement total_votes
-            await supabase.rpc('decrement_votes', { novel_id_param: novelId });
-            setHasVoted(false);
-        } else {
-            // Add vote
-            await supabase
-                .from('votes')
-                .insert({
-                    user_id: currentUser.id,
-                    novel_id: novelId,
-                });
-
-            // Increment total_votes
-            await supabase.rpc('increment_votes', { novel_id_param: novelId });
-            setHasVoted(true);
+                // Immediate update
+                if (onVoteChange) {
+                    onVoteChange(newVotedState); // true = increment, false = decrement
+                }
+            }
+        } catch (error) {
+            console.error('Error voting:', error);
+        } finally {
+            setIsLoadingVote(false);
         }
-
-        setIsLoadingVote(false);
     };
 
     return (
-        <div className="flex gap-2">
-            <button
+        <div className="flex gap-3 w-full">
+            <Button
+                size="lg"
+                onClick={() => navigate(`/novel/${novelId}/read`)}
+                className="flex-1 font-bold text-base shadow-[var(--primary)]/20 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Read
+            </Button>
+
+            <Button
+                size="lg"
+                variant={isInLibrary ? "primary" : "secondary"}
                 onClick={handleAddToLibrary}
-                disabled={isLoadingLibrary}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-colors ${isInLibrary
-                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                    : 'bg-sky-500 text-white hover:bg-sky-600'
-                    }`}
+                isLoading={isLoadingLibrary}
+                className={`flex-1 font-semibold ${isInLibrary ? 'shadow-[var(--primary)]/20 shadow-lg' : ''}`}
             >
-                {isLoadingLibrary ? (
-                    <Loader2 className="w-[18px] h-[18px] animate-spin" />
-                ) : isInLibrary ? (
-                    <Check className="w-[18px] h-[18px]" />
-                ) : (
-                    <Bookmark className="w-[18px] h-[18px]" />
+                {!isLoadingLibrary && (
+                    isInLibrary ? (
+                        <>
+                            <Check className="w-4 h-4 mr-2" />
+                            In Library
+                        </>
+                    ) : (
+                        <>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Library
+                        </>
+                    )
                 )}
-                {isInLibrary ? 'In Library' : 'Add to Library'}
-            </button>
-            <button
+            </Button>
+
+            <Button
+                size="lg"
+                variant={hasVoted ? "primary" : "secondary"}
                 onClick={handleVote}
-                disabled={isLoadingVote}
-                className={`px-4 py-3 border rounded-xl transition-colors ${hasVoted
-                    ? 'bg-sky-500 text-white border-sky-500'
-                    : 'border-slate-200 hover:bg-slate-50'
-                    }`}
+                isLoading={isLoadingVote}
+                className={`flex-1 font-semibold ${hasVoted ? 'shadow-[var(--primary)]/20 shadow-lg' : ''}`}
             >
-                {isLoadingVote ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                    <ThumbsUp size={20} className={hasVoted ? 'text-white' : 'text-slate-600'} />
+                {!isLoadingVote && (
+                    <>
+                        <ThumbsUp className={`w-4 h-4 mr-2 ${hasVoted ? 'fill-current' : ''}`} />
+                        {hasVoted ? 'Voted' : 'Vote'}
+                    </>
                 )}
-            </button>
+            </Button>
         </div>
     );
 }

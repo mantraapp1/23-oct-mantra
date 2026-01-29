@@ -2,11 +2,13 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { getProfilePicture } from '@/lib/defaultImages';
 import { Sun, Moon } from 'lucide-react';
+import UserAvatar from '@/components/common/UserAvatar';
+import { Button } from '@/components/ui/Button';
+import { getUserDisplayName } from '@/lib/utils/profileUtils';
 
 export default function Header() {
-    const { user, profile } = useAuth();
+    const { user, profile, isLoading: authLoading } = useAuth();
     const { resolvedTheme, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -23,15 +25,14 @@ export default function Header() {
         };
     }, []);
 
-    // Get avatar URL using profile data
-    const displayName = profile?.display_name || profile?.username || 'User';
-    const avatarUrl = getProfilePicture(profile?.profile_picture_url, displayName);
+    // Get display name using centralized utility
+    const displayName = getUserDisplayName(profile);
 
     return (
         <header
-            className={`sticky top-0 z-50 backdrop-blur-md transition-all duration-300 ${isScrolled
-                ? 'bg-[var(--background)]/95 shadow-sm border-b border-[var(--border)]'
-                : 'bg-[var(--background)]/90'
+            className={`sticky top-0 z-50 transition-all duration-300 bg-background ${isScrolled
+                ? 'shadow-sm border-b border-border'
+                : ''
                 }`}
         >
             <div className="w-full px-4">
@@ -75,61 +76,66 @@ export default function Header() {
                     {/* Right Side Actions */}
                     <div className="flex items-center gap-2 md:gap-3">
                         {/* Theme Toggle */}
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={toggleTheme}
-                            className="p-2 rounded-full hover:bg-[var(--background-secondary)] transition-colors"
+                            className="rounded-full text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
                             aria-label={`Switch to ${resolvedTheme === 'light' ? 'dark' : 'light'} mode`}
                         >
                             {resolvedTheme === 'light' ? (
-                                <Moon className="w-5 h-5 text-[var(--foreground-secondary)]" />
+                                <Moon className="w-5 h-5" />
                             ) : (
-                                <Sun className="w-5 h-5 text-[var(--foreground-secondary)]" />
+                                <Sun className="w-5 h-5" />
                             )}
-                        </button>
+                        </Button>
 
                         {/* Search */}
-                        <Link
-                            to="/search"
-                            className="p-2 rounded-full hover:bg-[var(--background-secondary)] transition-colors"
-                        >
-                            <svg className="w-5 h-5 text-[var(--foreground-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                        <Link to="/search">
+                            <Button variant="ghost" size="icon" className="rounded-full text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </Button>
                         </Link>
 
                         {user ? (
                             <>
                                 {/* Notifications */}
-                                <Link
-                                    to="/notifications"
-                                    className="p-2 rounded-full hover:bg-[var(--background-secondary)] transition-colors relative hidden md:block"
-                                >
-                                    <svg className="w-5 h-5 text-[var(--foreground-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                    </svg>
+                                <Link to="/notifications" className="hidden md:block">
+                                    <Button variant="ghost" size="icon" className="rounded-full text-[var(--foreground-secondary)] hover:text-[var(--foreground)] relative">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                    </Button>
                                 </Link>
 
-                                {/* Profile Avatar */}
-                                <Link
-                                    to="/profile"
-                                    className="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm hover:shadow-md transition-shadow"
-                                >
-                                    <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                                {/* Profile Avatar - Uses centralized UserAvatar */}
+                                <Link to="/profile" className="hover:opacity-90 transition-opacity">
+                                    {authLoading ? (
+                                        <div className="w-9 h-9 rounded-full bg-[var(--background-secondary)] animate-pulse" />
+                                    ) : (
+                                        <UserAvatar
+                                            uri={profile?.profile_picture_url}
+                                            name={displayName}
+                                            size="small"
+                                            showBorder
+                                            borderColorClass="border-[var(--background)]"
+                                        />
+                                    )}
                                 </Link>
                             </>
                         ) : (
                             <>
-                                <Link
-                                    to="/login"
-                                    className="hidden sm:block text-[var(--foreground-secondary)] hover:text-[var(--foreground)] font-medium transition-colors"
-                                >
-                                    Login
+                                <Link to="/login">
+                                    <Button variant="ghost" className="hidden sm:inline-flex text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">
+                                        Login
+                                    </Button>
                                 </Link>
-                                <Link
-                                    to="/signup"
-                                    className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-sky-600 transition-colors text-sm"
-                                >
-                                    Get Started
+                                <Link to="/signup">
+                                    <Button variant="primary">
+                                        Get Started
+                                    </Button>
                                 </Link>
                             </>
                         )}

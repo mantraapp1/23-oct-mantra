@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 // Types
 export interface CreateReviewData {
@@ -37,7 +37,6 @@ export interface ReviewWithUser {
  * Ported from mobile app's reviewService.ts
  */
 class ReviewService {
-    private supabase = createClient();
 
     /**
      * Get reviews for a novel
@@ -53,7 +52,7 @@ class ReviewService {
             const from = (page - 1) * pageSize;
             const to = from + pageSize - 1;
 
-            let query = this.supabase
+            let query = supabase
                 .from('reviews')
                 .select(`
           *,
@@ -76,7 +75,7 @@ class ReviewService {
             if (userId && data.length > 0) {
                 const reviewIds = data.map((r: any) => r.id);
 
-                const { data: reactions } = await this.supabase
+                const { data: reactions } = await supabase
                     .from('review_reactions')
                     .select('review_id, reaction_type')
                     .eq('user_id', userId)
@@ -108,7 +107,7 @@ class ReviewService {
      */
     async getUserReview(userId: string, novelId: string): Promise<ReviewWithUser | null> {
         try {
-            const { data, error } = await this.supabase
+            const { data, error } = await supabase
                 .from('reviews')
                 .select(`
           *,
@@ -143,7 +142,7 @@ class ReviewService {
             }
 
             // Check if user already reviewed this novel
-            const { data: existing } = await this.supabase
+            const { data: existing } = await supabase
                 .from('reviews')
                 .select('id')
                 .eq('user_id', userId)
@@ -158,7 +157,7 @@ class ReviewService {
             }
 
             // Create review
-            const { data: review, error } = await this.supabase
+            const { data: review, error } = await supabase
                 .from('reviews')
                 .insert({
                     user_id: userId,
@@ -201,7 +200,7 @@ class ReviewService {
                 };
             }
 
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('reviews')
                 .update(data)
                 .eq('id', reviewId);
@@ -225,7 +224,7 @@ class ReviewService {
      */
     async deleteReview(reviewId: string): Promise<{ success: boolean; message: string }> {
         try {
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('reviews')
                 .delete()
                 .eq('id', reviewId);
@@ -254,7 +253,7 @@ class ReviewService {
     ): Promise<{ success: boolean; message: string; action: 'added' | 'removed' | 'updated' }> {
         try {
             // Check if user already reacted
-            const { data: existingReaction } = await this.supabase
+            const { data: existingReaction } = await supabase
                 .from('review_reactions')
                 .select('*')
                 .eq('user_id', userId)
@@ -264,7 +263,7 @@ class ReviewService {
             if (existingReaction) {
                 if (existingReaction.reaction_type !== reactionType) {
                     // Update reaction if different
-                    await this.supabase
+                    await supabase
                         .from('review_reactions')
                         .update({ reaction_type: reactionType })
                         .eq('id', existingReaction.id);
@@ -272,7 +271,7 @@ class ReviewService {
                     return { success: true, message: 'Reaction updated', action: 'updated' };
                 } else {
                     // Remove reaction if same (toggle off)
-                    await this.supabase
+                    await supabase
                         .from('review_reactions')
                         .delete()
                         .eq('id', existingReaction.id);
@@ -282,7 +281,7 @@ class ReviewService {
             }
 
             // Create new reaction
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('review_reactions')
                 .insert({
                     user_id: userId,
@@ -307,7 +306,7 @@ class ReviewService {
      */
     async getRatingDistribution(novelId: string): Promise<{ [key: number]: number }> {
         try {
-            const { data, error } = await this.supabase
+            const { data, error } = await supabase
                 .from('reviews')
                 .select('rating')
                 .eq('novel_id', novelId);
@@ -334,7 +333,7 @@ class ReviewService {
      */
     async getAverageRating(novelId: string): Promise<{ average: number; count: number }> {
         try {
-            const { data, error } = await this.supabase
+            const { data, error } = await supabase
                 .from('reviews')
                 .select('rating')
                 .eq('novel_id', novelId);

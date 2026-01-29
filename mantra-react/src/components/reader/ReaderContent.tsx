@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Settings, Menu, Share2, Flag, BookOpen, User } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Settings, Menu, Share2, Flag, BookOpen, User, Edit3, Trash2 } from 'lucide-react';
 import ChapterComments from '@/components/novel/ChapterComments';
+import chapterService from '@/services/chapterService';
+import { useToast } from '@/contexts/ToastContext';
+import { useConfirm } from '@/contexts/DialogContext';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface ReaderContentProps {
@@ -14,8 +17,28 @@ interface ReaderContentProps {
 }
 
 export default function ReaderContent({ chapter, novel, prevChapter, nextChapter, novelId, currentUser }: ReaderContentProps) {
+    const navigate = useNavigate();
+    const { toast } = useToast();
+    const confirm = useConfirm();
     const [showSettings, setShowSettings] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
+
+    // Author check
+    const isAuthor = currentUser && novel && (currentUser.id === novel.author_id || currentUser.id === novel.author?.id);
+
+    const handleDeleteChapter = async () => {
+        if (!await confirm('Are you sure you want to delete this chapter?', { variant: 'destructive', title: 'Delete Chapter', confirmText: 'Delete' })) return;
+
+        try {
+            await chapterService.deleteChapter(chapter.id);
+            toast.success('Chapter deleted');
+            // Navigate back to novel management or novel page
+            navigate(`/novel/${novelId}`);
+        } catch (error) {
+            console.error('Failed to delete chapter', error);
+            toast.error('Failed to delete chapter');
+        }
+    };
 
     // Settings State
     const [fontSize, setFontSize] = useState(18);
@@ -74,16 +97,16 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
         <div className={`min-h-screen transition-colors duration-300 ${getThemeStyles()} ${getFontClass()}`}>
 
             {/* Top Navigation */}
-            <div className={`fixed top-0 left-0 right-0 h-16 z-40 flex items-center justify-between px-4 transition-all duration-300 ${theme === 'dark' ? 'bg-[#1a1a1a]/95 border-b border-gray-800' :
-                theme === 'sepia' ? 'bg-[#f6f1d1]/95 border-b border-[#e6dec1]' :
-                    'bg-white/95 border-b border-slate-100'
-                } backdrop-blur-sm`}>
+            <div className={`fixed top-0 left-0 right-0 h-16 z-40 flex items-center justify-between px-4 transition-all duration-300 ${theme === 'dark' ? 'bg-[#1a1a1a] border-b border-gray-800' :
+                theme === 'sepia' ? 'bg-[#f6f1d1] border-b border-[#e6dec1]' :
+                    'bg-white border-b border-slate-100'
+                }`}>
 
                 <div className="flex items-center gap-3">
-                    <Link to={`/novel/${novelId}`} className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-black/5 text-slate-600'
+                    <button onClick={() => navigate(-1)} className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-black/5 text-slate-600'
                         }`}>
                         <ChevronLeft className="w-6 h-6" />
-                    </Link>
+                    </button>
                     <div className="flex flex-col">
                         <span className={`text-xs font-medium opacity-60 line-clamp-1 max-w-[120px] md:max-w-xs`}>{novel?.title || 'Novel'}</span>
                         <span className="text-sm font-bold line-clamp-1 max-w-[150px] md:max-w-md">Chapter {chapter.chapter_number}: {chapter.title}</span>
@@ -128,9 +151,27 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                                         <Share2 className="w-4 h-4" /> Share
                                     </button>
                                     <div className={`my-1 border-t ${theme === 'dark' ? 'border-gray-700' : theme === 'sepia' ? 'border-[#e6dec1]' : 'border-slate-100'}`} />
-                                    <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50/50 text-sm text-red-600 text-left">
-                                        <Flag className="w-4 h-4" /> Report
-                                    </button>
+
+                                    {isAuthor ? (
+                                        <>
+                                            <button
+                                                onClick={() => navigate(`/novel/${novelId}/chapter/${chapter.id}/edit`)}
+                                                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left ${theme === 'dark' ? 'text-gray-300 hover:bg-gray-800' : theme === 'sepia' ? 'text-[#5b4636] hover:bg-[#e6dec1]' : 'text-slate-700 hover:bg-slate-50'}`}
+                                            >
+                                                <Edit3 className="w-4 h-4" /> Edit Chapter
+                                            </button>
+                                            <button
+                                                onClick={handleDeleteChapter}
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50/50 text-sm text-red-600 text-left"
+                                            >
+                                                <Trash2 className="w-4 h-4" /> Delete Chapter
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50/50 text-sm text-red-600 text-left">
+                                            <Flag className="w-4 h-4" /> Report
+                                        </button>
+                                    )}
                                 </div>
                             </>
                         )}

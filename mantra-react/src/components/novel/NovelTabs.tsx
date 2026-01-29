@@ -48,21 +48,27 @@ export default function NovelTabs({ description, chapters, novelId, reviews, tag
             <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
                 <button
                     onClick={() => setActiveTab('about')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeTab === 'about' ? 'bg-sky-500 text-white' : 'border border-slate-200 text-slate-600'
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeTab === 'about'
+                        ? 'bg-sky-500 text-white'
+                        : 'border border-border bg-card text-foreground-secondary hover:border-sky-300 dark:hover:border-sky-700'
                         }`}
                 >
                     About
                 </button>
                 <button
                     onClick={() => setActiveTab('chapters')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeTab === 'chapters' ? 'bg-sky-500 text-white' : 'border border-slate-200 text-slate-600'
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeTab === 'chapters'
+                        ? 'bg-sky-500 text-white'
+                        : 'border border-border bg-card text-foreground-secondary hover:border-sky-300 dark:hover:border-sky-700'
                         }`}
                 >
                     Chapters
                 </button>
                 <button
                     onClick={() => setActiveTab('reviews')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeTab === 'reviews' ? 'bg-sky-500 text-white' : 'border border-slate-200 text-slate-600'
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeTab === 'reviews'
+                        ? 'bg-sky-500 text-white'
+                        : 'border border-border bg-card text-foreground-secondary hover:border-sky-300 dark:hover:border-sky-700'
                         }`}
                 >
                     Reviews
@@ -73,58 +79,59 @@ export default function NovelTabs({ description, chapters, novelId, reviews, tag
             <div className="mt-4">
                 {activeTab === 'about' && (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line mb-4">
+                        <p className="text-sm text-foreground-secondary leading-relaxed whitespace-pre-line mb-4">
                             {description}
                         </p>
                         <div className="flex flex-wrap gap-2">
                             {tags.map((tag, i) => (
-                                <span key={i} className="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+                                <span key={i} className="px-3 py-1.5 rounded-full bg-background-secondary text-foreground-secondary text-xs font-medium">
                                     {tag}
                                 </span>
                             ))}
                         </div>
 
-                        <div className="mt-6 rounded-xl border border-slate-100 p-4 shadow-sm">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="text-sm font-semibold text-slate-800">Top Reviews</div>
-                                <button className="text-xs text-sky-600 font-semibold" onClick={() => setActiveTab('reviews')}>See all</button>
-                            </div>
-                            {/* Simple Review Preview */}
-                            {reviews.slice(0, 1).map(review => {
-                                const displayName = getUserDisplayName(review.user);
-                                const avatarUrl = getUserProfileImage(review.user);
-                                return (
-                                    <div key={review.id} className="flex gap-2">
-                                        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                                            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs font-semibold text-slate-800">{displayName}</span>
-                                                <span className="text-[10px] text-slate-500">{new Date(review.created_at).toLocaleDateString()}</span>
+                        {reviews.length > 0 && (
+                            <div className="mt-6 rounded-xl border border-border p-4 shadow-sm bg-card">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="text-sm font-semibold text-foreground">Top Reviews</div>
+                                    <button className="text-xs text-sky-600 dark:text-sky-400 font-semibold" onClick={() => setActiveTab('reviews')}>See all</button>
+                                </div>
+                                {/* Simple Review Preview */}
+                                {reviews.slice(0, 1).map(review => {
+                                    const displayName = getUserDisplayName(review.user);
+                                    const avatarUrl = getUserProfileImage(review.user);
+                                    return (
+                                        <div key={review.id} className="flex gap-2">
+                                            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-background-secondary border border-border">
+                                                <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
                                             </div>
-                                            <p className="text-xs mt-1 text-slate-600 line-clamp-2">{review.content || review.review_text}</p>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-semibold text-foreground">{displayName}</span>
+                                                    <span className="text-[10px] text-foreground-secondary">{new Date(review.created_at).toLocaleDateString()}</span>
+                                                </div>
+                                                <p className="text-xs mt-1 text-foreground-secondary line-clamp-2">{review.content || review.review_text}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                            {reviews.length === 0 && <div className="text-xs text-slate-500">No reviews yet.</div>}
-                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {activeTab === 'chapters' && (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                         {/* Filters & Search */}
-                        <div className="bg-slate-50 p-4 rounded-xl mb-4 space-y-3">
+                        <div className="bg-background-secondary p-4 rounded-xl mb-4 space-y-3">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-secondary" />
                                 <input
                                     type="text"
                                     placeholder="Search specific chapter..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                                    className="w-full pl-9 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-foreground"
                                 />
                             </div>
 
@@ -132,13 +139,13 @@ export default function NovelTabs({ description, chapters, novelId, reviews, tag
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-                                        className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 whitespace-nowrap"
+                                        className="flex items-center gap-1.5 px-3 py-2 bg-card border border-border rounded-lg text-xs font-medium text-foreground hover:bg-background-secondary whitespace-nowrap"
                                     >
                                         <ArrowUpDown className="w-3.5 h-3.5" />
                                         {sortOrder === 'asc' ? 'Oldest First' : 'Newest First'}
                                     </button>
                                 </div>
-                                <span className="text-xs text-slate-500 whitespace-nowrap">
+                                <span className="text-xs text-foreground-secondary whitespace-nowrap">
                                     {filteredChapters.length} Chapters
                                 </span>
                             </div>
@@ -156,8 +163,8 @@ export default function NovelTabs({ description, chapters, novelId, reviews, tag
                                                 key={i}
                                                 onClick={() => setActiveChunkIndex(i)}
                                                 className={`px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-colors ${isActive
-                                                    ? 'bg-sky-100 text-sky-700 border border-sky-200'
-                                                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                                                    ? 'bg-sky-500 text-white border-sky-500 shadow-sm'
+                                                    : 'bg-card border border-border text-foreground-secondary hover:bg-background-secondary'
                                                     }`}
                                             >
                                                 {label}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 // Stellar address validation - must start with G and be 56 characters
 const validateStellarAddress = (address: string): boolean => {
@@ -10,7 +10,6 @@ const validateStellarAddress = (address: string): boolean => {
 
 export default function WalletWithdrawPage() {
     const navigate = useNavigate();
-    const supabase = createClient();
 
     const [userId, setUserId] = useState<string | null>(null);
     const [balance, setBalance] = useState(0);
@@ -156,7 +155,7 @@ export default function WalletWithdrawPage() {
     }
 
     return (
-        <div className="max-w-md mx-auto px-4 py-8 font-inter text-slate-800">
+        <div className="max-w-xl mx-auto px-4 py-8 font-inter text-slate-800">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
                 <Link to="/wallet" className="p-2 -ml-2 rounded-lg hover:bg-slate-100 transition-colors">

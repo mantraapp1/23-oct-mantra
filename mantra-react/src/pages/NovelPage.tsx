@@ -1,23 +1,46 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import NovelHero from '@/components/novel/NovelHero';
 import NovelTabs from '@/components/novel/NovelTabs';
-import ActionButtons from '@/components/novel/ActionButtons';
-import { createClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import YouMayLike from '@/components/novel/YouMayLike';
+import AgeGateModal from '@/components/ui/AgeGateModal';
+import { supabase } from '@/lib/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+// Session storage key for confirmed mature novels
+const CONFIRMED_MATURE_NOVELS_KEY = 'confirmed_mature_novels';
+
+function getConfirmedNovels(): string[] {
+    try {
+        const stored = sessionStorage.getItem(CONFIRMED_MATURE_NOVELS_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch {
+        return [];
+    }
+}
+
+function confirmNovel(novelId: string): void {
+    const confirmed = getConfirmedNovels();
+    if (!confirmed.includes(novelId)) {
+        confirmed.push(novelId);
+        sessionStorage.setItem(CONFIRMED_MATURE_NOVELS_KEY, JSON.stringify(confirmed));
+    }
+}
 
 export default function NovelPage() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const [novel, setNovel] = useState<any>(null);
     const [chapters, setChapters] = useState<any[]>([]);
     const [reviews, setReviews] = useState<any[]>([]);
-    const [user, setUser] = useState<User | null>(null);
+    const { user } = useAuth();
     const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+
+    // Age gate state
+    const [showAgeGate, setShowAgeGate] = useState(false);
+    const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-
         if (!id) return;
 
         const fetchData = async () => {
@@ -34,11 +57,23 @@ export default function NovelPage() {
                         author:profiles!novels_author_id_fkey(id, username, display_name, profile_picture_url)
                     `)
                     .eq('id', id)
-                    .eq('is_mature', false) // Bypass RLS blocking function
                     .single();
 
                 if (novelData) {
                     setNovel(novelData);
+
+                    // Check if mature content needs age gate
+                    if (novelData.is_mature) {
+                        const confirmedNovels = getConfirmedNovels();
+                        if (confirmedNovels.includes(id)) {
+                            setIsAgeConfirmed(true);
+                        } else {
+                            setShowAgeGate(true);
+                        }
+                    } else {
+                        setIsAgeConfirmed(true); // Non-mature content doesn't need confirmation
+                    }
+
                     setLoading(false); // UNBLOCK UI IMMEDIATELY
 
                     // 2. Fetch Content (Background / Progressive)
@@ -79,72 +114,88 @@ export default function NovelPage() {
         fetchData();
     }, [id]);
 
-    if (loading) return <div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div></div>;
-    if (!novel) return <div className="text-center py-20">Novel not found</div>;
-
-    // Derived stats
-    const stats = {
-        rating: novel.average_rating || 0,
-        views: novel.total_views >= 1000 ? `${(novel.total_views / 1000).toFixed(1)}k` : novel.total_views || 0,
-        votes: novel.total_votes >= 1000 ? `${(novel.total_votes / 1000).toFixed(1)}k` : novel.total_votes || 0,
-        chapters: novel.total_chapters || chapters.length || 0,
+    // Handle age gate confirmation
+    const handleAgeConfirm = () => {
+        if (id) {
+            confirmNovel(id);
+            setIsAgeConfirmed(true);
+            setShowAgeGate(false);
+        }
     };
 
+    // Handle age gate cancel - go back
+    const handleAgeCancel = () => {
+        setShowAgeGate(false);
+        navigate(-1);
+    };
+
+    if (loading) return (
+        <div className="flex justify-center items-center min-h-screen bg-background">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div>
+        </div>
+    );
+
+    if (!novel) return (
+        <div className="text-center py-20 text-foreground bg-background min-h-screen">
+            Novel not found
+        </div>
+    );
+
+    // Derived stats
     const author = Array.isArray(novel.author) ? novel.author[0] : novel.author;
     const genres = novel.genres || [];
 
+    // Handle immediate vote update
+    const handleVoteChange = (increment: boolean) => {
+        setNovel((prev: any) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                total_votes: (prev.total_votes || 0) + (increment ? 1 : -1)
+            };
+        });
+    };
+
     return (
-        <div className="min-h-screen bg-white pb-24 font-inter">
-            {/* 1. Hero Section */}
-            <NovelHero
-                novel={{
-                    ...novel,
-                    author,
-                    genres
-                }}
+        <>
+            {/* Age Gate Modal for Mature Content */}
+            <AgeGateModal
+                isOpen={showAgeGate}
+                onConfirm={handleAgeConfirm}
+                onCancel={handleAgeCancel}
+                novelTitle={novel.title}
             />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 md:mt-8 relative z-10">
-                <div className="flex flex-col md:flex-row md:gap-12">
-                    {/* Left Column (Desktop): Stats & Actions */}
-                    <div className="md:w-80 md:flex-shrink-0 space-y-6">
-                        {/* 2. Stats Grid */}
-                        <div className="grid grid-cols-4 md:grid-cols-2 gap-2 md:gap-4">
-                            <div className="rounded-xl border border-slate-100 p-2.5 md:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow">
-                                <div className="text-sm md:text-lg font-bold text-slate-900">{stats.rating}</div>
-                                <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide font-medium">Rating</div>
-                            </div>
-                            <div className="rounded-xl border border-slate-100 p-2.5 md:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow">
-                                <div className="text-sm md:text-lg font-bold text-slate-900">{stats.views}</div>
-                                <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide font-medium">Views</div>
-                            </div>
-                            <div className="rounded-xl border border-slate-100 p-2.5 md:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow">
-                                <div className="text-sm md:text-lg font-bold text-slate-900">{stats.votes}</div>
-                                <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide font-medium">Votes</div>
-                            </div>
-                            <div className="rounded-xl border border-slate-100 p-2.5 md:p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow">
-                                <div className="text-sm md:text-lg font-bold text-slate-900">{stats.chapters}</div>
-                                <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide font-medium">Chapters</div>
-                            </div>
+            {/* Only show content if age confirmed or not mature */}
+            {isAgeConfirmed && (
+                <div className="min-h-screen bg-background pb-24 font-inter">
+                    {/* 1. Hero Section */}
+                    {/* 1. Hero Section + Content (Nested for single Overlapping Container) */}
+                    <NovelHero
+                        novel={{
+                            ...novel,
+                            author,
+                            genres
+                        }}
+                        onVoteChange={handleVoteChange}
+                    >
+                        {/* Tabs Content */}
+                        <div className="mb-12">
+                            <NovelTabs
+                                description={novel.description || ''}
+                                novelId={novel.id}
+                                chapters={chapters || []}
+                                reviews={reviews || []}
+                                tags={novel.tags || []}
+                                currentUser={user}
+                            />
                         </div>
 
-                        {/* 3. Action Buttons */}
-                        <ActionButtons novelId={novel.id} currentUser={user} />
-                    </div>
-
-                    {/* Right Column: Tabs Content */}
-                    <div className="flex-1 mt-6 md:mt-0">
-                        <NovelTabs
-                            description={novel.description || ''}
-                            novelId={novel.id}
-                            chapters={chapters || []}
-                            reviews={reviews || []}
-                            tags={novel.tags || []}
-                            currentUser={user}
-                        />
-                    </div>
+                        {/* You May Like Section */}
+                        <YouMayLike currentNovelId={novel.id} genres={genres} />
+                    </NovelHero>
                 </div>
-            </div>
-        </div>
+            )}
+        </>
     );
 }

@@ -4,6 +4,11 @@ import { ThumbsUp, ThumbsDown, MessageCircle, Send, MoreVertical, Flag, Trash2, 
 import commentService from '@/lib/services/commentService';
 import type { CommentWithUser } from '@/lib/services/commentService';
 import { getUserDisplayName, getUserProfileImage } from '@/lib/utils/profileUtils';
+import { formatTimeAgo } from '@/utils/dateUtils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { useConfirm } from '@/contexts/DialogContext';
+import reportService from '@/services/reportService';
 import type { User } from '@supabase/supabase-js';
 
 interface ChapterCommentsProps {
@@ -12,25 +17,13 @@ interface ChapterCommentsProps {
     theme?: 'light' | 'sepia' | 'dark';
 }
 
-// Format time ago helper
-function formatTimeAgo(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-    return `${Math.floor(diffDays / 30)}mo ago`;
-}
+// ... helper functions ...
 
 export default function ChapterComments({ chapterId, currentUser, theme = 'light' }: ChapterCommentsProps) {
     const navigate = useNavigate();
+    const { profile: currentUserProfile } = useAuth();
+    const { toast } = useToast();
+    const confirm = useConfirm();
     const [comments, setComments] = useState<CommentWithUser[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState<'newest' | 'most_liked'>('newest');
@@ -105,11 +98,30 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
     };
 
     const handleDelete = async (commentId: string) => {
-        if (!confirm('Delete this comment?')) return;
+        if (!await confirm('Delete this comment?', { variant: 'destructive', title: 'Delete Comment' })) return;
 
         const result = await commentService.deleteComment(commentId);
         if (result.success) {
             setComments(prev => prev.filter(c => c.id !== commentId));
+        }
+    };
+
+    const handleReport = async (commentId: string) => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+
+        if (!await confirm('Are you sure you want to report this comment?', { title: 'Report Comment', variant: 'destructive', confirmText: 'Report' })) {
+            return;
+        }
+
+        const result = await reportService.quickReport(currentUser.id, 'comment', commentId);
+        if (result.success) {
+            toast.success('Comment reported. Thank you for your feedback.');
+            setActiveMenu(null);
+        } else {
+            toast.error(result.message || 'Failed to report comment');
         }
     };
 
@@ -191,7 +203,7 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-gray-200' : theme === 'sepia' ? 'text-[#5b4636]' : 'text-slate-800'}`}>{getDisplayName(comment.user)}</span>
                                 {isOwn && (
-                                    <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-sky-100 text-sky-600 rounded">You</span>
+                                    <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-white text-sky-500 border border-sky-500 rounded dark:bg-transparent">You</span>
                                 )}
                                 <span className={`text-xs ${theme === 'dark' ? 'text-gray-500' : theme === 'sepia' ? 'text-[#8b7355]' : 'text-slate-400'}`}>{formatTimeAgo(comment.created_at)}</span>
                             </div>
@@ -226,7 +238,7 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
                                                 </>
                                             ) : (
                                                 <button
-                                                    onClick={() => { alert('Report submitted'); setActiveMenu(null); }}
+                                                    onClick={() => handleReport(comment.id)}
                                                     className="w-full flex items-center gap-2 px-3 py-2 hover:bg-red-50 text-red-600"
                                                 >
                                                     <Flag className="w-3.5 h-3.5" /> Report
@@ -344,8 +356,12 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
             {/* Post Box */}
             {currentUser ? (
                 <div className="flex gap-3 mb-6">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                        You
+                    <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+                        <img
+                            src={getUserProfileImage(currentUserProfile)}
+                            alt="You"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                     <div className="flex-1">
                         <textarea

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 // Types
 export interface CreateCommentData {
@@ -32,7 +32,6 @@ export interface CommentWithUser {
  * Ported from mobile app's commentService.ts
  */
 class CommentService {
-    private supabase = createClient();
 
     /**
      * Get comments for a chapter
@@ -48,7 +47,7 @@ class CommentService {
             const from = (page - 1) * pageSize;
             const to = from + pageSize - 1;
 
-            let query = this.supabase
+            let query = supabase
                 .from('comments')
                 .select(`
           *,
@@ -73,7 +72,7 @@ class CommentService {
             if (userId && data.length > 0) {
                 const commentIds = data.map((c: any) => c.id);
 
-                const { data: reactions } = await this.supabase
+                const { data: reactions } = await supabase
                     .from('comment_reactions')
                     .select('comment_id, reaction_type')
                     .eq('user_id', userId)
@@ -108,7 +107,7 @@ class CommentService {
         userId: string | null
     ): Promise<CommentWithUser[]> {
         try {
-            const { data, error } = await this.supabase
+            const { data, error } = await supabase
                 .from('comments')
                 .select(`
           *,
@@ -124,7 +123,7 @@ class CommentService {
             if (userId && data.length > 0) {
                 const commentIds = data.map((c: any) => c.id);
 
-                const { data: reactions } = await this.supabase
+                const { data: reactions } = await supabase
                     .from('comment_reactions')
                     .select('comment_id, reaction_type')
                     .eq('user_id', userId)
@@ -159,7 +158,7 @@ class CommentService {
         data: CreateCommentData
     ): Promise<{ success: boolean; message: string; comment?: any }> {
         try {
-            const { data: comment, error } = await this.supabase
+            const { data: comment, error } = await supabase
                 .from('comments')
                 .insert({
                     user_id: userId,
@@ -199,7 +198,7 @@ class CommentService {
         commentText: string
     ): Promise<{ success: boolean; message: string }> {
         try {
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('comments')
                 .update({ comment_text: commentText })
                 .eq('id', commentId);
@@ -224,13 +223,13 @@ class CommentService {
     async deleteComment(commentId: string): Promise<{ success: boolean; message: string }> {
         try {
             // Get comment to check if it has a parent
-            const { data: comment } = await this.supabase
+            const { data: comment } = await supabase
                 .from('comments')
                 .select('parent_comment_id')
                 .eq('id', commentId)
                 .single();
 
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('comments')
                 .delete()
                 .eq('id', commentId);
@@ -264,7 +263,7 @@ class CommentService {
     ): Promise<{ success: boolean; message: string; action: 'added' | 'removed' | 'updated' }> {
         try {
             // Check if user already reacted
-            const { data: existingReaction } = await this.supabase
+            const { data: existingReaction } = await supabase
                 .from('comment_reactions')
                 .select('*')
                 .eq('user_id', userId)
@@ -274,7 +273,7 @@ class CommentService {
             if (existingReaction) {
                 if (existingReaction.reaction_type !== reactionType) {
                     // Update reaction if different
-                    await this.supabase
+                    await supabase
                         .from('comment_reactions')
                         .update({ reaction_type: reactionType })
                         .eq('id', existingReaction.id);
@@ -282,7 +281,7 @@ class CommentService {
                     return { success: true, message: 'Reaction updated', action: 'updated' };
                 } else {
                     // Remove reaction if same (toggle off)
-                    await this.supabase
+                    await supabase
                         .from('comment_reactions')
                         .delete()
                         .eq('id', existingReaction.id);
@@ -292,7 +291,7 @@ class CommentService {
             }
 
             // Create new reaction
-            const { error } = await this.supabase
+            const { error } = await supabase
                 .from('comment_reactions')
                 .insert({
                     user_id: userId,
@@ -317,12 +316,12 @@ class CommentService {
      */
     private async updateReplyCount(parentCommentId: string): Promise<void> {
         try {
-            const { count } = await this.supabase
+            const { count } = await supabase
                 .from('comments')
                 .select('*', { count: 'exact', head: true })
                 .eq('parent_comment_id', parentCommentId);
 
-            await this.supabase
+            await supabase
                 .from('comments')
                 .update({ reply_count: count || 0 })
                 .eq('id', parentCommentId);
@@ -336,7 +335,7 @@ class CommentService {
      */
     async getCommentCount(chapterId: string): Promise<number> {
         try {
-            const { count, error } = await this.supabase
+            const { count, error } = await supabase
                 .from('comments')
                 .select('*', { count: 'exact', head: true })
                 .eq('chapter_id', chapterId);

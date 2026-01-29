@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Dropdown } from '@/components/ui/Dropdown';
 
 interface Transaction {
@@ -16,7 +16,6 @@ const FILTER_OPTIONS = ['All', 'Earning', 'Withdrawal'];
 
 export default function WalletHistoryPage() {
     const navigate = useNavigate();
-    const supabase = createClient();
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +55,7 @@ export default function WalletHistoryPage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-8 font-inter text-slate-800">
+        <div className="max-w-4xl mx-auto px-4 py-8 font-inter text-slate-800">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">

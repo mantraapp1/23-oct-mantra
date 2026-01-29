@@ -12,7 +12,7 @@ export function Skeleton({ className }: SkeletonProps) {
     return (
         <div
             className={cn(
-                'animate-pulse bg-slate-200 dark:bg-slate-700 rounded-lg',
+                'animate-pulse bg-slate-200/80 dark:bg-slate-800 rounded-lg',
                 className
             )}
         />
@@ -60,7 +60,7 @@ export function NovelGridSkeleton({ count = 8 }: NovelGridSkeletonProps) {
 
 export function NovelListCardSkeleton() {
     return (
-        <div className="flex gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="flex gap-3 p-3 rounded-xl border border-border bg-card">
             {/* Cover */}
             <Skeleton className="h-20 w-14 rounded-lg flex-shrink-0" />
             {/* Content */}
@@ -85,7 +85,7 @@ export function ChapterListSkeleton({ count = 5 }: ChapterListSkeletonProps) {
     return (
         <div className="space-y-2">
             {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-border">
                     <div className="flex-1 space-y-2">
                         <Skeleton className="h-4 w-1/2" />
                         <Skeleton className="h-3 w-24" />
@@ -103,7 +103,7 @@ export function ChapterListSkeleton({ count = 5 }: ChapterListSkeletonProps) {
 
 export function ProfileSkeleton() {
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
             {/* Header Banner */}
             <Skeleton className="h-32 rounded-none" />
 
@@ -142,11 +142,11 @@ export function WalletSkeleton() {
             </div>
 
             {/* Transactions */}
-            <div className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+            <div className="rounded-2xl border border-border overflow-hidden">
+                <div className="p-6 border-b border-border">
                     <Skeleton className="h-6 w-40" />
                 </div>
-                <div className="divide-y divide-slate-50 dark:divide-slate-800">
+                <div className="divide-y divide-border">
                     {Array.from({ length: 4 }).map((_, i) => (
                         <div key={i} className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-4">

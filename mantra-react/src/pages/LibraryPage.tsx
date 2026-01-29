@@ -1,128 +1,139 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bookmark, Clock } from 'lucide-react';
-
-interface LibraryNovel {
-    id: string;
-    novel: {
-        id: string;
-        title: string;
-        cover_image_url: string;
-        author: { username: string };
-    };
-    last_read_chapter_id: string | null;
-    created_at: string;
-}
+import { useToast } from '@/contexts/ToastContext';
+import { useConfirm } from '@/contexts/DialogContext';
+import { Bookmark, Clock, ArrowRight } from 'lucide-react';
+import { useLibrary, useReadingHistory, useLibraryMutation } from '@/hooks/useLibrary';
+import { formatTimeAgo } from '@/utils/dateUtils';
+import readingService from '@/services/readingService';
 
 export default function LibraryPage() {
-    const { user, isLoading: authLoading } = useAuth();
-    const [library, setLibrary] = useState<LibraryNovel[]>([]);
-    const [history, setHistory] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'saved' | 'history'>('saved');
+    const { user, isLoading: authLoading } = useAuth(); // HMR Fix 
+    const { toast } = useToast();
+    const confirm = useConfirm();
+
     const navigate = useNavigate();
-    const supabase = createClient();
+    const [activeTab, setActiveTab] = useState<'saved' | 'history'>('saved');
 
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/login');
-            return;
-        }
+    const {
+        data: library = [],
+        isLoading: libraryLoading,
+    } = useLibrary(user?.id);
+    const {
+        data: history = [],
+        isLoading: historyLoading,
+        refetch: refetchHistory,
+    } = useReadingHistory(user?.id);
+    const libraryMutation = useLibraryMutation();
 
-        if (user) {
-            loadData(user.id);
-        }
-    }, [user, authLoading, navigate]);
-
-    const loadData = async (userId: string) => {
-        try {
-            await Promise.all([
-                loadLibrary(userId),
-                loadHistory(userId)
-            ]);
-        } catch (error) {
-            console.error('Error loading library:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const loadLibrary = async (userId: string) => {
-        const { data } = await supabase
-            .from('library')
-            .select(`
-        id, last_read_chapter_id, created_at,
-        novel:novels!library_novel_id_fkey(
-          id, title, cover_image_url,
-          author:profiles!novels_author_id_fkey(username)
-        )
-      `)
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-
-        setLibrary(data as any || []);
-    };
-
-    const loadHistory = async (userId: string) => {
-        const { data } = await supabase
-            .from('reading_progress')
-            .select(`
-                id, updated_at,
-                novel:novels!reading_progress_novel_id_fkey(
-                    id, title, cover_image_url,
-                     author:profiles!novels_author_id_fkey(username)
-                )
-            `)
-            .eq('user_id', userId)
-            .order('updated_at', { ascending: false });
-
-        setHistory(data as any || []);
+    if (authLoading) return null;
+    if (!user) {
+        navigate('/login');
+        return null;
     }
 
-    const removeFromLibrary = async (id: string, e: React.MouseEvent) => {
+    const handleRemove = async (novelId: string, novelTitle: string, e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (confirm('Remove this book from your library?')) {
-            await supabase.from('library').delete().eq('id', id);
-            setLibrary(library.filter(l => l.id !== id));
+        if (await confirm(`Remove "${novelTitle}" from your library?`, { title: 'Remove Novel', variant: 'destructive', confirmText: 'Remove' })) {
+            libraryMutation.mutate({ userId: user.id, novelId, action: 'remove' });
+            toast.success('Novel removed from library');
         }
     };
 
-    const clearHistory = async () => {
-        if (confirm('Clear all reading history?')) {
-            // Implement clear history logic if backend supports it
-            // For now just clear local state
-            setHistory([]);
+    const handleClearHistory = async () => {
+        if (history.length === 0) return;
+        if (!await confirm('Clear your reading history?', { title: 'Clear History', variant: 'destructive', confirmText: 'Clear' })) return;
+
+        const result = await readingService.clearReadingHistory(user.id);
+        if (result.success) {
+            refetchHistory();
+            toast.success('Reading history cleared');
+        } else {
+            toast.error(result.message || 'Failed to clear history');
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center py-20 min-h-screen">
-                <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+    const isLoading = activeTab === 'saved' ? libraryLoading : historyLoading;
+
+    const emptySavedState = (
+        <div className="flex flex-col items-center justify-center py-24 px-6 text-center bg-background-secondary rounded-2xl border border-dashed border-border">
+            <div className="w-20 h-20 bg-card rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                <Bookmark className="w-10 h-10 text-foreground-secondary opacity-50" />
             </div>
-        );
-    }
+            <h3 className="text-lg font-bold text-foreground mb-2">No saved books yet</h3>
+            <p className="text-sm text-foreground-secondary mb-8 max-w-[240px] leading-relaxed mx-auto font-medium">
+                Start building your collection by saving your favorite novels.
+            </p>
+            <Link to="/ranking" className="px-8 py-3.5 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition shadow-lg shadow-sky-500/20 flex items-center gap-2 active:scale-95">
+                Explore Novels <ArrowRight className="w-4 h-4" />
+            </Link>
+        </div>
+    );
+
+    const emptyHistoryState = (
+        <div className="flex flex-col items-center justify-center py-24 px-6 text-center bg-background-secondary rounded-2xl border border-dashed border-border">
+            <div className="w-20 h-20 bg-card rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                <Clock className="w-10 h-10 text-foreground-secondary opacity-50" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">No reading history</h3>
+            <p className="text-sm text-foreground-secondary mb-8 max-w-[240px] leading-relaxed mx-auto font-medium">
+                Your recently read novels will appear here. Start your next adventure today!
+            </p>
+            <Link to="/" className="px-8 py-3.5 bg-sky-500 text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition shadow-lg shadow-sky-500/20 flex items-center gap-2 active:scale-95">
+                Start Reading <ArrowRight className="w-4 h-4" />
+            </Link>
+        </div>
+    );
+
+    const renderProgressInfo = (item: any) => {
+        const progress = item.progress?.[0];
+        const percentage = Math.round(progress?.progress_percentage || 0);
+        const isOngoing = item.novel?.status?.toLowerCase() === 'ongoing';
+        const isUpToDate = isOngoing && percentage >= 100;
+
+        return {
+            percentage,
+            isUpToDate,
+            label: isUpToDate ? 'Up to date' : `${percentage}% read`,
+        };
+    };
+
+    const formatViews = (views?: number) => {
+        if (!views || views < 0) return '0';
+        if (views >= 1000) {
+            return `${Math.floor(views / 1000)}k`;
+        }
+        return views.toString();
+    };
 
     return (
-        <div className="max-w-7xl mx-auto bg-white min-h-screen pb-24 font-inter text-slate-800">
-            <div className="sticky top-0 bg-white z-40 border-b border-slate-100">
-                <div className="px-4 py-3 max-w-7xl mx-auto">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="text-base font-semibold text-slate-900">Library</div>
+        <div className="max-w-5xl mx-auto bg-background min-h-screen pb-24 font-inter text-foreground">
+            {/* Header */}
+            <div className="sticky top-0 bg-background z-40 border-b border-border">
+                <div className="px-6 py-4 flex flex-col gap-4">
+                    <div className="flex items-center justify-start">
+                        <h1 className="text-lg font-bold text-foreground tracking-tight">Library</h1>
                     </div>
+
+                    {/* Mobile-Parity Tabs */}
                     <div className="flex gap-2">
                         <button
                             onClick={() => setActiveTab('saved')}
-                            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${activeTab === 'saved' ? 'bg-sky-500 text-white' : 'border border-slate-200 text-slate-700'}`}
+                            className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all border ${activeTab === 'saved'
+                                ? 'bg-sky-500 border-sky-500 text-white shadow-lg shadow-sky-500/20'
+                                : 'bg-card border-border text-foreground-secondary hover:border-sky-300 dark:hover:border-sky-700'
+                                }`}
                         >
                             Saved
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
-                            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${activeTab === 'history' ? 'bg-sky-500 text-white' : 'border border-slate-200 text-slate-700'}`}
+                            className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all border ${activeTab === 'history'
+                                ? 'bg-sky-500 border-sky-500 text-white shadow-lg shadow-sky-500/20'
+                                : 'bg-card border-border text-foreground-secondary hover:border-sky-300 dark:hover:border-sky-700'
+                                }`}
                         >
                             History
                         </button>
@@ -130,99 +141,140 @@ export default function LibraryPage() {
                 </div>
             </div>
 
-            <div className="px-4 pt-4 pb-24 max-w-7xl mx-auto">
-                {activeTab === 'saved' ? (
-                    <div id="library-saved" className="space-y-3">
-                        <div className="text-xs text-slate-500 mb-2">Your saved books</div>
+            <div className="px-6 py-6">
+                {isLoading ? (
+                    <div className="space-y-3">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="flex gap-3 p-3 rounded-xl border border-border bg-card">
+                                {/* Cover */}
+                                <div className="h-20 w-14 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse flex-shrink-0" />
+                                {/* Content */}
+                                <div className="flex-1 space-y-2 py-1">
+                                    <div className="h-4 w-3/4 bg-slate-200 dark:bg-slate-800 animate-pulse rounded" />
+                                    <div className="h-3 w-1/2 bg-slate-200 dark:bg-slate-800 animate-pulse rounded" />
+                                    <div className="h-5 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : activeTab === 'saved' ? (
+                    <div className="space-y-4">
+                        <p className="text-xs font-semibold text-foreground-secondary px-1">Your saved books</p>
+
                         {library.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {library.map(item => (
-                                    <Link
-                                        to={`/novel/${item.novel?.id}`}
-                                        key={item.id}
-                                        className="flex gap-3 p-3 rounded-xl border border-slate-100 shadow-sm cursor-pointer hover:shadow-md transition bg-white"
-                                    >
-                                        <img
-                                            src={item.novel?.cover_image_url || '/placeholder.jpg'}
-                                            className="h-20 w-16 rounded-lg object-cover bg-slate-200"
-                                            alt=""
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-semibold text-slate-900 line-clamp-1">{item.novel?.title}</div>
-                                            <div className="text-[11px] text-slate-500 mt-0.5">{item.novel?.author?.username || 'Unknown'}</div>
-                                            {/* Mock Progress Bar for Visual Parity */}
-                                            <div className="mt-2 w-full bg-slate-100 rounded-full h-2.5">
-                                                <div className="bg-sky-500 h-2.5 rounded-full" style={{ width: '0%' }}></div>
+                            <div className="space-y-3">
+                                {library.map((item: any) => {
+                                    const novel = item.novel;
+                                    if (!novel) return null;
+                                    const { percentage, isUpToDate, label } = renderProgressInfo(item);
+
+                                    return (
+                                        <Link
+                                            to={`/novel/${novel.id}`}
+                                            key={item.id}
+                                            className="flex gap-4 p-4 rounded-2xl border border-border bg-card transition-transform active:scale-[0.98]"
+                                        >
+                                            <div className="relative w-16 h-20 flex-shrink-0">
+                                                <img
+                                                    src={novel.cover_image_url || '/placeholder.jpg'}
+                                                    className="h-full w-full rounded-xl object-cover bg-background-secondary shadow-sm"
+                                                    alt={novel.title}
+                                                />
                                             </div>
-                                            <div className="flex justify-between text-[10px] mt-1 text-slate-500">
-                                                <span>Start reading</span>
-                                                <button
-                                                    className="text-[10px] text-red-500 font-semibold hover:text-red-600"
-                                                    onClick={(e) => removeFromLibrary(item.id, e)}
-                                                >
-                                                    Remove
-                                                </button>
+
+                                            <div className="flex-1 min-w-0 flex flex-col gap-2">
+                                                <div>
+                                                    <h3 className="text-sm font-semibold text-foreground line-clamp-1 group-hover:text-sky-500 transition-colors">
+                                                        {novel.title}
+                                                    </h3>
+                                                    <p className="text-[11px] text-foreground-secondary font-medium mt-0.5 line-clamp-1">
+                                                        {novel.genres?.[0] || 'Uncategorized'} · {novel.average_rating || 0}★
+                                                    </p>
+                                                </div>
+
+                                                <div className="space-y-2 pt-1">
+                                                    <div className="w-full h-2 rounded-full overflow-hidden bg-slate-200 dark:bg-white/15 shadow-inner">
+                                                        <div
+                                                            className="h-full bg-sky-500 dark:bg-sky-400 rounded-full transition-all duration-700"
+                                                            style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between">
+                                                        <span className={`text-[10px] font-semibold ${isUpToDate ? 'text-emerald-500 dark:text-emerald-400' : 'text-foreground-secondary'}`}>
+                                                            {label}
+                                                        </span>
+                                                        <button
+                                                            className="text-[10px] font-semibold text-red-500 hover:text-red-600"
+                                                            onClick={(e) => handleRemove(novel.id, novel.title, e)}
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Link>
-                                ))}
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                                    <Bookmark className="w-8 h-8 text-slate-400" />
-                                </div>
-                                <h3 className="text-base font-semibold mb-1 text-slate-900">No saved books yet</h3>
-                                <p className="text-xs text-slate-500 mb-4">Start building your collection by saving your favorite novels</p>
-                                <Link to="/ranking" className="px-5 py-2 bg-sky-500 text-white rounded-full font-semibold text-xs hover:bg-sky-600 transition">
-                                    Explore Novels
-                                </Link>
-                            </div>
+                            emptySavedState
                         )}
                     </div>
                 ) : (
-                    <div id="library-history" className="space-y-3">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="text-xs text-slate-500">Recently opened</div>
-                            {history.length > 0 && (
-                                <button className="text-xs text-red-500 font-semibold hover:underline" onClick={clearHistory}>Clear History</button>
-                            )}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between mb-2 px-1">
+                            <p className="text-xs font-semibold text-foreground-secondary">Recently opened</p>
+                            <button
+                                className="text-[10px] font-semibold text-red-500 hover:text-red-600"
+                                onClick={handleClearHistory}
+                            >
+                                Clear History
+                            </button>
                         </div>
+
                         {history.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {history.map(item => (
-                                    <Link
-                                        to={`/novel/${item.novel?.id}`}
-                                        key={item.id}
-                                        className="flex gap-3 p-3 rounded-xl border border-slate-100 shadow-sm hover:shadow transition cursor-pointer bg-white"
-                                    >
-                                        <img
-                                            src={item.novel?.cover_image_url || '/placeholder.jpg'}
-                                            className="h-20 w-16 rounded-lg object-cover bg-slate-200"
-                                            alt=""
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-semibold line-clamp-1 text-slate-900">{item.novel?.title}</div>
-                                            <div className="text-[11px] text-slate-500 mt-0.5">{item.novel?.author?.username || 'Unknown'}</div>
-                                            <p className="text-xs text-slate-600 mt-1 line-clamp-2">Continue reading where you left off.</p>
-                                            <div className="text-[10px] text-slate-400 mt-1">
-                                                Read {new Date(item.updated_at).toLocaleDateString()}
+                            <div className="space-y-3">
+                                {history.map((item: any) => {
+                                    const novel = item.novel;
+                                    if (!novel) return null;
+
+                                    return (
+                                        <Link
+                                            to={`/novel/${novel.id}`}
+                                            key={item.id}
+                                            className="flex gap-4 p-4 rounded-2xl border border-border bg-card transition-transform active:scale-[0.98]"
+                                        >
+                                            <div className="w-16 h-20 flex-shrink-0">
+                                                <img
+                                                    src={novel.cover_image_url || '/placeholder.jpg'}
+                                                    className="h-full w-full rounded-lg object-cover bg-background-secondary shadow-sm"
+                                                    alt={novel.title}
+                                                />
                                             </div>
-                                        </div>
-                                    </Link>
-                                ))}
+
+                                            <div className="flex-1 min-w-0 py-0.5 flex flex-col justify-between">
+                                                <div>
+                                                    <h3 className="text-sm font-semibold text-foreground line-clamp-1">
+                                                        {novel.title}
+                                                    </h3>
+                                                    <p className="text-[11px] text-foreground-secondary font-medium mt-0.5 line-clamp-1">
+                                                        {novel.genres?.[0] || 'Uncategorized'} · {novel.average_rating || 0}★ · {formatViews(novel.total_views)} views
+                                                    </p>
+                                                    <p className="text-xs text-foreground-secondary line-clamp-2 mt-1">
+                                                        {novel.description || 'No description available.'}
+                                                    </p>
+                                                    <p className="text-[10px] text-foreground-secondary mt-2">
+                                                        Read {formatTimeAgo(item.last_read_at)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                                    <Clock className="w-8 h-8 text-slate-400" />
-                                </div>
-                                <h3 className="text-base font-semibold mb-1 text-slate-900">No reading history</h3>
-                                <p className="text-xs text-slate-500 mb-4">Your recently read novels will appear here</p>
-                                <Link to="/ranking" className="px-5 py-2 bg-sky-500 text-white rounded-full font-semibold text-xs hover:bg-sky-600 transition">
-                                    Start Reading
-                                </Link>
-                            </div>
+                            emptyHistoryState
                         )}
                     </div>
                 )}

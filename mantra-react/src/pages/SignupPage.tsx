@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
+
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 export default function SignupPage() {
     const [username, setUsername] = useState('');
@@ -9,7 +12,6 @@ export default function SignupPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-    const supabase = createClient();
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -54,16 +56,16 @@ export default function SignupPage() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4 bg-white font-inter text-slate-800">
-                <div className="text-center max-w-md">
-                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-3xl text-emerald-600">✉️</span>
+            <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--background-secondary)] font-sans text-[var(--foreground)]">
+                <div className="text-center max-w-md bg-[var(--card)] p-8 rounded-[var(--radius-xl)] shadow-lg border border-[var(--border)]">
+                    <div className="w-16 h-16 bg-[var(--emerald-500)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-3xl">✉️</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 mb-2">Check your email</h1>
-                    <p className="text-slate-500 mb-6">
+                    <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Check your email</h1>
+                    <p className="text-[var(--foreground-secondary)] mb-6">
                         We've sent a verification link to <strong>{email}</strong>
                     </p>
-                    <Link to="/login" className="text-sky-600 hover:text-sky-700 font-semibold hover:underline">
+                    <Link to="/login" className="text-[var(--primary)] hover:text-[var(--primary-hover)] font-semibold hover:underline">
                         Back to login
                     </Link>
                 </div>
@@ -72,73 +74,75 @@ export default function SignupPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white md:bg-slate-50 font-inter text-slate-800">
-            <div className="w-full max-w-md bg-white md:rounded-2xl md:shadow-xl md:border md:border-slate-100 overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-[var(--background-secondary)] font-sans p-4">
+            <div className="w-full max-w-md bg-[var(--card)] md:rounded-[var(--radius-xl)] md:shadow-xl md:border md:border-[var(--border)] overflow-hidden transition-all">
                 <section className="h-full">
-                    <div className="px-5 py-12 md:px-8 md:py-12">
+                    <div className="px-6 py-10 md:px-10 md:py-12">
                         <div className="mb-8 text-center md:text-left">
-                            <img src="/logo.jpeg" alt="Mantra" className="h-12 w-auto mb-4 rounded-lg mx-auto md:mx-0" />
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Create account</h1>
-                            <p className="text-slate-500 text-sm mt-2">Join us and start reading today</p>
+                            <img src="/logo.jpeg" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
+                            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Create account</h1>
+                            <p className="text-[var(--foreground-secondary)] text-sm mt-2">Join us and start reading today</p>
                         </div>
 
                         <form onSubmit={handleSignup} className="space-y-5" noValidate>
                             <div>
-                                <label htmlFor="username-input" className="block text-xs font-medium text-slate-700 mb-1.5">Username</label>
-                                <input
+                                <label htmlFor="username-input" className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5">Username</label>
+                                <Input
                                     id="username-input"
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white placeholder:text-slate-400 transition-all"
                                     placeholder="username"
                                     autoComplete="username"
+                                    className="bg-[var(--input-background)] border-[var(--border)]"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="email-input" className="block text-xs font-medium text-slate-700 mb-1.5">Email</label>
-                                <input
+                                <label htmlFor="email-input" className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5">Email</label>
+                                <Input
                                     id="email-input"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white placeholder:text-slate-400 transition-all"
                                     placeholder="you@example.com"
                                     autoComplete="email"
+                                    className="bg-[var(--input-background)] border-[var(--border)]"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="password-input" className="block text-xs font-medium text-slate-700 mb-1.5">Password</label>
-                                <input
+                                <label htmlFor="password-input" className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5">Password</label>
+                                <Input
                                     id="password-input"
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white placeholder:text-slate-400 transition-all"
                                     placeholder="••••••••"
                                     autoComplete="new-password"
+                                    className="bg-[var(--input-background)] border-[var(--border)]"
                                 />
                             </div>
 
                             {error && (
-                                <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-medium text-center">
+                                <div className="p-3 rounded-lg bg-[var(--destructive)]/10 border border-[var(--destructive)]/20 text-[var(--destructive)] text-xs font-medium text-center animate-in">
                                     {error}
                                 </div>
                             )}
 
-                            <button
+                            <Button
                                 type="submit"
-                                disabled={isLoading}
-                                className="w-full rounded-xl bg-sky-500 text-white text-sm font-semibold py-3 active:scale-[0.98] shadow-sm hover:bg-sky-600 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                                fullWidth
+                                size="lg"
+                                isLoading={isLoading}
+                                className="font-bold shadow-lg shadow-[var(--primary)]/25"
                             >
                                 {isLoading ? 'Creating account...' : 'Sign Up'}
-                            </button>
+                            </Button>
 
-                            <div className="text-center text-xs text-slate-500 mt-4">
+                            <div className="text-center text-xs text-[var(--foreground-secondary)] mt-6">
                                 Already have an account?{' '}
-                                <Link to="/login" className="text-sky-600 hover:text-sky-700 font-semibold hover:underline">
+                                <Link to="/login" className="text-[var(--primary)] font-bold hover:underline">
                                     Log in
                                 </Link>
                             </div>

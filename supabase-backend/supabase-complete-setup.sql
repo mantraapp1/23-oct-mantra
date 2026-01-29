@@ -2207,7 +2207,17 @@ SELECT
   (SELECT COUNT(*) FROM admin_config) as admin_config_records,
   (SELECT COUNT(*) FROM home_sections) as home_sections_created,
   (SELECT COUNT(*) FROM faqs) as faq_records_created;
+    -- Drop the old policy
+DROP POLICY IF EXISTS "Novels are viewable based on age" ON novels;
 
+-- Create a simpler policy that handles anonymous users
+CREATE POLICY "Novels are viewable based on age"
+  ON novels FOR SELECT
+  USING (
+    is_mature = FALSE
+    OR
+    (is_mature = TRUE AND auth.uid() IS NOT NULL AND can_view_mature_content(auth.uid()))
+  );
 -- ============================================================================
 -- SETUP COMPLETE! 🎉
 -- ============================================================================

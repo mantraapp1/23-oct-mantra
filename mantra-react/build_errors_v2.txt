@@ -1,0 +1,21 @@
+﻿src/components/novel/NovelHero.tsx(43,9): error TS2552: Cannot find name 'navigate'. Did you mean 'navigator'?
+src/components/QueryErrorBoundary.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/QueryErrorBoundary.tsx(1,28): error TS1484: 'ErrorInfo' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/QueryErrorBoundary.tsx(1,39): error TS1484: 'ReactNode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/hooks/useNovels.ts(3,1): error TS6133: 'useAuth' is declared but its value is never read.
+src/pages/AuthorDashboardPage.tsx(4,29): error TS6133: 'Trash2' is declared but its value is never read.
+src/pages/AuthorDashboardPage.tsx(4,37): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/pages/CreateChapterPage.tsx(9,5): error TS6133: 'AlertCircle' is declared but its value is never read.
+src/pages/CreateChapterPage.tsx(33,11): error TS6133: 'charCount' is declared but its value is never read.
+src/pages/CreateNovelPage.tsx(10,5): error TS6133: 'AlertCircle' is declared but its value is never read.
+src/pages/CreateNovelPage.tsx(115,17): error TS2322: Type 'string' is not assignable to type '"ongoing" | "completed" | "hiatus" | undefined'.
+src/pages/HomePage.tsx(4,1): error TS6133: 'Novel' is declared but its value is never read.
+src/pages/HomePage.tsx(16,11): error TS6133: 'errorTrending' is declared but its value is never read.
+src/pages/LibraryPage.tsx(4,27): error TS6133: 'Trash2' is declared but its value is never read.
+src/pages/LibraryPage.tsx(4,47): error TS6133: 'Search' is declared but its value is never read.
+src/pages/LibraryPage.tsx(4,55): error TS6133: 'Star' is declared but its value is never read.
+src/pages/LibraryPage.tsx(6,1): error TS6133: 'NovelListCardSkeleton' is declared but its value is never read.
+src/pages/NovelManagePage.tsx(12,5): error TS6133: 'Trash2' is declared but its value is never read.
+src/pages/NovelManagePage.tsx(40,25): error TS6133: 'setPerformance' is declared but its value is never read.
+src/pages/NovelManagePage.tsx(70,28): error TS2345: Argument of type '{ reviews: ReviewWithUser[]; total: number; }' is not assignable to parameter of type 'SetStateAction<any[]>'.
+src/pages/ReportPage.tsx(2,40): error TS6133: 'Link' is declared but its value is never read.

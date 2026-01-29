@@ -30,7 +30,7 @@ export default function FeaturedBanner({
 
                 {/* Content Box */}
                 <div className="absolute bottom-10 left-8 right-8 max-w-3xl">
-                    <div className="inline-flex items-center px-3 py-1 mb-4 text-xs font-bold text-white uppercase tracking-wider bg-white/20 backdrop-blur-md rounded-full border border-white/10">
+                    <div className="inline-flex items-center px-3 py-1 mb-4 text-xs font-bold text-white uppercase tracking-wider bg-sky-500 rounded-full">
                         Featured Story
                     </div>
                     <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-3 tracking-tight shadow-sm leading-tight text-balance">

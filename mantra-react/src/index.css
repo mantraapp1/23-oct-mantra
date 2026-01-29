@@ -1,122 +1,140 @@
 @import "tailwindcss";
 
 /* ========================================
-   MANTRA NOVEL - Design System
-   Source: mantra-mobile/constants/colors.ts
+   MANTRA NOVEL - PREMIUM DESIGN SYSTEM
    ======================================== */
 
 :root {
-  /* Sky (Primary) */
+  /* 
+   * PRIMARY: SKY BLUE
+   * A vibrant, polished blue that feels trustworthy and modern.
+   */
   --sky-50: #f0f9ff;
   --sky-100: #e0f2fe;
   --sky-200: #bae6fd;
+  --sky-300: #7dd3fc;
+  --sky-400: #38bdf8;
   --sky-500: #0ea5e9;
+  /* MAIN BRAND COLOR */
   --sky-600: #0284c7;
   --sky-700: #0369a1;
+  --sky-800: #075985;
+  --sky-900: #0c4a6e;
+  --sky-950: #082f49;
 
-  /* Slate (Neutral) */
+  /* 
+   * NEUTRAL: SLATE
+   * A cool, high-tech gray scale for text and backgrounds.
+   */
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;
   --slate-200: #e2e8f0;
+  /* Borders */
+  --slate-300: #cbd5e1;
   --slate-400: #94a3b8;
+  /* Secondary Text */
   --slate-500: #64748b;
   --slate-600: #475569;
   --slate-700: #334155;
   --slate-800: #1e293b;
   --slate-900: #0f172a;
+  --slate-950: #020617;
 
-  /* Emerald (Success) */
-  --emerald-50: #ecfdf5;
-  --emerald-100: #d1fae5;
+  /* STATUS COLORS */
   --emerald-500: #10b981;
+  /* Success */
   --emerald-600: #059669;
-  --emerald-700: #047857;
-
-  /* Red (Error) */
-  --red-50: #fef2f2;
-  --red-100: #fee2e2;
-  --red-400: #f87171;
   --red-500: #ef4444;
+  /* Error */
   --red-600: #dc2626;
-  --red-700: #b91c1c;
-
-  /* Amber (Warning) */
-  --amber-50: #fffbeb;
-  --amber-100: #fef3c7;
-  --amber-400: #fbbf24;
   --amber-500: #f59e0b;
-  --amber-700: #b45309;
+  /* Warning */
 
-  /* Purple (Accent) */
-  --purple-50: #faf5ff;
-  --purple-100: #f3e8ff;
-  --purple-500: #a855f7;
-  --purple-600: #9333ea;
-  --purple-700: #7c3aed;
-
-  /* Base Colors */
+  /* BASE COLORS */
   --white: #ffffff;
   --black: #000000;
 
-  /* Light Theme Mapping (matching theme.ts) */
+  /* ========================================
+     THEME: LIGHT (DEFAULT)
+     ======================================== */
+
   --background: var(--white);
   --background-secondary: var(--slate-50);
+
+  /* Text */
   --foreground: var(--slate-900);
   --foreground-secondary: var(--slate-500);
+
+  /* Components */
   --card: var(--white);
+  --card-hover: var(--slate-50);
+
   --border: var(--slate-200);
+
   --input-background: var(--white);
+  --input-border: var(--slate-200);
 
+  /* Brand Mapping */
   --primary: var(--sky-500);
+  --primary-foreground: var(--white);
+  --primary-hover: var(--sky-600);
   --primary-light: var(--sky-50);
+  /* Backgrounds/Accents */
 
-  --error: var(--red-500);
-  --success: var(--emerald-600);
+  --destructive: var(--red-500);
+  --destructive-foreground: var(--white);
 
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
+  --success: var(--emerald-500);
+
+  /* RADIUS SYSTEM */
+  --radius-sm: 0.375rem;
+  /* 6px */
+  --radius-md: 0.5rem;
+  /* 8px - Button Default */
+  --radius-lg: 0.75rem;
+  /* 12px */
+  --radius-xl: 1rem;
+  /* 16px - Card Default */
+  --radius-full: 9999px;
 }
 
-/* Dark Theme */
+/* ========================================
+   THEME: DARK
+   ======================================== */
 .dark {
-  --background: var(--slate-900);
-  --background-secondary: var(--slate-800);
+  --background: var(--slate-950);
+  --background-secondary: var(--slate-900);
+
+  /* Text */
   --foreground: var(--slate-50);
   --foreground-secondary: var(--slate-400);
-  --card: var(--slate-800);
-  --border: var(--slate-700);
-  --input-background: var(--slate-800);
 
+  /* Components */
+  --card: var(--slate-900);
+  --card-hover: var(--slate-800);
+
+  --border: var(--slate-800);
+
+  --input-background: var(--slate-900);
+  --input-border: var(--slate-800);
+
+  /* Brand Mapping */
   --primary: var(--sky-500);
+  --primary-foreground: var(--white);
+  --primary-hover: var(--sky-400);
+  /* Lighter on focus in dark mode */
   --primary-light: rgba(14, 165, 233, 0.15);
+  /* Transparent Sky */
 
-  --error: var(--red-400);
+  --destructive: var(--red-500);
+  --destructive-foreground: var(--white);
+
   --success: var(--emerald-500);
 }
 
-/* System preference detection */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: var(--slate-900);
-    --background-secondary: var(--slate-800);
-    --foreground: var(--slate-50);
-    --foreground-secondary: var(--slate-400);
-    --card: var(--slate-800);
-    --border: var(--slate-700);
-    --input-background: var(--slate-800);
-
-    --primary: var(--sky-500);
-    --primary-light: rgba(14, 165, 233, 0.15);
-
-    --error: var(--red-400);
-    --success: var(--emerald-500);
-  }
-}
-
+/* ========================================
+   CONFIG HOOKS
+   ======================================== */
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
@@ -127,24 +145,38 @@
   --color-foreground-secondary: var(--foreground-secondary);
 
   --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+
   --color-border: var(--border);
+
   --color-input: var(--input-background);
+  --color-input-border: var(--input-border);
 
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-light: var(--primary-light);
 
-  --color-error: var(--error);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
   --color-success: var(--success);
 
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
 }
 
-/* Global Reset & Typography */
+/* ========================================
+   GLOBAL RESET & ANIMATIONS
+   ======================================== */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -158,17 +190,33 @@ body {
   display: none;
 }
 
-/* Focus visible styles for accessibility */
+/* Global Focus Styles */
 *:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+  border-radius: 2px;
 }
 
-/* Smooth transitions for theme changes */
-*,
-*::before,
-*::after {
-  transition-property: background-color, border-color, color;
-  transition-timing-function: ease;
-  transition-duration: 150ms;
+/* Smooth Element Transitions */
+.transition-theme {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Animate In Utility */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: enter 0.4s ease-out forwards;
 }
