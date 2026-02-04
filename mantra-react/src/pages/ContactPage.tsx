@@ -106,22 +106,22 @@ export default function ContactPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 <div className="bg-card p-6 rounded-3xl border border-border shadow-sm text-center">
-                    <div className="w-12 h-12 bg-sky-500/10 dark:bg-sky-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <MessageSquare className="w-6 h-6 text-sky-500 dark:text-sky-400" />
+                    <div className="w-12 h-12 bg-background-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <MessageSquare className="w-6 h-6 text-foreground-secondary" />
                     </div>
                     <h3 className="font-bold text-foreground mb-1">Live Support</h3>
                     <p className="text-xs text-foreground-secondary">Available Mon-Fri</p>
                 </div>
                 <div className="bg-card p-6 rounded-3xl border border-border shadow-sm text-center">
-                    <div className="w-12 h-12 bg-purple-50 dark:bg-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <Mail className="w-6 h-6 text-purple-500 dark:text-purple-400" />
+                    <div className="w-12 h-12 bg-background-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <Mail className="w-6 h-6 text-foreground-secondary" />
                     </div>
                     <h3 className="font-bold text-foreground mb-1">Email Us</h3>
                     <p className="text-xs text-foreground-secondary truncate">mantranovels@protonmail.com</p>
                 </div>
                 <div className="bg-card p-6 rounded-3xl border border-border shadow-sm text-center">
-                    <div className="w-12 h-12 bg-amber-50 dark:bg-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <AlertCircle className="w-6 h-6 text-amber-500 dark:text-amber-400" />
+                    <div className="w-12 h-12 bg-background-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-6 h-6 text-foreground-secondary" />
                     </div>
                     <h3 className="font-bold text-foreground mb-1">Report Bugs</h3>
                     <p className="text-xs text-foreground-secondary">Help us improve</p>

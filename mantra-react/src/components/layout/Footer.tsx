@@ -4,7 +4,7 @@ export default function Footer() {
     return (
         <footer className="bg-[var(--background-secondary)] border-t border-[var(--border)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
                     {/* Brand */}
                     <div className="col-span-2 md:col-span-1">
                         <Link to="/" className="flex items-center gap-2 mb-4">
@@ -62,6 +62,11 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
+                                <Link to="/creator-monetization" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Monetization
+                                </Link>
+                            </li>
+                            <li>
                                 <Link to="/content-policy" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
                                     Content Guidelines
                                 </Link>
@@ -88,6 +93,48 @@ export default function Footer() {
                                     Report Issue
                                 </Link>
                             </li>
+                            <li>
+                                <Link to="/grievance-redressal" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Grievance Redressal
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Legal */}
+                    <div>
+                        <h3 className="font-semibold text-[var(--foreground)] mb-4">Legal</h3>
+                        <ul className="space-y-2 text-sm">
+                            <li>
+                                <Link to="/terms" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Terms of Service
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/privacy" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Privacy Policy
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/cookies" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Cookie Policy
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/dmca" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    DMCA
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/child-safety" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Child Safety
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/data-retention" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Data Retention
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -97,18 +144,18 @@ export default function Footer() {
                     <p className="text-[var(--foreground-secondary)] text-sm">
                         © {new Date().getFullYear()} Mantra Novel. All rights reserved.
                     </p>
-                    <div className="flex items-center gap-6 text-sm">
-                        <Link to="/terms" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
-                            Terms
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
+                        <Link to="/acceptable-use" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                            Acceptable Use
                         </Link>
-                        <Link to="/privacy" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
-                            Privacy
+                        <Link to="/moderation-policy" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                            Moderation
                         </Link>
-                        <Link to="/cookies" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
-                            Cookies
+                        <Link to="/refund-policy" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                            Refund Policy
                         </Link>
-                        <Link to="/dmca" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
-                            DMCA
+                        <Link to="/risk-disclosure" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                            Risk Disclosure
                         </Link>
                     </div>
                 </div>

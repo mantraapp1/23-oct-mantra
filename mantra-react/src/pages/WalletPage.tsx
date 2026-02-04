@@ -68,7 +68,7 @@ export default function WalletPage() {
     };
 
     return (
-        <div className="max-w-[1800px] mx-auto bg-white min-h-screen pb-24 font-inter text-slate-800">
+        <div className="w-full mx-auto bg-white min-h-screen pb-24 font-inter text-slate-800">
             {/* Header */}
             <div className="sticky top-0 bg-white dark:bg-slate-900 z-40 border-b border-slate-100 dark:border-slate-800">
                 <div className="px-6 py-4 flex items-center gap-4">

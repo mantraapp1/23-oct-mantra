@@ -211,7 +211,7 @@ export default function CreateNovelPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <div className="max-w-6xl mx-auto">
+            <div className="w-full px-4">
                 {/* Header */}
                 <header className="sticky top-0 z-50 bg-background border-b border-border">
                     <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
@@ -451,12 +451,12 @@ export default function CreateNovelPage() {
                             </div>
 
                             {/* Publishing Options Info */}
-                            <div className="p-4 bg-sky-500/5 dark:bg-sky-500/5 rounded-xl border border-sky-500/20 dark:border-sky-800">
+                            <div className="p-4 bg-card rounded-xl border border-border">
                                 <div className="flex items-start gap-3">
-                                    <Info className="w-5 h-5 text-sky-600 dark:text-sky-400 mt-0.5 flex-shrink-0" />
+                                    <Info className="w-5 h-5 text-foreground-secondary mt-0.5 flex-shrink-0" />
                                     <div>
-                                        <p className="text-sm font-medium text-sky-900 dark:text-sky-300">Publishing Your Novel</p>
-                                        <p className="text-xs text-sky-700 dark:text-sky-400 mt-1">
+                                        <p className="text-sm font-medium text-foreground">Publishing Your Novel</p>
+                                        <p className="text-xs text-foreground-secondary mt-1">
                                             After creating your novel, you'll be able to add chapters and publish them for readers. You can save as draft or publish immediately.
                                         </p>
                                     </div>

@@ -49,7 +49,11 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
     };
 
     const handlePostComment = async () => {
-        if (!newComment.trim() || !currentUser) return;
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        if (!newComment.trim()) return;
         setIsPosting(true);
 
         const result = await commentService.createComment(currentUser.id, {
@@ -65,7 +69,11 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
     };
 
     const handlePostReply = async (parentId: string) => {
-        if (!replyText.trim() || !currentUser) return;
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        if (!replyText.trim()) return;
 
         const result = await commentService.createComment(currentUser.id, {
             chapter_id: chapterId,
@@ -282,7 +290,13 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
                             </button>
                             {!isReply && (
                                 <button
-                                    onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                    onClick={() => {
+                                        if (!currentUser) {
+                                            navigate('/login');
+                                            return;
+                                        }
+                                        setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                                    }}
                                     className={`flex items-center gap-1.5 text-xs transition-colors ${theme === 'dark' ? 'text-gray-400 hover:text-sky-400' : theme === 'sepia' ? 'text-[#8b7355] hover:text-[#5b4636]' : 'text-slate-500 hover:text-sky-600'}`}
                                 >
                                     <MessageCircle className="w-3.5 h-3.5" /> Reply

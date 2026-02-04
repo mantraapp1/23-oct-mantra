@@ -6,12 +6,7 @@ import {
     Share2,
     Flag,
     Bookmark,
-    BookmarkCheck,
-    CheckCircle2,
-    X,
-    Upload,
-    MessageSquare,
-    Star
+    BookmarkCheck
 } from 'lucide-react';
 import UserAvatar from '@/components/common/UserAvatar';
 import { supabase } from '@/lib/supabase/client';
@@ -313,10 +308,16 @@ export default function UserPublicProfilePage() {
                             </div>
                         </div>
 
-                        {/* Follow Button */}
-                        {currentUserId && currentUserId !== userId && (
+                        {/* Follow Button - shown to everyone except profile owner */}
+                        {currentUserId !== userId && (
                             <button
-                                onClick={handleFollowToggle}
+                                onClick={() => {
+                                    if (!currentUserId) {
+                                        navigate('/login');
+                                        return;
+                                    }
+                                    handleFollowToggle();
+                                }}
                                 className={`mt-6 px-8 py-2.5 rounded-full text-sm font-bold shadow-sm transition-all active:scale-95 ${isFollowing
                                     ? 'border border-sky-500 bg-white text-sky-500 hover:bg-sky-50'
                                     : 'bg-sky-500 text-white hover:bg-sky-600 shadow-sky-500/20'}`}

@@ -495,8 +495,8 @@ export default function NovelManagePage() {
                                 </div>
 
                                 {/* Tips Card */}
-                                <div className="bg-sky-500/5 border border-sky-500/20 rounded-xl p-5">
-                                    <h4 className="text-sm font-bold text-sky-600 dark:text-sky-400 mb-2">Boost your visibility</h4>
+                                <div className="bg-card border border-border rounded-xl p-5">
+                                    <h4 className="text-sm font-bold text-foreground mb-2">Boost your visibility</h4>
                                     <p className="text-xs text-muted-foreground leading-relaxed">
                                         Consistent updates help you reach more readers. Try publishing at least 2 chapters a week to maintain engagement.
                                     </p>

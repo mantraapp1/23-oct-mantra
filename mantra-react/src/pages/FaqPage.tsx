@@ -226,9 +226,9 @@ export default function FaqPage() {
                 )}
             </div>
 
-            <div className="mt-12 p-8 bg-sky-500/5 border border-sky-500/20 rounded-3xl text-center">
-                <div className="w-12 h-12 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                    <HelpCircle className="w-6 h-6 text-sky-500" />
+            <div className="mt-12 p-8 bg-card border border-border rounded-3xl text-center">
+                <div className="w-12 h-12 bg-background-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <HelpCircle className="w-6 h-6 text-foreground-secondary" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-2">Still need help?</h3>
                 <p className="text-foreground-secondary mb-6 max-w-sm mx-auto">

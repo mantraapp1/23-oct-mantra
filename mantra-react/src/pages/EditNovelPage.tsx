@@ -228,7 +228,7 @@ export default function EditNovelPage() {
 
     return (
         <div className="min-h-screen bg-white dark:bg-slate-900">
-            <div className="max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
+            <div className="w-full px-4">
                 {/* Header */}
                 <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between px-4 py-3">

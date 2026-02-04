@@ -24,9 +24,8 @@ const searchService = {
                 .from('novels')
                 .select(`
           *,
-          author:profiles(id, username, profile_image_url)
-        `)
-                .eq('is_published', true); // Only published novels
+          author:profiles(id, username, profile_picture_url)
+        `); // Removed is_published filter - column doesn't exist
 
             // Text Search
             if (query.trim()) {

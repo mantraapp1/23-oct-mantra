@@ -492,8 +492,10 @@ class NovelService {
      */
     async incrementViews(novelId: string): Promise<void> {
         try {
-            // await supabase.rpc('increment_novel_views', { novel_id: novelId });
-            console.log('View increment skipped (RPC not available)');
+            const { error } = await supabase.rpc('increment_novel_views', { novel_id_param: novelId });
+            if (error) {
+                console.warn('View increment failed:', error.message);
+            }
         } catch (error) {
             console.error('Error incrementing views:', error);
         }

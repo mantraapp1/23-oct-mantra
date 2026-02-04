@@ -194,9 +194,9 @@ export default function CreateChapterPage() {
                 {/* Sidebar - Tips & Info */}
                 <div className="space-y-6">
                     {/* Writing Tips */}
-                    <div className="bg-amber-100/40 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 space-y-4">
-                        <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-                            <Zap className="w-5 h-5 fill-amber-500" />
+                    <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                        <div className="flex items-center gap-2 text-foreground-secondary">
+                            <Zap className="w-5 h-5" />
                             <h2 className="text-sm font-extrabold uppercase tracking-wider">Writing Tips</h2>
                         </div>
                         <div className="space-y-3">
@@ -207,8 +207,8 @@ export default function CreateChapterPage() {
                                 'Proofread before publishing'
                             ].map((tip, i) => (
                                 <div key={i} className="flex gap-2">
-                                    <div className="w-1 h-1 bg-amber-400 rounded-full mt-2 flex-shrink-0" />
-                                    <p className="text-xs text-amber-800 dark:text-amber-300 font-medium leading-relaxed">{tip}</p>
+                                    <div className="w-1 h-1 bg-foreground-secondary rounded-full mt-2 flex-shrink-0" />
+                                    <p className="text-xs text-foreground-secondary font-medium leading-relaxed">{tip}</p>
                                 </div>
                             ))}
                         </div>

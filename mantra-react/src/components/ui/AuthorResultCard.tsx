@@ -1,45 +1,60 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, UserCheck } from 'lucide-react';
 import { useState } from 'react';
-// import { followService } from '@/services/followService'; // TODO: Implement if needed
+import UserAvatar from '@/components/common/UserAvatar';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AuthorResultCardProps {
     author: {
         id: string;
         username: string;
-        avatar_url: string | null;
-        followers_count?: number; // Optional if not available in search
+        display_name?: string | null;
+        avatar_url?: string | null;
+        profile_picture_url?: string | null;
+        followers_count?: number;
     };
 }
 
 export default function AuthorResultCard({ author }: AuthorResultCardProps) {
-    const [isFollowing, setIsFollowing] = useState(false); // Mock state for now
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const [isFollowing, setIsFollowing] = useState(false);
 
     const handleFollow = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
         setIsFollowing(!isFollowing);
         // TODO: Call follow service
     };
+
+    // Get the display name for the avatar
+    const displayName = author.display_name || author.username;
+    // Get the profile image URL from either field
+    const profileImageUrl = author.avatar_url || author.profile_picture_url;
 
     return (
         <Link
             to={`/user/${author.id}`}
             className="flex items-center gap-3 p-3 rounded-2xl border border-transparent hover:bg-background-secondary transition-colors group"
         >
-            {/* Avatar */}
-            <div className="w-12 h-12 rounded-full overflow-hidden border border-border flex-shrink-0">
-                <img
-                    src={author.avatar_url || `https://ui-avatars.com/api/?name=${author.username}&background=random`}
-                    alt={author.username}
-                    className="w-full h-full object-cover"
-                />
-            </div>
+            {/* Avatar - using shared component for consistency */}
+            <UserAvatar
+                uri={profileImageUrl}
+                name={displayName}
+                size="large"
+                className="w-12 h-12"
+            />
 
             {/* Info */}
             <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm text-foreground truncate">
-                    {author.username}
+                    {displayName}
                 </h4>
                 <p className="text-xs text-foreground-secondary">
                     Author
@@ -69,3 +84,4 @@ export default function AuthorResultCard({ author }: AuthorResultCardProps) {
         </Link>
     );
 }
+

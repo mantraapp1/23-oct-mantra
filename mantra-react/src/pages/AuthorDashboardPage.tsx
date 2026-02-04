@@ -83,7 +83,7 @@ export default function AuthorDashboardPage() {
         <div className="min-h-screen bg-background text-foreground font-inter">
             {/* Header */}
             <div className="sticky top-0 z-40 border-b border-border bg-background">
-                <div className="px-4 sm:px-6 lg:px-12 xl:px-20 py-3">
+                <div className="px-4 sm:px-6 lg:px-8 py-3">
                     <div className="relative h-12 sm:h-14">
                         <button
                             onClick={() => navigate('/profile')}
@@ -108,7 +108,7 @@ export default function AuthorDashboardPage() {
             </div>
 
             {/* Content */}
-            <div className="px-4 sm:px-6 lg:px-12 xl:px-20 py-6 space-y-8">
+            <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-8">
                 {/* Stats */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="rounded-2xl border border-border bg-card px-5 py-4 shadow-sm">

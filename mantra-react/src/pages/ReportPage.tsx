@@ -144,11 +144,15 @@ export default function ReportPage() {
         }
     };
 
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            navigate('/login');
+        }
+    }, [authLoading, user, navigate]);
+
     if (authLoading) return null;
-    if (!user) {
-        navigate('/login');
-        return null;
-    }
+    if (!user) return null; // Will redirect via useEffect
 
     if (isSuccess) {
         return (
@@ -296,9 +300,9 @@ export default function ReportPage() {
                         </div>
 
                         {/* Disclaimer */}
-                        <div className="flex items-start gap-4 p-5 bg-amber-50 dark:bg-amber-900/10 rounded-[32px] border border-amber-100 dark:border-amber-800 border-dashed">
-                            <Info className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed font-bold uppercase tracking-wide">
+                        <div className="flex items-start gap-4 p-5 bg-card rounded-[32px] border border-border border-dashed">
+                            <Info className="w-5 h-5 text-foreground-secondary mt-0.5 flex-shrink-0" />
+                            <p className="text-[11px] text-foreground-secondary leading-relaxed font-bold uppercase tracking-wide">
                                 False reports may result in account restrictions. We review all reports within 24-48 hours.
                             </p>
                         </div>

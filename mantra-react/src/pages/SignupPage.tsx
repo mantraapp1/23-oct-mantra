@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export default function SignupPage() {
+    const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState(false);
+
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,7 +42,6 @@ export default function SignupPage() {
             return;
         }
 
-        // Create profile
         if (data.user) {
             await supabase.from('profiles').upsert({
                 id: data.user.id,
@@ -50,28 +50,13 @@ export default function SignupPage() {
             });
         }
 
-        setSuccess(true);
+
         setIsLoading(false);
+        // Navigate to email verification page
+        navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
     };
 
-    if (success) {
-        return (
-            <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--background-secondary)] font-sans text-[var(--foreground)]">
-                <div className="text-center max-w-md bg-[var(--card)] p-8 rounded-[var(--radius-xl)] shadow-lg border border-[var(--border)]">
-                    <div className="w-16 h-16 bg-[var(--emerald-500)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-3xl">✉️</span>
-                    </div>
-                    <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Check your email</h1>
-                    <p className="text-[var(--foreground-secondary)] mb-6">
-                        We've sent a verification link to <strong>{email}</strong>
-                    </p>
-                    <Link to="/login" className="text-[var(--primary)] hover:text-[var(--primary-hover)] font-semibold hover:underline">
-                        Back to login
-                    </Link>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--background-secondary)] font-sans p-4">

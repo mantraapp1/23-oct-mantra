@@ -57,20 +57,20 @@ class ReviewService {
                 const reviewIds = reviews.map(r => r.id);
 
                 if (reviewIds.length > 0) {
-                    const { data: votes, error: voteError } = await supabase
-                        .from('review_votes')
+                    const { data: reactions, error: reactionError } = await supabase
+                        .from('review_reactions')
                         .select('*')
                         .in('review_id', reviewIds)
                         .eq('user_id', userId);
 
-                    if (!voteError && votes) {
-                        // Map votes to reviews
+                    if (!reactionError && reactions) {
+                        // Map reactions to reviews
                         reviews = reviews.map(review => {
-                            const vote = votes.find(v => v.review_id === review.id);
+                            const reaction = reactions.find(r => r.review_id === review.id);
                             return {
                                 ...review,
-                                user_has_liked: vote?.vote_type === 'like',
-                                user_has_disliked: vote?.vote_type === 'dislike'
+                                user_has_liked: reaction?.reaction_type === 'like',
+                                user_has_disliked: reaction?.reaction_type === 'dislike'
                             };
                         });
                     }
@@ -214,9 +214,9 @@ class ReviewService {
         voteType: 'like' | 'dislike'
     ): Promise<{ success: boolean; newState: 'liked' | 'disliked' | 'none' }> {
         try {
-            // 1. Check existing vote
-            const { data: existingVote, error: fetchError } = await supabase
-                .from('review_votes')
+            // 1. Check existing reaction
+            const { data: existingReaction, error: fetchError } = await supabase
+                .from('review_reactions')
                 .select('*')
                 .eq('review_id', reviewId)
                 .eq('user_id', userId)
@@ -226,13 +226,13 @@ class ReviewService {
 
             let newState: 'liked' | 'disliked' | 'none' = 'none';
 
-            if (existingVote) {
-                if (existingVote.vote_type === voteType) {
-                    // Removing vote (toggle off)
+            if (existingReaction) {
+                if (existingReaction.reaction_type === voteType) {
+                    // Removing reaction (toggle off)
                     const { error: deleteError } = await supabase
-                        .from('review_votes')
+                        .from('review_reactions')
                         .delete()
-                        .eq('id', existingVote.id);
+                        .eq('id', existingReaction.id);
 
                     if (deleteError) throw deleteError;
                     newState = 'none';
@@ -240,27 +240,27 @@ class ReviewService {
                     // Decrement counter
                     await this.updateReviewCounts(reviewId, voteType, -1);
                 } else {
-                    // Changing vote (like -> dislike OR dislike -> like)
+                    // Changing reaction (like -> dislike OR dislike -> like)
                     const { error: updateError } = await supabase
-                        .from('review_votes')
-                        .update({ vote_type: voteType })
-                        .eq('id', existingVote.id);
+                        .from('review_reactions')
+                        .update({ reaction_type: voteType })
+                        .eq('id', existingReaction.id);
 
                     if (updateError) throw updateError;
                     newState = voteType === 'like' ? 'liked' : 'disliked';
 
                     // Update counters: decrement old, increment new
-                    await this.updateReviewCounts(reviewId, existingVote.vote_type, -1);
+                    await this.updateReviewCounts(reviewId, existingReaction.reaction_type, -1);
                     await this.updateReviewCounts(reviewId, voteType, 1);
                 }
             } else {
-                // New vote
+                // New reaction
                 const { error: insertError } = await supabase
-                    .from('review_votes')
+                    .from('review_reactions')
                     .insert({
                         review_id: reviewId,
                         user_id: userId,
-                        vote_type: voteType
+                        reaction_type: voteType
                     });
 
                 if (insertError) throw insertError;

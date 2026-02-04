@@ -49,6 +49,19 @@ export default function AccountSettingsPage() {
 
         setEmailLoading(true);
         try {
+            // First verify current password by re-authenticating
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user?.email || '',
+                password: emailPassword,
+            });
+
+            if (signInError) {
+                setEmailError('Incorrect password');
+                setEmailLoading(false);
+                return;
+            }
+
+            // Now update the email
             const { error } = await supabase.auth.updateUser({ email: newEmail });
             if (error) throw error;
             toast.success('Verification email sent to ' + newEmail);
@@ -79,6 +92,19 @@ export default function AccountSettingsPage() {
 
         setPasswordLoading(true);
         try {
+            // First verify current password by re-authenticating
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user?.email || '',
+                password: currentPassword,
+            });
+
+            if (signInError) {
+                setPasswordError('Incorrect current password');
+                setPasswordLoading(false);
+                return;
+            }
+
+            // Now update the password
             const { error } = await supabase.auth.updateUser({ password: newPassword });
             if (error) throw error;
             toast.success('Password updated successfully!');
@@ -106,7 +132,34 @@ export default function AccountSettingsPage() {
 
         setDeleteLoading(true);
         try {
-            // In production, this would call a backend endpoint
+            // First verify password
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user?.email || '',
+                password: deletePassword,
+            });
+
+            if (signInError) {
+                setDeleteError('Incorrect password');
+                setDeleteLoading(false);
+                return;
+            }
+
+            // Schedule account deletion (7 days grace period)
+            const deletionDate = new Date();
+            deletionDate.setDate(deletionDate.getDate() + 7);
+
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({
+                    account_status: 'pending_deletion',
+                    deletion_scheduled_at: deletionDate.toISOString(),
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', user?.id);
+
+            if (updateError) throw updateError;
+
+            toast.success('Account scheduled for deletion. You have 7 days to cancel.');
             await signOut();
             navigate('/login');
         } catch (err: any) {
@@ -158,10 +211,10 @@ export default function AccountSettingsPage() {
                 {/* Change Email Form */}
                 {showEmailForm && (
                     <div className="space-y-3">
-                        <div className="rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-500/5 p-3">
+                        <div className="rounded-xl border border-border bg-card p-3">
                             <div className="flex gap-2">
-                                <Info className="w-4 h-4 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
-                                <div className="text-xs text-sky-900 dark:text-sky-200">
+                                <Info className="w-4 h-4 text-foreground-secondary flex-shrink-0 mt-0.5" />
+                                <div className="text-xs text-foreground-secondary">
                                     We'll send a verification code to your new email address to confirm the change.
                                 </div>
                             </div>

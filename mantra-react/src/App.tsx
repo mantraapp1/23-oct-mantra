@@ -18,6 +18,9 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 // Auth pages
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
+const EmailVerificationPage = lazy(() => import('./pages/EmailVerificationPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const UpdatePasswordPage = lazy(() => import('./pages/UpdatePasswordPage'));
 
 // User pages - loaded on demand
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
@@ -47,6 +50,21 @@ const CreateChapterPage = lazy(() => import('./pages/CreateChapterPage'));
 const EditChapterPage = lazy(() => import('./pages/EditChapterPage'));
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
 const SeeAllPage = lazy(() => import('./pages/SeeAllPage'));
+
+// Legal & Policy pages
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const CookiePolicyPage = lazy(() => import('./pages/CookiePolicyPage'));
+const ContentPolicyPage = lazy(() => import('./pages/ContentPolicyPage'));
+const DMCAPage = lazy(() => import('./pages/DMCAPage'));
+const CreatorMonetizationPage = lazy(() => import('./pages/CreatorMonetizationPage'));
+const RefundPolicyPage = lazy(() => import('./pages/RefundPolicyPage'));
+const ModerationPolicyPage = lazy(() => import('./pages/ModerationPolicyPage'));
+const ChildSafetyPage = lazy(() => import('./pages/ChildSafetyPage'));
+const GrievanceRedressalPage = lazy(() => import('./pages/GrievanceRedressalPage'));
+const RiskDisclosurePage = lazy(() => import('./pages/RiskDisclosurePage'));
+const AcceptableUsePage = lazy(() => import('./pages/AcceptableUsePage'));
+const DataRetentionPage = lazy(() => import('./pages/DataRetentionPage'));
 
 // 404 Page
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -101,9 +119,27 @@ function App() {
 
           {/* Discovery Routes */}
           <Route path="/see-all/:type" element={<SeeAllPage />} />
+
+          {/* Legal & Policy Routes */}
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/cookies" element={<CookiePolicyPage />} />
+          <Route path="/content-policy" element={<ContentPolicyPage />} />
+          <Route path="/dmca" element={<DMCAPage />} />
+          <Route path="/creator-monetization" element={<CreatorMonetizationPage />} />
+          <Route path="/refund-policy" element={<RefundPolicyPage />} />
+          <Route path="/moderation-policy" element={<ModerationPolicyPage />} />
+          <Route path="/child-safety" element={<ChildSafetyPage />} />
+          <Route path="/grievance-redressal" element={<GrievanceRedressalPage />} />
+          <Route path="/risk-disclosure" element={<RiskDisclosurePage />} />
+          <Route path="/acceptable-use" element={<AcceptableUsePage />} />
+          <Route path="/data-retention" element={<DataRetentionPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/update-password" element={<UpdatePasswordPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
