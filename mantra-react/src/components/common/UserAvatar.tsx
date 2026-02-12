@@ -69,6 +69,39 @@ const getInitials = (name: string): string => {
     return firstInitial + lastInitial;
 };
 
+/**
+ * A palette of visually distinct, accessible colors for avatar backgrounds.
+ * These are chosen to have good contrast with white text.
+ */
+const AVATAR_COLORS = [
+    'bg-sky-500',
+    'bg-emerald-500',
+    'bg-violet-500',
+    'bg-amber-500',
+    'bg-rose-500',
+    'bg-cyan-500',
+    'bg-indigo-500',
+    'bg-fuchsia-500',
+    'bg-teal-500',
+    'bg-orange-500',
+];
+
+/**
+ * Generate a consistent color for a given name.
+ * Uses a simple hash to map the name to a color index.
+ */
+const getColorForName = (name: string): string => {
+    if (!name || name.trim() === '') {
+        return AVATAR_COLORS[0];
+    }
+    // Simple hash: sum of char codes
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash += name.charCodeAt(i);
+    }
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+};
+
 const UserAvatar: React.FC<UserAvatarProps> = ({
     uri,
     name = 'User',
@@ -88,6 +121,9 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     // Get the initials for fallback
     const initials = getInitials(name);
 
+    // Get a consistent color based on the user's name
+    const bgColor = getColorForName(name);
+
     // Get the image URL - use centralized function for consistency
     const imageUri = getProfilePicture(uri, name);
 
@@ -95,7 +131,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     if (hasError || !uri) {
         return (
             <div
-                className={`flex items-center justify-center bg-sky-500 text-white font-bold rounded-full flex-shrink-0 ${showBorder ? `border-2 ${borderColorClass}` : ''} ${className}`}
+                className={`flex items-center justify-center ${bgColor} text-white font-bold rounded-full flex-shrink-0 ${showBorder ? `border-2 ${borderColorClass}` : ''} ${className}`}
                 style={{
                     width: avatarSize,
                     height: avatarSize,

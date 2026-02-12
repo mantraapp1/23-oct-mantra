@@ -1,14 +1,15 @@
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import { useAppNavigation } from '@/hooks/useAppNavigation';
 
 export default function DMCAPage() {
-    const navigate = useNavigate();
+    const { goBack } = useAppNavigation();
 
     return (
         <div className="w-full mx-auto px-4 py-8 font-inter min-h-screen bg-background">
             {/* Back Button Header */}
             <div className="flex items-center gap-3 mb-8">
-                <button onClick={() => navigate(-1)} className="p-2 -ml-2 hover:bg-background-secondary rounded-full transition-colors">
+                <button onClick={() => goBack()} className="p-2 -ml-2 hover:bg-background-secondary rounded-full transition-colors">
                     <ChevronLeft className="w-6 h-6 text-foreground-secondary" />
                 </button>
                 <div>

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     ChevronLeft,
     Search,
@@ -7,6 +6,7 @@ import {
     MessageSquare,
     HelpCircle
 } from 'lucide-react';
+import { useAppNavigation } from '@/hooks/useAppNavigation';
 
 interface FaqItem {
     id: string;
@@ -141,7 +141,7 @@ const CATEGORIES = [
 ];
 
 export default function FaqPage() {
-    const navigate = useNavigate();
+    const { goBack, navigate } = useAppNavigation();
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [activeCategory, setActiveCategory] = useState('all');
@@ -159,7 +159,7 @@ export default function FaqPage() {
     return (
         <div className="max-w-[1800px] mx-auto px-4 py-8 font-inter min-h-screen bg-background">
             <div className="flex items-center gap-3 mb-8">
-                <button onClick={() => navigate('/settings')} className="p-2 -ml-2 hover:bg-background-secondary rounded-full transition-colors">
+                <button onClick={() => goBack()} className="p-2 -ml-2 hover:bg-background-secondary rounded-full transition-colors">
                     <ChevronLeft className="w-6 h-6 text-foreground-secondary" />
                 </button>
                 <h1 className="text-2xl font-bold text-foreground">FAQ</h1>

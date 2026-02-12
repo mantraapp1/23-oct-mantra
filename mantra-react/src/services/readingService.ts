@@ -115,7 +115,8 @@ class ReadingService {
     }
 
     /**
-     * Get reading history
+     * Get reading history (novels user has viewed/read)
+     * Uses reading_progress table which is updated when user views a novel
      */
     async getReadingHistory(
         userId: string,
@@ -124,21 +125,25 @@ class ReadingService {
     ): Promise<any[]> {
         try {
             let query = supabase
-                .from('reading_history')
+                .from('reading_progress')
                 .select(`
           *,
-          novel:novels(*),
-          chapter:chapters(*)
+          novel:novels(*)
         `)
                 .eq('user_id', userId);
 
             query = paginateQuery(query, page, pageSize);
-            query = query.order('last_read_at', { ascending: false });
+            query = query.order('last_updated', { ascending: false });
 
             const { data, error } = await query;
 
             if (error) throw error;
-            return data || [];
+
+            // Map last_updated to last_read_at for compatibility with LibraryPage
+            return (data || []).map(item => ({
+                ...item,
+                last_read_at: item.last_updated
+            }));
         } catch (error) {
             console.error('Error getting reading history:', error);
             return [];
@@ -146,12 +151,12 @@ class ReadingService {
     }
 
     /**
-     * Clear reading history
+     * Clear reading history (novels viewed by user)
      */
     async clearReadingHistory(userId: string): Promise<{ success: boolean; message: string }> {
         try {
             const { error } = await supabase
-                .from('reading_history')
+                .from('reading_progress')
                 .delete()
                 .eq('user_id', userId);
 

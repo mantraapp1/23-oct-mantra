@@ -6,6 +6,7 @@ export interface CreateReportData {
     reported_id: string;
     reason: string;
     description?: string;
+    evidence_url?: string;
 }
 
 export interface Report {
@@ -15,6 +16,7 @@ export interface Report {
     reported_id: string;
     reason: string;
     description?: string;
+    evidence_url?: string;
     status: string;
     created_at: string;
     resolved_at?: string;
@@ -323,6 +325,43 @@ class ReportService {
         } catch (error) {
             console.error('Error getting reports for item:', error);
             return [];
+        }
+    }
+    /**
+     * Get details for report context
+     */
+    async getReportContext(type: string, id: string): Promise<{ name: string; extra?: string } | null> {
+        try {
+            if (type === 'novel') {
+                const { data } = await supabase.from('novels').select('title').eq('id', id).single();
+                return data ? { name: data.title } : null;
+            } else if (type === 'chapter') {
+                // For chapter, we need chapter title AND novel title
+                const { data } = await supabase
+                    .from('chapters')
+                    .select('title, novel:novels(title, id)')
+                    .eq('id', id)
+                    .single();
+
+                if (data) {
+                    // Start of workaround for nested data typing
+                    const novelData = data.novel as any;
+                    const novelTitle = novelData?.title || 'Unknown Novel';
+                    // End of workaround
+                    return {
+                        name: `Chapter: ${data.title}`,
+                        extra: novelTitle
+                    };
+                }
+                return null;
+            } else if (type === 'user') {
+                const { data } = await supabase.from('profiles').select('username, display_name').eq('id', id).single();
+                return data ? { name: data.display_name || data.username || 'Unknown User' } : null;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error fetching report context:', error);
+            return null;
         }
     }
 }

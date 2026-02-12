@@ -15,7 +15,6 @@ import {
     ThumbsDown,
     Loader2,
     FileText,
-    Lock,
     Activity,
     Bookmark
 } from 'lucide-react';
@@ -249,7 +248,7 @@ export default function NovelManagePage() {
                 <img
                     src={novel.cover_image_url || ''}
                     alt=""
-                    className="w-full h-full object-cover opacity-80"
+                    className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 <button
@@ -551,17 +550,14 @@ export default function NovelManagePage() {
                                     <div
                                         key={chapter.id}
                                         onClick={() => navigate(`/novel/${novel.id}/chapter/${chapter.id}`)}
-                                        className={`flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:shadow-md hover:border-sky-500/30 transition-all cursor-pointer group ${chapter.is_locked ? 'opacity-75 hover:opacity-100' : ''}`}
+                                        className={`flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:shadow-md hover:border-sky-500/30 transition-all cursor-pointer group`}
                                     >
                                         <div className="h-12 w-12 rounded-xl bg-sky-500 text-white flex items-center justify-center text-base font-bold shrink-0 shadow-lg shadow-sky-500/20 dark:shadow-none">
                                             {chapter.chapter_number}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <div className="text-base font-bold truncate group-hover:text-sky-500 transition-colors text-foreground">
-                                                    {chapter.title}
-                                                </div>
-                                                {chapter.is_locked && <Lock className="w-3.5 h-3.5 text-amber-500" />}
+                                            <div className="text-base font-bold truncate group-hover:text-sky-500 transition-colors text-foreground">
+                                                {chapter.title}
                                             </div>
 
                                             <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">

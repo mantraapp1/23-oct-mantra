@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { supabase } from '@/lib/supabase/client';
 import {
     ChevronLeft,
     MessageSquare,
     Mail,
-    CheckCircle,
     AlertCircle,
     Send,
     Loader2
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppNavigation } from '@/hooks/useAppNavigation';
 
 const SUBJECTS = [
     { value: 'general', label: 'General Inquiry' },
@@ -21,10 +22,12 @@ const SUBJECTS = [
     { value: 'other', label: 'Other' },
 ];
 
+
+
 export default function ContactPage() {
-    const navigate = useNavigate();
+    const { goBack } = useAppNavigation();
     const { user } = useAuth();
-    const [isSent, setIsSent] = useState(false);
+    const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -64,41 +67,37 @@ export default function ContactPage() {
 
         setIsLoading(true);
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            setIsSent(true);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const { error } = await supabase
+                .from('contact_submissions')
+                .insert([
+                    {
+                        user_id: user?.id || null,
+                        name: formData.name,
+                        email: formData.email,
+                        subject: formData.subject,
+                        message: formData.message,
+                        status: 'pending'
+                    }
+                ]);
+
+            if (error) throw error;
+
+            toast.success('Message sent successfully!');
+            setFormData({ name: '', email: '', subject: '', message: '' }); // Clear form
         } catch (error) {
             console.error('Error sending message:', error);
+            toast.error('Failed to send message. Please try again.'); // Show error toast
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (isSent) {
-        return (
-            <div className="max-w-2xl mx-auto px-4 py-20 text-center font-inter min-h-screen">
-                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle className="w-10 h-10 text-emerald-600" />
-                </div>
-                <h2 className="text-3xl font-bold text-slate-900 mb-4">Message Sent!</h2>
-                <p className="text-slate-600 mb-10 leading-relaxed text-lg">
-                    Thank you for reaching out. We've received your message and will get back to you within 24-48 hours.
-                </p>
-                <button
-                    onClick={() => navigate('/settings')}
-                    className="px-10 py-4 bg-sky-500 text-white font-bold rounded-2xl hover:bg-sky-600 transition shadow-lg shadow-sky-100"
-                >
-                    Back to Settings
-                </button>
-            </div>
-        );
-    }
+
 
     return (
         <div className="max-w-[1800px] mx-auto px-4 py-8 font-inter min-h-screen bg-background">
             <div className="flex items-center gap-3 mb-8">
-                <button onClick={() => navigate('/settings')} className="p-2 -ml-2 hover:bg-background-secondary rounded-full transition-colors">
+                <button onClick={() => goBack()} className="p-2 -ml-2 hover:bg-background-secondary rounded-full transition-colors">
                     <ChevronLeft className="w-6 h-6 text-foreground-secondary" />
                 </button>
                 <h1 className="text-2xl font-bold text-foreground">Contact Us</h1>
@@ -194,6 +193,114 @@ export default function ContactPage() {
             <p className="text-center text-muted-foreground text-xs mt-8 pb-10">
                 Typical response time: 24-48 hours
             </p>
+
+            {/* My Support Requests Section */}
+            {user && (
+                <UserMessagesList userId={user.id} />
+            )}
+        </div>
+    );
+}
+
+function UserMessagesList({ userId }: { userId: string }) {
+    const [messages, setMessages] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchMessages = async () => {
+            const { data } = await supabase
+                .from('contact_submissions')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (data) setMessages(data);
+        };
+
+        fetchMessages();
+
+        // Subscribe to changes (real-time replies)
+        const channel = supabase
+            .channel('contact_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'contact_submissions',
+                    filter: `user_id=eq.${userId}`
+                },
+                (payload) => {
+                    setMessages(prev => prev.map(msg =>
+                        msg.id === payload.new.id ? payload.new : msg
+                    ));
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [userId]);
+
+    if (messages.length === 0) return null;
+
+    return (
+        <div className="max-w-4xl mx-auto mt-12 pt-12 border-t border-white/10">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="w-1 h-6 rounded-full bg-sky-500"></span>
+                My Support History
+            </h2>
+            <div className="space-y-4">
+                {messages.map((msg) => (
+                    <div key={msg.id} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20 hover:shadow-lg">
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                            <div>
+                                <h3 className="font-bold text-white text-lg mb-1">{msg.subject}</h3>
+                                <div className="text-xs text-slate-400 font-medium">
+                                    {new Date(msg.created_at).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </div>
+                            </div>
+                            <span className={`self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${msg.status === 'replied'
+                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                : 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+                                }`}>
+                                {msg.status}
+                            </span>
+                        </div>
+
+                        <p className="text-slate-300 text-sm leading-relaxed mb-6 whitespace-pre-wrap pl-1 border-l-2 border-white/10">
+                            {msg.message}
+                        </p>
+
+                        {/* Admin Reply */}
+                        {msg.admin_reply && (
+                            <div className="relative mt-4 overflow-hidden rounded-xl bg-sky-500/10 border border-sky-500/20 p-5">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-sky-500/50"></div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-5 h-5 rounded-full bg-sky-500 flex items-center justify-center">
+                                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                    </div>
+                                    <span className="text-xs text-sky-400 font-bold uppercase tracking-wide">
+                                        Mantra Support
+                                    </span>
+                                    <span className="text-[10px] text-sky-500/60 ml-auto">
+                                        {msg.replied_at && new Date(msg.replied_at).toLocaleDateString()}
+                                    </span>
+                                </div>
+                                <p className="text-slate-200 text-sm leading-relaxed pl-7">
+                                    {msg.admin_reply}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

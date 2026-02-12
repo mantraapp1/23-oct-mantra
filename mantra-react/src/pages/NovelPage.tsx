@@ -6,6 +6,7 @@ import YouMayLike from '@/components/novel/YouMayLike';
 import AgeGateModal from '@/components/ui/AgeGateModal';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import readingService from '@/services/readingService';
 
 // Session storage key for confirmed mature novels
 const CONFIRMED_MATURE_NOVELS_KEY = 'confirmed_mature_novels';
@@ -35,6 +36,7 @@ export default function NovelPage() {
     const [reviews, setReviews] = useState<any[]>([]);
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
+    const [currentChapterNumber, setCurrentChapterNumber] = useState<number | undefined>(undefined);
 
     // Age gate state
     const [showAgeGate, setShowAgeGate] = useState(false);
@@ -81,7 +83,7 @@ export default function NovelPage() {
                     // Fetch Chapters
                     supabase
                         .from('chapters')
-                        .select('id, title, chapter_number, created_at:published_at, is_locked, views')
+                        .select('id, title, chapter_number, created_at:published_at, views')
                         .eq('novel_id', id)
                         .order('chapter_number', { ascending: true })
                         .then(({ data, error }) => {
@@ -113,6 +115,52 @@ export default function NovelPage() {
 
         fetchData();
     }, [id]);
+
+    // Fetch reading progress for logged-in user
+    useEffect(() => {
+        if (!user || !id) return;
+
+        const fetchReadingProgress = async () => {
+            try {
+                const progress = await readingService.getReadingProgress(user.id, id);
+                if (progress && progress.current_chapter_number) {
+                    setCurrentChapterNumber(progress.current_chapter_number);
+                }
+            } catch (error) {
+                console.error('Error fetching reading progress:', error);
+            }
+        };
+
+        fetchReadingProgress();
+    }, [user, id]);
+
+    // Record novel view to reading_progress (for logged-in users)
+    useEffect(() => {
+        if (!user || !id || loading) return;
+
+        // Record view to reading_progress (silently, non-blocking)
+        // This creates or updates the user's reading progress for this novel
+        const recordView = async () => {
+            try {
+                // Upsert to reading_progress - this table has UNIQUE(user_id, novel_id)
+                await supabase
+                    .from('reading_progress')
+                    .upsert({
+                        user_id: user.id,
+                        novel_id: id,
+                        last_updated: new Date().toISOString(),
+                    }, {
+                        onConflict: 'user_id,novel_id',
+                        ignoreDuplicates: false
+                    });
+            } catch (error) {
+                // Silently fail - don't interrupt user experience
+                console.error('Error recording novel view:', error);
+            }
+        };
+
+        recordView();
+    }, [user, id, loading]);
 
     // Handle age gate confirmation
     const handleAgeConfirm = () => {
@@ -177,6 +225,7 @@ export default function NovelPage() {
                             author,
                             genres
                         }}
+                        chapters={chapters}
                         onVoteChange={handleVoteChange}
                     >
                         {/* Tabs Content */}
@@ -188,6 +237,7 @@ export default function NovelPage() {
                                 reviews={reviews || []}
                                 tags={novel.tags || []}
                                 currentUser={user}
+                                currentChapterNumber={currentChapterNumber}
                             />
                         </div>
 

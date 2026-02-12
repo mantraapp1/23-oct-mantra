@@ -13,9 +13,10 @@ interface NovelTabsProps {
     reviews: any[];
     tags: string[];
     currentUser: User | null;
+    currentChapterNumber?: number;
 }
 
-export default function NovelTabs({ description, chapters, novelId, reviews, tags, currentUser }: NovelTabsProps) {
+export default function NovelTabs({ description, chapters, novelId, reviews, tags, currentUser, currentChapterNumber }: NovelTabsProps) {
     const [activeTab, setActiveTab] = useState<'about' | 'chapters' | 'reviews'>('about');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -178,6 +179,7 @@ export default function NovelTabs({ description, chapters, novelId, reviews, tag
                         <ChapterList
                             chapters={searchQuery ? filteredChapters : filteredChapters.slice(activeChunkIndex * 50, (activeChunkIndex + 1) * 50)}
                             novelId={novelId}
+                            currentChapterNumber={currentChapterNumber}
                         />
 
                         {/* Load More Trigger or Pagination Info could go here if managed server side */}

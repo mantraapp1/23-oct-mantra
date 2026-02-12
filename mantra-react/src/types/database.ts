@@ -40,7 +40,6 @@ export interface Chapter {
     title: string;
     content: string;
     chapter_number: number;
-    is_locked: boolean;
     coins_required: number;
     views: number;
     likes: number;
@@ -55,7 +54,6 @@ export interface ChapterListItem {
     title: string;
     chapter_number: number;
     created_at: string;
-    is_locked: boolean;
     views: number;
 }
 

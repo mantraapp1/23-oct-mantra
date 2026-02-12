@@ -57,34 +57,11 @@ export interface Chapter {
     views: number;
     likes: number;
     dislikes: number;
-    is_locked: boolean;
-    wait_hours: number;
     published_at: string;
     updated_at: string;
 }
 
-export interface ChapterUnlock {
-    id: string;
-    user_id: string;
-    novel_id: string;
-    chapter_id: string;
-    unlock_method: 'timer' | 'ad' | 'free';
-    unlock_timestamp: string;
-    expiration_timestamp: string | null;
-    is_expired: boolean;
-}
 
-export interface ChapterTimer {
-    id: string;
-    user_id: string;
-    novel_id: string;
-    chapter_id: string;
-    timer_start_timestamp: string;
-    timer_duration_hours: number;
-    timer_expiration_timestamp: string;
-    is_active: boolean;
-    created_at: string;
-}
 
 export interface AdViewRecord {
     id: string;

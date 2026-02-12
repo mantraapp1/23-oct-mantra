@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import { ChevronLeft, Plus, Sparkles } from 'lucide-react';
@@ -9,7 +8,7 @@ import type { Novel } from '@/types/supabase';
 
 export default function AuthorDashboardPage() {
     const { user, isLoading: authLoading } = useAuth();
-    const { goBack, navigate } = useAppNavigation();
+    const { navigate } = useAppNavigation();
     const [novels, setNovels] = useState<Novel[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({ novels: 0, views: '0', earnings: '0.00' });

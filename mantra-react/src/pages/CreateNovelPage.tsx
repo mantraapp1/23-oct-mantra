@@ -187,7 +187,7 @@ export default function CreateNovelPage() {
             }
 
             toast.success('Novel created successfully!');
-            navigate(`/novel/${novelId}`);
+            navigate(`/novel/${novelId}`, { replace: true });
         } catch (error: any) {
             console.error('Error creating novel:', error);
             toast.error(error.message || 'Failed to create novel');

@@ -223,6 +223,155 @@ export async function markAdViewsAsPaid(adViewIds: string[]): Promise<number> {
 }
 
 // =========================================================
+// CHAPTER VIEW OPERATIONS (View-Based Payments)
+// =========================================================
+
+/**
+ * View record for payment processing
+ */
+interface ChapterViewRecord {
+    id: string;
+    chapter_id: string;
+    novel_id: string;
+    author_id: string;
+    viewer_id: string | null;
+    viewed_at: string;
+    paid: boolean;
+}
+
+/**
+ * Get unpaid chapter views grouped by author
+ * Uses pagination to fetch ALL records
+ */
+export async function getUnpaidViewsByAuthor(): Promise<Map<string, ChapterViewRecord[]>> {
+    const allRecords: ChapterViewRecord[] = [];
+    const PAGE_SIZE = 1000;
+    let offset = 0;
+    let hasMore = true;
+
+    // Paginate to get ALL unpaid views
+    while (hasMore) {
+        const { data, error } = await supabase
+            .from('chapter_views_for_payment')
+            .select('*')
+            .eq('paid', false)
+            .order('viewed_at', { ascending: true })
+            .range(offset, offset + PAGE_SIZE - 1);
+
+        if (error) {
+            log(LogLevel.ERROR, 'Failed to fetch chapter views', { error: error.message, offset });
+            throw new Error(`Failed to fetch chapter views: ${error.message}`);
+        }
+
+        if (data && data.length > 0) {
+            allRecords.push(...data);
+            offset += data.length;
+            hasMore = data.length === PAGE_SIZE;
+        } else {
+            hasMore = false;
+        }
+    }
+
+    // Group by author_id
+    const grouped = new Map<string, ChapterViewRecord[]>();
+    for (const record of allRecords) {
+        const existing = grouped.get(record.author_id) || [];
+        existing.push(record);
+        grouped.set(record.author_id, existing);
+    }
+
+    log(LogLevel.INFO, 'Fetched unpaid chapter views', {
+        totalRecords: allRecords.length,
+        authorCount: grouped.size
+    });
+
+    return grouped;
+}
+
+/**
+ * Mark chapter views as paid
+ * Uses batching to avoid Supabase's .in() limit
+ */
+export async function markViewsAsPaid(viewIds: string[], paymentAmount: number): Promise<number> {
+    if (viewIds.length === 0) return 0;
+
+    const BATCH_SIZE = 100;
+    let totalUpdated = 0;
+
+    for (let i = 0; i < viewIds.length; i += BATCH_SIZE) {
+        const batch = viewIds.slice(i, i + BATCH_SIZE);
+
+        const { data, error } = await supabase
+            .from('chapter_views_for_payment')
+            .update({
+                paid: true,
+                paid_at: new Date().toISOString(),
+                payment_amount: paymentAmount / viewIds.length, // Per-view amount
+            })
+            .in('id', batch)
+            .eq('paid', false) // Only update if still unpaid (idempotent)
+            .select();
+
+        if (error) {
+            log(LogLevel.ERROR, 'Failed to mark views as paid', {
+                error: error.message,
+                batchStart: i,
+                batchSize: batch.length
+            });
+            throw new Error(`Failed to mark views as paid: ${error.message}`);
+        }
+
+        totalUpdated += data?.length || 0;
+    }
+
+    log(LogLevel.INFO, 'Marked chapter views as paid', {
+        requested: viewIds.length,
+        updated: totalUpdated
+    });
+
+    return totalUpdated;
+}
+
+/**
+ * Update wallet balance and stats (for VIEW-based earnings)
+ * Uses optimistic locking to prevent race conditions
+ */
+export async function updateWalletBalanceForViews(
+    userId: string,
+    addAmount: number,
+    addViews: number
+): Promise<Wallet> {
+    const wallet = await getOrCreateWallet(userId);
+
+    const { data, error } = await supabase
+        .from('wallets')
+        .update({
+            balance: wallet.balance + addAmount,
+            total_earned: wallet.total_earned + addAmount,
+            total_ad_views: wallet.total_ad_views + addViews, // Reusing ad_views field for views
+            updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId)
+        .eq('balance', wallet.balance) // Optimistic lock
+        .select()
+        .single();
+
+    if (error) {
+        log(LogLevel.ERROR, 'Failed to update wallet for views', { userId, error: error.message });
+        throw new Error(`Failed to update wallet: ${error.message}`);
+    }
+
+    log(LogLevel.INFO, 'Updated wallet balance for views', {
+        userId,
+        addedAmount: addAmount,
+        addedViews: addViews,
+        newBalance: data.balance
+    });
+
+    return data;
+}
+
+// =========================================================
 // WALLET OPERATIONS
 // =========================================================
 

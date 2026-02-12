@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
+import { ChevronLeft } from 'lucide-react';
+
 export default function ResetPasswordPage() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -79,6 +81,13 @@ export default function ResetPasswordPage() {
             <div className="w-full max-w-md bg-[var(--card)] md:rounded-[var(--radius-xl)] md:shadow-xl md:border md:border-[var(--border)] overflow-hidden transition-all">
                 <section className="h-full">
                     <div className="px-6 py-10 md:px-10 md:py-12">
+                        <Link
+                            to="/login"
+                            className="mb-6 flex items-center text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4 mr-1" />
+                            Back to Login
+                        </Link>
                         <div className="mb-8 text-center md:text-left">
                             <img src="/logo.jpeg" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
                             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Reset password</h1>

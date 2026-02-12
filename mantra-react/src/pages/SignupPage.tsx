@@ -51,9 +51,15 @@ export default function SignupPage() {
         }
 
 
-        setIsLoading(false);
-        // Navigate to email verification page
-        navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
+        if (data.session) {
+            // Email verification is disabled in Supabase, user is auto-confirmed and logged in
+            setIsLoading(false);
+            navigate('/onboarding');
+        } else {
+            // Email verification is enabled, user needs to verify
+            setIsLoading(false);
+            navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
+        }
     };
 
 

@@ -24,12 +24,13 @@ interface NovelHeroProps {
         total_votes?: number;
         total_chapters?: number;
     };
+    chapters?: { id: string; chapter_number: number }[];
     children?: React.ReactNode;
     onVoteChange?: (increment: boolean) => void;
 }
 
 
-export default function NovelHero({ novel, children, onVoteChange }: NovelHeroProps) {
+export default function NovelHero({ novel, chapters = [], children, onVoteChange }: NovelHeroProps) {
     const navigate = useNavigate();
     const [showMenu, setShowMenu] = useState(false);
     const { user } = useAuth();
@@ -56,7 +57,7 @@ export default function NovelHero({ novel, children, onVoteChange }: NovelHeroPr
 
     const handleReport = () => {
         setShowMenu(false);
-        navigate(`/report?type=novel&novelId=${novel.id}&novelName=${encodeURIComponent(novel.title)}`);
+        navigate(`/report?type=novel&id=${novel.id}&name=${encodeURIComponent(novel.title)}`);
     };
 
     // Genre Color Logic matching mobile - UPDATED to Card Style (White BG, Gray Border)
@@ -209,7 +210,7 @@ export default function NovelHero({ novel, children, onVoteChange }: NovelHeroPr
                             </div>
                         </div>
 
-                        <ActionButtons novelId={novel.id} currentUser={user} onVoteChange={onVoteChange} />
+                        <ActionButtons novelId={novel.id} currentUser={user} chapters={chapters} onVoteChange={onVoteChange} />
                     </div>
                 </div>
 

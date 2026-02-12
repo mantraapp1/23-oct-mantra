@@ -5,7 +5,6 @@ import {
     ChevronLeft,
     Zap,
     Send,
-    Info,
     Type,
     Hash,
     Trash2,
@@ -56,7 +55,7 @@ export default function EditChapterPage() {
                     setLastUpdated(chapter.updated_at || chapter.published_at);
                 } else {
                     toast.error('Chapter not found');
-                    setTimeout(() => navigate(-1), 1000);
+                    setTimeout(() => navigate(`/novel/manage/${novelId}`, { replace: true }), 1000);
                 }
             } catch (error) {
                 console.error('Error loading chapter data:', error);
@@ -91,7 +90,7 @@ export default function EditChapterPage() {
             });
 
             if (result.success) {
-                navigate(-1);
+                navigate(`/novel/manage/${novelId}`, { replace: true });
             } else {
                 toast.error(result.message || 'Error updating chapter');
             }
@@ -113,7 +112,7 @@ export default function EditChapterPage() {
             const result = await chapterService.deleteChapter(chapterId!);
             if (result.success) {
                 toast.success('Chapter deleted successfully');
-                navigate(`/novel/${novelId}/manage`);
+                navigate(`/novel/manage/${novelId}`, { replace: true });
             } else {
                 toast.error(result.message || 'Error deleting chapter');
             }
@@ -138,7 +137,7 @@ export default function EditChapterPage() {
                 <div className="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => navigate(`/novel/${novelId}/manage`)}
+                            onClick={() => navigate(`/novel/manage/${novelId}`)}
                             className="p-2 hover:bg-background-secondary rounded-xl transition-colors text-foreground-secondary hover:text-foreground"
                         >
                             <ChevronLeft className="w-6 h-6" />
@@ -274,16 +273,7 @@ export default function EditChapterPage() {
                         </div>
                     </div>
 
-                    {/* Locking Info */}
-                    <div className="bg-background-secondary border border-border rounded-2xl p-6 space-y-3">
-                        <div className="flex items-center gap-2 text-foreground-secondary">
-                            <Info className="w-5 h-5" />
-                            <h2 className="text-xs font-bold uppercase tracking-widest">Publishing Info</h2>
-                        </div>
-                        <p className="text-xs text-foreground-secondary leading-relaxed font-medium">
-                            Chapters 1-7 are automatically set as <span className="text-sky-600 dark:text-sky-400 font-bold">Free</span> to help build your audience.
-                        </p>
-                    </div>
+
 
 
                 </div>

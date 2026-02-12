@@ -1,16 +1,16 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTrendingNovels, useTopRankedNovels, useLatestNovels, useNewArrivals, useEditorsPicks } from '@/hooks/useNovels';
 import { getNovelCover } from '@/lib/defaultImages';
-import { AlertTriangle, RefreshCw, Search } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { NovelCardSkeleton } from '@/components/ui/Skeleton';
 import NovelCard from '@/components/ui/NovelCard';
+import HeroSection from '@/components/ui/HeroSection';
 
-const HOME_CATEGORIES = ['All', 'Fantasy', 'Romance', 'Sci-Fi', 'Thriller', 'Mystery', 'Adventure', 'Horror'];
+
 
 export default function HomePage() {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState('All');
+
 
     // React Query Hooks
     const {
@@ -60,12 +60,7 @@ export default function HomePage() {
         return count?.toString() || '0';
     };
 
-    const handleCategoryPress = (category: string) => {
-        setSelectedCategory(category);
-        if (category !== 'All') {
-            navigate(`/search?genre=${category}`);
-        }
-    };
+
 
     // Horizontal Skeleton Row Helper
     const SkeletonRow = () => (
@@ -162,53 +157,11 @@ export default function HomePage() {
         <div className="min-h-screen bg-background text-foreground pb-24 font-sans">
             <div className="w-full">
                 {/* Search Bar */}
-                <div className="px-4 pt-4">
-                    <div className="relative">
-                        <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-secondary)]" />
-                        <input
-                            onClick={() => navigate('/search')}
-                            className="w-full rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--input-background)] pl-10 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)] cursor-pointer text-[var(--foreground)] placeholder:text-[var(--foreground-secondary)] transition-all shadow-sm"
-                            placeholder="Search novels, authors, tags"
-                            readOnly
-                        />
-                    </div>
-                </div>
 
-                {/* Category Buttons */}
-                <div className="mt-3 px-4 overflow-x-auto no-scrollbar">
-                    <div className="flex items-center gap-2">
-                        {HOME_CATEGORIES.map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => handleCategoryPress(category)}
-                                className={`category-btn ${selectedCategory === category
-                                    ? 'category-btn-active'
-                                    : 'category-btn-inactive'
-                                    }`}
-                            >
-                                {category}
-                            </button>
-                        ))}
-                    </div>
-                </div>
 
-                {/* Featured Banner */}
-                <div className="mt-4 px-4 md:px-8">
-                    <Link to="/ranking" className="block group">
-                        <div className="relative rounded-[var(--radius-2xl)] overflow-hidden h-44 shadow-md md:h-[400px] lg:h-[450px] bg-[var(--background-secondary)] group-hover:shadow-lg transition-all">
-                            <img
-                                src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200&auto=format&fit=crop"
-                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                alt="Featured"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                            <div className="absolute bottom-4 left-4 right-4 text-white md:bottom-8 md:left-8 md:right-8">
-                                <div className="text-xl font-bold tracking-tight md:text-4xl mb-1">Weekly Featured</div>
-                                <div className="text-sm text-white/90 line-clamp-1 md:text-lg font-medium">Handpicked stories loved by editors</div>
-                            </div>
-                        </div>
-                    </Link>
-                </div>
+
+                {/* Hero Section */}
+                <HeroSection novels={editorsPicks.length > 0 ? editorsPicks : trendingNovels} />
 
                 {/* New Arrivals Section */}
                 <div className="mt-6">

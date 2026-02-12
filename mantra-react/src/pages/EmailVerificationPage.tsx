@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
+import { ChevronLeft } from 'lucide-react';
 
 export default function EmailVerificationPage() {
     const navigate = useNavigate();
@@ -115,6 +116,15 @@ export default function EmailVerificationPage() {
             <div className="w-full max-w-md bg-[var(--card)] md:rounded-[var(--radius-xl)] md:shadow-xl md:border md:border-[var(--border)] overflow-hidden transition-all">
                 <section className="h-full">
                     <div className="px-6 py-10 md:px-10 md:py-12">
+                        {/* Back Button */}
+                        <button
+                            onClick={() => navigate('/signup')}
+                            className="mb-6 flex items-center text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4 mr-1" />
+                            Back
+                        </button>
+
                         {/* Header */}
                         <div className="mb-8 text-center md:text-left">
                             <img src="/logo.jpeg" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />

@@ -12,16 +12,12 @@ export interface CreateChapterData {
     chapter_number: number;
     title: string;
     content: string;
-    is_locked?: boolean;
-    wait_hours?: number;
 }
 
 export interface UpdateChapterData {
     chapter_number?: number;
     title?: string;
     content?: string;
-    is_locked?: boolean;
-    wait_hours?: number;
 }
 
 export interface ChapterResponse {
@@ -259,12 +255,11 @@ class ChapterService {
     }
 
     /**
-     * Get chapter content (checks unlock status)
+     * Get chapter content
      */
-    async getChapterContent(chapterId: string, userId: string): Promise<{
+    async getChapterContent(chapterId: string): Promise<{
         success: boolean;
         content?: string;
-        isLocked: boolean;
         message?: string;
     }> {
         try {
@@ -272,48 +267,17 @@ class ChapterService {
             if (!chapter) {
                 return {
                     success: false,
-                    isLocked: true,
                     message: 'Chapter not found',
                 };
             }
 
-            // Check if chapter is locked
-            if (!chapter.is_locked) {
-                return {
-                    success: true,
-                    content: chapter.content,
-                    isLocked: false,
-                };
-            }
-
-            // Check if user has unlocked this chapter
-            const { data: unlock, error } = await supabase
-                .from('chapter_unlocks')
-                .select('*')
-                .eq('user_id', userId)
-                .eq('chapter_id', chapterId)
-                .eq('is_expired', false)
-                .maybeSingle();
-
-            if (error) throw error;
-
-            if (unlock) {
-                return {
-                    success: true,
-                    content: chapter.content,
-                    isLocked: false,
-                };
-            }
-
             return {
-                success: false,
-                isLocked: true,
-                message: 'Chapter is locked. Please unlock to read.',
+                success: true,
+                content: chapter.content,
             };
         } catch (error: any) {
             return {
                 success: false,
-                isLocked: true,
                 message: handleSupabaseError(error),
             };
         }

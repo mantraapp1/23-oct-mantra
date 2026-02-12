@@ -68,7 +68,7 @@ export default function NotificationsPage() {
         }
     };
 
-    const getBgColor = (type: string) => {
+    const getBgColor = (_type: string) => {
         return 'bg-secondary/50 dark:bg-secondary/20';
     };
 

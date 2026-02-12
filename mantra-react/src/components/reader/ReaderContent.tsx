@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Settings, Menu, Share2, Flag, BookOpen, User, Edit3, Trash2 } from 'lucide-react';
 import ChapterComments from '@/components/novel/ChapterComments';
+import AdSenseAd, { BeforeContentAd, InContentAd, AfterContentAd, SidebarAd, MultiplexAd } from '@/components/ads/AdSenseAd';
 import chapterService from '@/services/chapterService';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/DialogContext';
+import { useAppNavigation } from '@/hooks/useAppNavigation';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface ReaderContentProps {
@@ -17,7 +19,7 @@ interface ReaderContentProps {
 }
 
 export default function ReaderContent({ chapter, novel, prevChapter, nextChapter, novelId, currentUser }: ReaderContentProps) {
-    const navigate = useNavigate();
+    const { goBack, navigate } = useAppNavigation();
     const { toast } = useToast();
     const confirm = useConfirm();
     const [showSettings, setShowSettings] = useState(false);
@@ -103,7 +105,7 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                 }`}>
 
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate(-1)} className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-black/5 text-slate-600'
+                    <button onClick={() => goBack()} className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-black/5 text-slate-600'
                         }`}>
                         <ChevronLeft className="w-6 h-6" />
                     </button>
@@ -168,7 +170,10 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                                             </button>
                                         </>
                                     ) : (
-                                        <button className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50/50 text-sm text-red-600 text-left">
+                                        <button
+                                            onClick={() => navigate(`/report?type=chapter&id=${chapter.id}&name=${encodeURIComponent(`Chapter ${chapter.chapter_number}: ${chapter.title}`)}&extra=${encodeURIComponent(novel?.title || '')}`)}
+                                            className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-red-50/50 text-sm text-red-600 text-left"
+                                        >
                                             <Flag className="w-4 h-4" /> Report
                                         </button>
                                     )}
@@ -286,64 +291,119 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                 </div>
             )}
 
-            {/* Reading Area */}
-            <main className="max-w-[800px] mx-auto pt-24 pb-32 px-5 md:px-8">
-                <div
-                    className="prose max-w-none transition-all duration-300"
-                    style={{
-                        fontSize: `${fontSize}px`,
-                        lineHeight: lineHeight,
-                        color: 'inherit'
-                    }}
-                >
-                    <div className="whitespace-pre-wrap">
-                        {chapter.content}
-                    </div>
-                </div>
+            {/* Reading Area with Sidebar Ads */}
+            <div className="flex justify-center gap-4 pt-20 px-2 md:px-4">
+                {/* Left Ad Sidebar - Desktop only */}
+                <SidebarAd position="left" className="hidden xl:block" />
 
-                {/* Chapter Navigation - Below chapter, above comments */}
-                <div className={`flex items-center gap-4 mt-12 py-6 border-t border-b ${theme === 'dark' ? 'border-gray-800' : theme === 'sepia' ? 'border-[#e6dec1]' : 'border-slate-200'}`}>
-                    {prevChapter ? (
-                        <Link
-                            to={`/novel/${novelId}/chapter/${prevChapter.id}`}
-                            className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-colors ${theme === 'dark' ? 'bg-gray-800 hover:bg-gray-700 text-white' :
-                                theme === 'sepia' ? 'bg-[#e6dec1] hover:bg-[#dcd3b5] text-[#5b4636]' :
-                                    'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                                }`}
-                        >
-                            <ChevronLeft className="w-4 h-4" /> Previous
-                        </Link>
-                    ) : (
-                        <button disabled className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium opacity-50 cursor-not-allowed ${theme === 'dark' ? 'bg-gray-800' : 'bg-slate-100'
-                            }`}>
-                            <ChevronLeft className="w-4 h-4" /> Previous
-                        </button>
-                    )}
+                {/* Main Content */}
+                <main className="w-full max-w-[800px] pb-32 px-1 md:px-4">
+                    {/* BEFORE CONTENT AD - Horizontal banner */}
+                    <BeforeContentAd className="hidden md:block" />
 
-                    <div className="text-sm font-medium opacity-50 hidden sm:block">
-                        Chapter {chapter.chapter_number}
+                    {/* Mobile: Rectangle ad before content */}
+                    <div className="md:hidden mb-4">
+                        <AdSenseAd format="rectangle" position="before-content" />
                     </div>
 
-                    {nextChapter ? (
-                        <Link
-                            to={`/novel/${novelId}/chapter/${nextChapter.id}`}
-                            className="flex-1 py-3 px-4 bg-sky-500 text-white rounded-xl flex items-center justify-center gap-2 hover:bg-sky-600 font-medium transition-colors shadow-sm"
-                        >
-                            Next <ChevronRight className="w-4 h-4" />
-                        </Link>
-                    ) : (
-                        <button disabled className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium opacity-50 cursor-not-allowed ${theme === 'dark' ? 'bg-gray-800' : 'bg-slate-100'
-                            }`}>
-                            Next <ChevronRight className="w-4 h-4" />
-                        </button>
+                    <div
+                        className="prose max-w-none transition-all duration-300"
+                        style={{
+                            fontSize: `${fontSize}px`,
+                            lineHeight: lineHeight,
+                            color: 'inherit'
+                        }}
+                    >
+                        <ContentWithAds content={chapter.content} theme={theme} />
+                    </div>
+
+                    {/* AFTER CONTENT AD */}
+                    <AfterContentAd />
+
+                    {/* Chapter Navigation */}
+                    <div className={`flex items-center gap-4 py-6 border-t border-b ${theme === 'dark' ? 'border-gray-800' : theme === 'sepia' ? 'border-[#e6dec1]' : 'border-slate-200'}`}>
+                        {prevChapter ? (
+                            <button
+                                onClick={() => navigate(`/novel/${novelId}/chapter/${prevChapter.id}`, { replace: true })}
+                                className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-colors ${theme === 'dark' ? 'bg-gray-800 hover:bg-gray-700 text-white' :
+                                    theme === 'sepia' ? 'bg-[#e6dec1] hover:bg-[#dcd3b5] text-[#5b4636]' :
+                                        'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                    }`}
+                            >
+                                <ChevronLeft className="w-4 h-4" /> Previous
+                            </button>
+                        ) : (
+                            <button disabled className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium opacity-50 cursor-not-allowed ${theme === 'dark' ? 'bg-gray-800' : 'bg-slate-100'
+                                }`}>
+                                <ChevronLeft className="w-4 h-4" /> Previous
+                            </button>
+                        )}
+
+                        <div className="text-sm font-medium opacity-50 hidden sm:block">
+                            Chapter {chapter.chapter_number}
+                        </div>
+
+                        {nextChapter ? (
+                            <button
+                                onClick={() => navigate(`/novel/${novelId}/chapter/${nextChapter.id}`, { replace: true })}
+                                className="flex-1 py-3 px-4 bg-sky-500 text-white rounded-xl flex items-center justify-center gap-2 hover:bg-sky-600 font-medium transition-colors shadow-sm"
+                            >
+                                Next <ChevronRight className="w-4 h-4" />
+                            </button>
+                        ) : (
+                            <button disabled className={`flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium opacity-50 cursor-not-allowed ${theme === 'dark' ? 'bg-gray-800' : 'bg-slate-100'
+                                }`}>
+                                Next <ChevronRight className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* MULTIPLEX AD - Recommended content style ads */}
+                    <MultiplexAd />
+
+                    {/* Comments Section */}
+                    <div className="mt-4">
+                        <ChapterComments chapterId={chapter.id} currentUser={currentUser} theme={theme} />
+                    </div>
+                </main>
+
+                {/* Right Ad Sidebar - Desktop only */}
+                <SidebarAd position="right" className="hidden xl:block" />
+            </div>
+        </div>
+    );
+}
+
+/**
+ * Component that inserts ads within the chapter content strategically
+ * Inserts in-content ads at ~40% and ~75% of content for optimal revenue
+ */
+function ContentWithAds({ content, theme: _theme }: { content: string; theme: 'light' | 'sepia' | 'dark' }) {
+    const paragraphs = useMemo(() => {
+        // Split content into paragraphs
+        const lines = content.split('\n\n').filter(p => p.trim());
+        return lines;
+    }, [content]);
+
+    // Calculate ad insertion points
+    const adPositions = useMemo(() => {
+        const total = paragraphs.length;
+        if (total < 6) return []; // No in-content ads for short chapters
+        if (total < 12) return [Math.floor(total * 0.5)]; // One ad at 50%
+        // Two ads at ~40% and ~75% for longer chapters
+        return [Math.floor(total * 0.4), Math.floor(total * 0.75)];
+    }, [paragraphs.length]);
+
+    return (
+        <div className="whitespace-pre-wrap">
+            {paragraphs.map((paragraph, index) => (
+                <div key={index}>
+                    <p className="mb-4">{paragraph}</p>
+                    {adPositions.includes(index + 1) && (
+                        <InContentAd className="my-6" />
                     )}
                 </div>
-
-                {/* Comments Section */}
-                <div className="mt-8">
-                    <ChapterComments chapterId={chapter.id} currentUser={currentUser} theme={theme} />
-                </div>
-            </main>
+            ))}
         </div>
     );
 }

@@ -76,13 +76,12 @@ export default function CreateChapterPage() {
                 novel_id: novelId,
                 chapter_number: parseInt(chapterNumber),
                 title: chapterTitle.trim(),
-                content: content.trim(),
-                is_locked: parseInt(chapterNumber) > 7 // Free for first 7
+                content: content.trim()
             });
 
             if (result.success) {
                 toast.success('Chapter published successfully!');
-                navigate(`/novel/${novelId}/manage`);
+                navigate(`/novel/manage/${novelId}`);
             } else {
                 toast.error(result.message);
             }
@@ -106,7 +105,7 @@ export default function CreateChapterPage() {
                 <div className="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => navigate(`/novel/${novelId}/manage`)}
+                            onClick={() => navigate(`/novel/manage/${novelId}`)}
                             className="p-2 hover:bg-background-secondary rounded-xl transition-colors text-foreground-secondary hover:text-foreground"
                         >
                             <ChevronLeft className="w-6 h-6" />

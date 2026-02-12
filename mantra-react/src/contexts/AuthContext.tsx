@@ -19,6 +19,7 @@ export interface Profile {
     show_mature_content: boolean;
     preferred_language: string | null;
     favorite_genres: string[] | null;
+    onboarding_completed: boolean | null; // Added field
     created_at: string;
     updated_at: string;
 }
@@ -62,7 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.log('[Auth] Fetching profile for:', userId);
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, username, display_name, profile_picture_url, bio, gender, age, preferred_language, favorite_genres, created_at, updated_at')
+                .select('id, username, display_name, profile_picture_url, bio, gender, age, preferred_language, favorite_genres, onboarding_completed, created_at, updated_at')
                 .eq('id', userId)
                 .single();
 

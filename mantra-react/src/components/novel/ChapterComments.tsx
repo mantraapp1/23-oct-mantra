@@ -382,7 +382,7 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
                             placeholder="Share your thoughts on this chapter..."
                             value={newComment}
                             onChange={e => setNewComment(e.target.value)}
-                            className={`w-full border rounded-xl p-3 text-sm min-h-[80px] outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all resize-y ${theme === 'dark' ? 'bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500' : theme === 'sepia' ? 'bg-[#f6f1d1] border-[#e6dec1] text-[#5b4636] placeholder:text-[#8b7355]' : 'bg-white border-slate-200 text-slate-900'}`}
+                            className={`w-full border rounded-xl p-3 text-sm min-h-[80px] outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all resize-y ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : theme === 'sepia' ? 'bg-[#f6f1d1] border-[#e6dec1] text-[#5b4636] placeholder:text-[#8b7355]' : 'bg-white border-slate-200 text-slate-900'}`}
                         />
                         <div className="flex justify-end mt-2">
                             <button
@@ -397,7 +397,7 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
                     </div>
                 </div>
             ) : (
-                <div className={`rounded-xl p-6 text-center mb-6 border border-dashed ${theme === 'dark' ? 'bg-gray-800/50 text-gray-400 border-gray-700' : theme === 'sepia' ? 'bg-[#e6dec1] text-[#8b7355] border-[#d5c9a8]' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
+                <div className={`rounded-xl p-6 text-center mb-6 border border-dashed ${theme === 'dark' ? 'bg-slate-800/50 text-slate-400 border-slate-700' : theme === 'sepia' ? 'bg-[#e6dec1] text-[#8b7355] border-[#d5c9a8]' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                     <Link to="/login" className="text-sky-600 font-semibold hover:underline">Log in</Link> to join the discussion.
                 </div>
             )}

@@ -210,7 +210,7 @@ export default function EditNovelPage() {
 
             if (result.success) {
                 toast.success('Novel updated successfully!');
-                navigate(`/novel/${id}`);
+                navigate(`/novel/${id}`, { replace: true });
             } else {
                 toast.error(result.message);
             }
@@ -223,23 +223,23 @@ export default function EditNovelPage() {
     };
 
     const goBack = () => {
-        navigate(`/novel/${id}/manage`);
+        navigate(`/novel/manage/${id}`);
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-900">
+        <div className="min-h-screen bg-background">
             <div className="w-full px-4">
                 {/* Header */}
-                <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+                <header className="sticky top-0 z-50 bg-background border-b border-border">
                     <div className="flex items-center justify-between px-4 py-3">
                         <button
                             type="button"
                             onClick={goBack}
-                            className="p-2 -ml-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 transition"
+                            className="p-2 -ml-2 rounded-lg hover:bg-muted active:scale-95 transition"
                         >
-                            <ArrowLeft className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                         </button>
-                        <h1 className="text-base font-semibold text-slate-900 dark:text-white">Edit Novel Info</h1>
+                        <h1 className="text-base font-semibold text-foreground">Edit Novel Info</h1>
                         <button
                             type="button"
                             onClick={handleSubmit}
@@ -255,7 +255,7 @@ export default function EditNovelPage() {
                 <main className="px-4 py-5 pb-20">
                     {/* Cover Image Section */}
                     <div className="mb-6">
-                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                        <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                             Cover Image
                         </label>
                         <div className="flex items-start gap-3">
@@ -264,12 +264,12 @@ export default function EditNovelPage() {
                                     <img
                                         src={coverPreview}
                                         alt="Cover"
-                                        className="w-[100px] h-[140px] object-cover rounded-lg border border-slate-200 dark:border-slate-700"
+                                        className="w-[100px] h-[140px] object-cover rounded-lg border border-border"
                                     />
                                 ) : (
-                                    <div className="w-[100px] h-[140px] rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center">
-                                        <ImageIcon className="w-8 h-8 text-slate-400 mb-1" />
-                                        <span className="text-[11px] text-slate-400 text-center">Cover<br />Image</span>
+                                    <div className="w-[100px] h-[140px] rounded-lg border-2 border-dashed border-muted bg-muted/50 flex flex-col items-center justify-center">
+                                        <ImageIcon className="w-8 h-8 text-muted-foreground mb-1" />
+                                        <span className="text-[11px] text-muted-foreground text-center">Cover<br />Image</span>
                                     </div>
                                 )}
                                 <input
@@ -283,48 +283,48 @@ export default function EditNovelPage() {
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition"
+                                className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm text-foreground hover:bg-muted active:scale-95 transition"
                             >
                                 <Upload className="w-4 h-4" />
                                 Change Cover
                             </button>
                         </div>
-                        {errors.cover && <p className="text-red-500 text-xs mt-1">{errors.cover}</p>}
+                        {errors.cover && <p className="text-destructive text-xs mt-1">{errors.cover}</p>}
                     </div>
 
                     {/* Title Section */}
                     <div className="mb-6">
-                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                        <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                             Title
                         </label>
                         <input
                             type="text"
                             value={form.title}
                             onChange={e => setForm({ ...form, title: e.target.value })}
-                            className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                            className="w-full px-3 py-2.5 border border-input rounded-lg text-sm text-foreground bg-background outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                             placeholder="Enter novel title"
                         />
-                        {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+                        {errors.title && <p className="text-destructive text-xs mt-1">{errors.title}</p>}
                     </div>
 
                     {/* Description Section */}
                     <div className="mb-6">
-                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                        <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                             Description
                         </label>
                         <textarea
                             value={form.description}
                             onChange={e => setForm({ ...form, description: e.target.value })}
                             rows={5}
-                            className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 dark:bg-slate-800 leading-relaxed outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition resize-none"
+                            className="w-full px-3 py-2.5 border border-input rounded-lg text-sm text-foreground bg-background leading-relaxed outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none"
                             placeholder="Write a compelling description for your novel..."
                         />
-                        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                        {errors.description && <p className="text-destructive text-xs mt-1">{errors.description}</p>}
                     </div>
 
                     {/* Genres Section */}
                     <div className="mb-6">
-                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                        <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                             Genres (select up to 3)
                         </label>
                         <div className="flex flex-wrap gap-2">
@@ -334,8 +334,8 @@ export default function EditNovelPage() {
                                     type="button"
                                     onClick={() => toggleGenre(genre)}
                                     className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95 ${selectedGenres.includes(genre)
-                                        ? 'bg-sky-500 text-white'
-                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                         }`}
                                 >
                                     {selectedGenres.includes(genre) && <Check className="w-3 h-3 inline mr-1" />}
@@ -343,12 +343,12 @@ export default function EditNovelPage() {
                                 </button>
                             ))}
                         </div>
-                        {errors.genres && <p className="text-red-500 text-xs mt-1">{errors.genres}</p>}
+                        {errors.genres && <p className="text-destructive text-xs mt-1">{errors.genres}</p>}
                     </div>
 
                     {/* Tags Section */}
                     <div className="mb-6">
-                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                        <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                             Tags (up to 10)
                         </label>
 
@@ -376,13 +376,13 @@ export default function EditNovelPage() {
                                 value={tagInput}
                                 onChange={e => setTagInput(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                                className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                                className="flex-1 px-3 py-2 border border-input rounded-lg text-sm text-foreground bg-background outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                                 placeholder="Type a tag..."
                             />
                             <button
                                 type="button"
                                 onClick={addTag}
-                                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition"
+                                className="px-4 py-2 bg-muted text-foreground text-sm font-medium rounded-lg hover:bg-muted/80 active:scale-95 transition"
                             >
                                 Add
                             </button>
@@ -390,7 +390,7 @@ export default function EditNovelPage() {
 
                         {/* Popular Tags */}
                         <div className="mb-2">
-                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Popular Tags:</p>
+                            <p className="text-xs font-medium text-muted-foreground mb-2">Popular Tags:</p>
                             <div className="flex flex-wrap gap-2">
                                 {POPULAR_TAGS.map(tag => (
                                     <button
@@ -398,8 +398,8 @@ export default function EditNovelPage() {
                                         type="button"
                                         onClick={() => addPopularTag(tag)}
                                         className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 ${tags.includes(tag)
-                                            ? 'bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-400'
-                                            : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                            ? 'bg-primary/10 border-primary text-primary'
+                                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                             }`}
                                     >
                                         {tag}
@@ -408,14 +408,14 @@ export default function EditNovelPage() {
                             </div>
                         </div>
 
-                        {errors.tags && <p className="text-red-500 text-xs mt-1">{errors.tags}</p>}
+                        {errors.tags && <p className="text-destructive text-xs mt-1">{errors.tags}</p>}
                     </div>
 
                     {/* Status, Language, and Mature Content Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                         {/* Status Section */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                            <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                                 Status
                             </label>
                             <Dropdown
@@ -423,12 +423,12 @@ export default function EditNovelPage() {
                                 value={form.status.charAt(0).toUpperCase() + form.status.slice(1)}
                                 onChange={(val) => setForm({ ...form, status: val.toLowerCase() })}
                             />
-                            {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
+                            {errors.status && <p className="text-destructive text-xs mt-1">{errors.status}</p>}
                         </div>
 
                         {/* Language Section */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                            <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                                 Language
                             </label>
                             <Dropdown
@@ -440,14 +440,14 @@ export default function EditNovelPage() {
 
                         {/* Mature Content Section */}
                         <div className="flex flex-col justify-end">
-                            <label className="flex items-center gap-3 cursor-pointer px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition h-[42px]">
+                            <label className="flex items-center gap-3 cursor-pointer px-3 py-2.5 border border-border rounded-lg bg-card hover:bg-muted/50 transition h-[42px]">
                                 <input
                                     type="checkbox"
                                     checked={form.is_mature}
                                     onChange={e => setForm({ ...form, is_mature: e.target.checked })}
-                                    className="w-4 h-4 rounded border-slate-300 text-sky-500 cursor-pointer focus:ring-0 accent-sky-500"
+                                    className="w-4 h-4 rounded border-border text-primary cursor-pointer focus:ring-0 accent-primary"
                                 />
-                                <span className="text-sm text-slate-700 dark:text-slate-300">
+                                <span className="text-sm text-foreground">
                                     Mature Content (18+)
                                 </span>
                             </label>

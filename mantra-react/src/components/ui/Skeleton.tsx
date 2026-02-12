@@ -12,7 +12,7 @@ export function Skeleton({ className }: SkeletonProps) {
     return (
         <div
             className={cn(
-                'animate-pulse bg-slate-200/80 dark:bg-slate-800 rounded-lg',
+                'animate-pulse bg-muted rounded-lg',
                 className
             )}
         />

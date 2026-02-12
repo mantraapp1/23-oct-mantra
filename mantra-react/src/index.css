@@ -9,6 +9,9 @@
    * PRIMARY: SKY BLUE
    * A vibrant, polished blue that feels trustworthy and modern.
    */
+  --font-inter: 'Inter', sans-serif;
+  /* Define the font family variable */
+
   --sky-50: #f0f9ff;
   --sky-100: #e0f2fe;
   --sky-200: #bae6fd;
@@ -180,6 +183,20 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Global Heading Styles - Enforce Consistency */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  /* Force bold for all headings */
+  letter-spacing: -0.015em;
+  /* Slight tracking tighten for headings */
+  color: var(--foreground);
+}
+
 /* Hide scrollbar but allow scrolling */
 .no-scrollbar {
   -ms-overflow-style: none;
@@ -190,11 +207,23 @@ body {
   display: none;
 }
 
-/* Global Focus Styles */
+/* Global Focus Styles - Neutral Override */
 *:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--slate-400);
+  /* Neutral gray instead of blue */
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* Force inputs to have no colored ring/border on focus */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  --tw-ring-shadow: none !important;
+  box-shadow: none !important;
+  border-color: var(--slate-400) !important;
+  /* Neutral active border */
 }
 
 /* Smooth Element Transitions */
@@ -219,4 +248,22 @@ body {
 
 .animate-in {
   animation: enter 0.4s ease-out forwards;
+}
+
+/* Hero Section Gradient Animation */
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
 }

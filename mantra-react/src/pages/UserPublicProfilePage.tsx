@@ -203,7 +203,8 @@ export default function UserPublicProfilePage() {
     };
 
     const handleReport = () => {
-        navigate('/report', { state: { type: 'user', userId: userId } });
+        const name = profile?.display_name || profile?.username || 'User';
+        navigate(`/report?type=user&id=${userId}&name=${encodeURIComponent(name)}`);
         setMenuOpen(false);
     };
 
@@ -319,8 +320,8 @@ export default function UserPublicProfilePage() {
                                     handleFollowToggle();
                                 }}
                                 className={`mt-6 px-8 py-2.5 rounded-full text-sm font-bold shadow-sm transition-all active:scale-95 ${isFollowing
-                                    ? 'border border-sky-500 bg-white text-sky-500 hover:bg-sky-50'
-                                    : 'bg-sky-500 text-white hover:bg-sky-600 shadow-sky-500/20'}`}
+                                    ? 'border border-primary bg-background text-primary hover:bg-background-secondary'
+                                    : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/20'}`}
                             >
                                 {isFollowing ? 'Following' : 'Follow'}
                             </button>
@@ -360,7 +361,7 @@ export default function UserPublicProfilePage() {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
                                         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                                             <div className="text-sm font-bold line-clamp-2 mb-1 leading-tight group-hover:text-primary-foreground transition-colors">{novel.title}</div>
                                             <div className="flex flex-wrap gap-1 mt-1">

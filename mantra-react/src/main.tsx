@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { DialogProvider } from '@/contexts/DialogContext'
+import { NavigationProvider } from '@/contexts/NavigationContext'
 import { ErrorBoundary } from '@/components/error/ErrorBoundary'
 import './index.css'
 import QueryProvider from '@/providers/QueryProvider'
@@ -47,17 +48,19 @@ createRoot(document.getElementById('root')!).render(
       <HelmetProvider>
         <QueryProvider>
           <BrowserRouter>
-            <ThemeProvider>
-              <ToastProvider>
-                <DialogProvider>
-                  <AuthProvider>
-                    <Suspense fallback={<GlobalLoader />}>
-                      <App />
-                    </Suspense>
-                  </AuthProvider>
-                </DialogProvider>
-              </ToastProvider>
-            </ThemeProvider>
+            <NavigationProvider>
+              <ThemeProvider>
+                <ToastProvider>
+                  <DialogProvider>
+                    <AuthProvider>
+                      <Suspense fallback={<GlobalLoader />}>
+                        <App />
+                      </Suspense>
+                    </AuthProvider>
+                  </DialogProvider>
+                </ToastProvider>
+              </ThemeProvider>
+            </NavigationProvider>
           </BrowserRouter>
         </QueryProvider>
       </HelmetProvider>

@@ -27,6 +27,8 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const RankingPage = lazy(() => import('./pages/RankingPage'));
 const LibraryPage = lazy(() => import('./pages/LibraryPage'));
 const UserPublicProfilePage = lazy(() => import('./pages/UserPublicProfilePage'));
+const FollowersListPage = lazy(() => import('./pages/FollowersListPage'));
+const FollowingListPage = lazy(() => import('./pages/FollowingListPage'));
 const AuthorDashboardPage = lazy(() => import('./pages/AuthorDashboardPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
@@ -104,6 +106,8 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/report" element={<ReportPage />} />
           <Route path="/user/:id" element={<UserPublicProfilePage />} />
+          <Route path="/user/:id/followers" element={<FollowersListPage />} />
+          <Route path="/user/:id/following" element={<FollowingListPage />} />
           <Route path="/wallet" element={<WalletPage />} />
           <Route path="/wallet/history" element={<WalletHistoryPage />} />
           <Route path="/wallet/withdraw" element={<WalletWithdrawPage />} />
