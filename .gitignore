@@ -1,0 +1,22 @@
+# Large archive files - never commit these
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
