@@ -66,15 +66,26 @@ export default function EmailVerificationPage() {
 
         setIsLoading(true);
         setError('');
+        console.log('[Verify] Attempting verification for:', email, 'Code:', otpCode);
 
         try {
-            const { error } = await supabase.auth.verifyOtp({
+            const { data, error } = await supabase.auth.verifyOtp({
                 email,
                 token: otpCode,
                 type: 'signup',
             });
 
-            if (error) throw error;
+            if (error) {
+                console.error('[Verify] Error:', error);
+                throw error;
+            }
+
+            console.log('[Verify] Success:', data);
+
+            if (!data.session) {
+                console.warn('[Verify] Verification successful but no session returned. User might need to login manually.');
+                // This can happen if Autoconfirm is off or other settings. But usually verifyOtp logs them in.
+            }
 
             setSuccess('Email verified successfully!');
 
@@ -83,6 +94,7 @@ export default function EmailVerificationPage() {
                 navigate('/onboarding', { replace: true });
             }, 500);
         } catch (err: any) {
+            console.error('[Verify] Exception:', err);
             setError(err.message || 'Verification failed. Please try again.');
         } finally {
             setIsLoading(false);

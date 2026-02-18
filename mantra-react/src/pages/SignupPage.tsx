@@ -25,6 +25,8 @@ export default function SignupPage() {
             return;
         }
 
+        console.log('[Signup] Starting signup for:', email);
+
         // Sign up
         const { data, error } = await supabase.auth.signUp({
             email,
@@ -37,12 +39,16 @@ export default function SignupPage() {
         });
 
         if (error) {
+            console.error('[Signup] Error:', error);
             setError(error.message);
             setIsLoading(false);
             return;
         }
 
+        console.log('[Signup] Success:', data);
+
         if (data.user) {
+            console.log('[Signup] Creating profile for:', data.user.id);
             await supabase.from('profiles').upsert({
                 id: data.user.id,
                 username,
@@ -52,13 +58,19 @@ export default function SignupPage() {
 
 
         if (data.session) {
+            console.log('[Signup] Session created immediately (Email verification disabled?)');
             // Email verification is disabled in Supabase, user is auto-confirmed and logged in
             setIsLoading(false);
             navigate('/onboarding');
-        } else {
+        } else if (data.user && !data.session) {
+            console.log('[Signup] User created but no session (Email verification required)');
             // Email verification is enabled, user needs to verify
             setIsLoading(false);
             navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
+        } else {
+            console.warn('[Signup] Unexpected state: No user and no session');
+            setError('Something went wrong during signup. Please try again.');
+            setIsLoading(false);
         }
     };
 
