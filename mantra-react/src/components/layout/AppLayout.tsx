@@ -43,8 +43,8 @@ export default function AppLayout() {
         if (!isLoading && user && profile) {
             // If user is logged in but hasn't completed onboarding
             if (profile.onboarding_completed === false) {
-                // Allow access only to onboarding
-                if (location.pathname !== '/onboarding') {
+                // Allow access to onboarding and verify-email
+                if (location.pathname !== '/onboarding' && location.pathname !== '/verify-email') {
                     console.log('[AppLayout] Redirecting to onboarding (incomplete profile)');
                     navigate('/onboarding', { replace: true });
                 }

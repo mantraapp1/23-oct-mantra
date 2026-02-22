@@ -58,10 +58,21 @@ export default function SignupPage() {
 
 
         if (data.session) {
-            console.log('[Signup] Session created immediately (Email verification disabled?)');
-            // Email verification is disabled in Supabase, user is auto-confirmed and logged in
-            setIsLoading(false);
-            navigate('/onboarding');
+            console.log('[Signup] Session created immediately.', data.session);
+
+            // Check if email is actually confirmed
+            const isEmailConfirmed = data.session.user.email_confirmed_at || data.session.user.phone_confirmed_at; // simplistic check, detailed check below
+
+            if (isEmailConfirmed) {
+                console.log('[Signup] User is confirmed. Redirecting to onboarding.');
+                setIsLoading(false);
+                navigate('/onboarding');
+            } else {
+                console.warn('[Signup] Session exists but email NOT confirmed? Redirecting to verify.');
+                // This path is unusual but handling it just in case
+                setIsLoading(false);
+                navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
+            }
         } else if (data.user && !data.session) {
             console.log('[Signup] User created but no session (Email verification required)');
             // Email verification is enabled, user needs to verify
