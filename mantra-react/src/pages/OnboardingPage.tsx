@@ -127,7 +127,6 @@ export default function OnboardingPage() {
                 .maybeSingle();
 
             if (error) {
-                console.error("Error checking username:", error);
                 // Assume available on error to not block, but log it
                 setUsernameStatus('available');
                 return;
@@ -271,7 +270,6 @@ export default function OnboardingPage() {
             // Navigate to home page
             navigate('/', { replace: true });
         } catch (error: any) {
-            console.error('Error saving profile:', error);
             setErrors(prev => ({
                 ...prev,
                 form: error.message || 'Failed to save profile. Please try again.'

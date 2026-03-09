@@ -88,7 +88,6 @@ export default function EditNovelPage() {
                 navigate('/dashboard');
             }
         } catch (error) {
-            console.error('Error loading novel:', error);
             toast.error('Failed to load novel');
             navigate('/dashboard');
         } finally {
@@ -215,7 +214,6 @@ export default function EditNovelPage() {
                 toast.error(result.message);
             }
         } catch (error: any) {
-            console.error('Error updating novel:', error);
             toast.error(error.message || 'Failed to update novel');
         } finally {
             setIsSubmitting(false);

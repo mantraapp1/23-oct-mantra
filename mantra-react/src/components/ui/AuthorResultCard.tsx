@@ -36,8 +36,7 @@ export default function AuthorResultCard({ author }: AuthorResultCardProps) {
                     .maybeSingle();
 
                 setIsFollowing(!!data);
-            } catch (error) {
-                console.error('Error checking follow status:', error);
+            } catch {
             }
         };
 
@@ -68,7 +67,6 @@ export default function AuthorResultCard({ author }: AuthorResultCardProps) {
                     .eq('following_id', author.id);
 
                 if (error) {
-                    console.error('Unfollow error:', error);
                     alert(`Failed to unfollow: ${error.message}`);
                     return;
                 }
@@ -80,14 +78,12 @@ export default function AuthorResultCard({ author }: AuthorResultCardProps) {
                     .insert({ follower_id: user.id, following_id: author.id });
 
                 if (error) {
-                    console.error('Follow error:', error);
                     alert(`Failed to follow: ${error.message}`);
                     return;
                 }
                 setIsFollowing(true);
             }
-        } catch (err) {
-            console.error('Follow toggle exception:', err);
+        } catch {
             alert('An unexpected error occurred');
         } finally {
             setIsLoading(false);

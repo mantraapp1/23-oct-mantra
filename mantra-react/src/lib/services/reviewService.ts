@@ -96,8 +96,7 @@ class ReviewService {
             }
 
             return data as ReviewWithUser[];
-        } catch (error) {
-            console.error('Error getting novel reviews:', error);
+        } catch {
             return [];
         }
     }
@@ -119,8 +118,7 @@ class ReviewService {
 
             if (error) throw error;
             return data as ReviewWithUser | null;
-        } catch (error) {
-            console.error('Error getting user review:', error);
+        } catch {
             return null;
         }
     }
@@ -322,8 +320,7 @@ class ReviewService {
             });
 
             return distribution;
-        } catch (error) {
-            console.error('Error getting rating distribution:', error);
+        } catch {
             return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
         }
     }
@@ -347,8 +344,7 @@ class ReviewService {
                 average: sum / data.length,
                 count: data.length,
             };
-        } catch (error) {
-            console.error('Error getting average rating:', error);
+        } catch {
             return { average: 0, count: 0 };
         }
     }

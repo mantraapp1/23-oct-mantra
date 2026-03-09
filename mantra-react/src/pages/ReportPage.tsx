@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sanitizeSearchInput } from '@/utils/sanitize';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -80,7 +81,7 @@ export default function ReportPage() {
                 return;
             }
 
-            console.log('Searching for:', searchQuery, 'Type:', reportType);
+
 
             setIsSearching(true);
             try {
@@ -89,14 +90,14 @@ export default function ReportPage() {
                     const { data } = await supabase
                         .from('novels')
                         .select('id, title, cover_image_url, author:profiles(username)')
-                        .ilike('title', `%${searchQuery}%`)
+                        .ilike('title', `%${sanitizeSearchInput(searchQuery)}%`)
                         .limit(5);
                     results = data || [];
                 } else if (reportType === 'user') {
                     const { data } = await supabase
                         .from('profiles')
                         .select('id, username, display_name, profile_picture_url')
-                        .ilike('username', `%${searchQuery}%`)
+                        .ilike('username', `%${sanitizeSearchInput(searchQuery)}%`)
                         .limit(5);
                     results = data || [];
                 } else if (reportType === 'chapter') {
@@ -104,13 +105,13 @@ export default function ReportPage() {
                     const { data } = await supabase
                         .from('novels')
                         .select('id, title, cover_image_url, author:profiles(username)')
-                        .ilike('title', `%${searchQuery}%`)
+                        .ilike('title', `%${sanitizeSearchInput(searchQuery)}%`)
                         .limit(5);
                     results = data || [];
                 }
                 setSearchResults(results);
-            } catch (error) {
-                console.error('Search error:', error);
+            } catch {
+
             } finally {
                 setIsSearching(false);
             }
@@ -134,8 +135,8 @@ export default function ReportPage() {
                         .order('chapter_number', { ascending: false })
                         .limit(100);
                     setChaptersList(data || []);
-                } catch (error) {
-                    console.error('Error fetching chapters:', error);
+                } catch {
+
                     setChaptersList([]);
                 } finally {
                     setIsLoadingChapters(false);
@@ -190,7 +191,7 @@ export default function ReportPage() {
                     .upload(filePath, imageFile);
 
                 if (uploadError) {
-                    console.error('Upload error:', uploadError);
+
                     toast.error('Failed to upload image. Submitting without it.');
                 } else {
                     const { data } = supabase.storage
@@ -218,7 +219,7 @@ export default function ReportPage() {
                 toast.error(result.message);
             }
         } catch (error) {
-            console.error('Error submitting report:', error);
+
             toast.error('Failed to submit report. Please try again.');
         } finally {
             setIsSubmitting(false);
@@ -656,8 +657,8 @@ function UserReportsList({ userId }: { userId: string }) {
             try {
                 const data = await reportService.getUserReports(userId);
                 setReports(data);
-            } catch (error) {
-                console.error('Failed to fetch reports', error);
+            } catch {
+
             } finally {
                 setLoading(false);
             }

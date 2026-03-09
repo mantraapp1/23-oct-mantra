@@ -7,13 +7,22 @@ export default function Footer() {
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
                     {/* Brand */}
                     <div className="col-span-2 md:col-span-1">
-                        <Link to="/" className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
-                                <span className="font-bold text-lg">M</span>
+                        <Link to="/" className="flex items-center gap-3 group mb-4">
+                            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-200">
+                                <img
+                                    src="/logo.jpeg"
+                                    alt="Mantra Logo"
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
-                            <span className="text-xl font-bold text-[var(--foreground)]">
-                                Mantra
-                            </span>
+                            <div className="flex flex-col justify-center">
+                                <span className="text-xl md:text-2xl font-serif font-bold text-sky-500 leading-none tracking-tight italic">
+                                    Mantra
+                                </span>
+                                <span className="text-[0.6rem] md:text-[0.65rem] font-semibold text-sky-600/80 uppercase tracking-widest leading-none mt-0.5 ml-1">
+                                    Novel
+                                </span>
+                            </div>
                         </Link>
                         <p className="text-[var(--foreground-secondary)] text-sm">
                             Your destination for captivating stories from talented authors around the world.

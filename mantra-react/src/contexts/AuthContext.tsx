@@ -60,7 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Fetch profile data for a user
     const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
         try {
-            console.log('[Auth] Fetching profile for:', userId);
+
             const { data, error } = await supabase
                 .from('profiles')
                 .select('id, username, display_name, profile_picture_url, bio, gender, age, preferred_language, favorite_genres, onboarding_completed, created_at, updated_at')
@@ -68,14 +68,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 .single();
 
             if (error) {
-                console.error('[Auth] Error fetching profile:', error.message);
+
                 return null;
             }
 
-            console.log('[Auth] Profile fetched');
+
             return data as Profile;
-        } catch (error) {
-            console.error('[Auth] Error in fetchProfile:', error);
+        } catch {
+
             return null;
         }
     }, []); // supabase is static now
@@ -90,14 +90,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Sign out
     const signOut = useCallback(async () => {
         try {
-            console.log('[Auth] Signing out...');
+
             await supabase.auth.signOut();
             setUser(null);
             setProfile(null);
             setSession(null);
-            console.log('[Auth] Signed out');
-        } catch (error) {
-            console.error('[Auth] Error signing out:', error);
+
+        } catch {
+
         }
     }, []);
 
@@ -107,12 +107,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         let mounted = true;
         let initialized = false;
 
-        console.log('[Auth] Setting up auth listener...');
+
 
         // Safety timeout - guarantee loading clears after 3 seconds
         const timeoutId = setTimeout(() => {
             if (mounted && !initialized) {
-                console.warn('[Auth] Safety timeout - forcing loading complete');
+
                 setIsLoading(false);
                 setIsInitialLoad(false);
                 initialized = true;
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             async (event, currentSession) => {
                 if (!mounted) return;
 
-                console.log('[Auth] Auth event:', event, { hasSession: !!currentSession });
+
 
                 // For any session-related event, update state
                 setSession(currentSession);
@@ -140,8 +140,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                         try {
                             const profileData = await fetchProfile(currentSession.user.id);
                             if (mounted) setProfile(profileData);
-                        } catch (e) {
-                            console.error('[Auth] Profile fetch error:', e);
+                        } catch {
+
                         }
                     }, 0);
                 } else {
@@ -150,7 +150,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
                 // Mark initialization complete on first event
                 if (!initialized) {
-                    console.log('[Auth] Initialization complete via', event);
+
                     setIsLoading(false);
                     setIsInitialLoad(false);
                     initialized = true;

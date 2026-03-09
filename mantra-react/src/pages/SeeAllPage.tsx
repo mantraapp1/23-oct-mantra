@@ -53,8 +53,7 @@ export default function SeeAllPage() {
                     data = await novelService.getTrendingNovels(50);
             }
             setNovels(data);
-        } catch (error) {
-            console.error('Error fetching novels:', error);
+        } catch {
         } finally {
             setLoading(false);
         }

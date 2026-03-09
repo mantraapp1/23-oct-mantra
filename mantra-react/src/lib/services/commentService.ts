@@ -93,8 +93,7 @@ class CommentService {
             }
 
             return data as CommentWithUser[];
-        } catch (error) {
-            console.error('Error getting chapter comments:', error);
+        } catch {
             return [];
         }
     }
@@ -144,8 +143,7 @@ class CommentService {
             }
 
             return data as CommentWithUser[];
-        } catch (error) {
-            console.error('Error getting comment replies:', error);
+        } catch {
             return [];
         }
     }
@@ -325,8 +323,7 @@ class CommentService {
                 .from('comments')
                 .update({ reply_count: count || 0 })
                 .eq('id', parentCommentId);
-        } catch (error) {
-            console.error('Error updating reply count:', error);
+        } catch {
         }
     }
 
@@ -342,8 +339,7 @@ class CommentService {
 
             if (error) throw error;
             return count || 0;
-        } catch (error) {
-            console.error('Error getting comment count:', error);
+        } catch {
             return 0;
         }
     }

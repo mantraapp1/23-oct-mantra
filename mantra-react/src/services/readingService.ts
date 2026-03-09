@@ -89,8 +89,7 @@ class ReadingService {
                 }, {
                     onConflict: 'user_id,novel_id'
                 });
-        } catch (error) {
-            console.error('Error updating reading progress:', error);
+        } catch {
         }
     }
 
@@ -108,8 +107,7 @@ class ReadingService {
 
             if (error) throw error;
             return data;
-        } catch (error) {
-            console.error('Error getting reading progress:', error);
+        } catch {
             return null;
         }
     }
@@ -144,8 +142,7 @@ class ReadingService {
                 ...item,
                 last_read_at: item.last_updated
             }));
-        } catch (error) {
-            console.error('Error getting reading history:', error);
+        } catch {
             return [];
         }
     }
@@ -252,14 +249,6 @@ class ReadingService {
             if (error) throw error;
             return !!data;
         } catch (error: any) {
-            console.error('[ReadingService] Error checking library status:', {
-                error,
-                errorMessage: error?.message || 'Unknown error',
-                errorCode: error?.code,
-                userId,
-                novelId,
-                timestamp: new Date().toISOString()
-            });
             return false;
         }
     }
@@ -287,14 +276,6 @@ class ReadingService {
 
             return new Set(data?.map(item => item.novel_id) || []);
         } catch (error: any) {
-            console.error('[ReadingService] Error fetching library novels:', {
-                error,
-                errorMessage: error?.message || 'Unknown error',
-                errorCode: error?.code,
-                userId,
-                novelIdsCount: novelIds.length,
-                timestamp: new Date().toISOString()
-            });
             return new Set();
         }
     }
@@ -323,8 +304,7 @@ class ReadingService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting library:', error);
+        } catch {
             return [];
         }
     }
@@ -346,8 +326,7 @@ class ReadingService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting continue reading:', error);
+        } catch {
             return [];
         }
     }

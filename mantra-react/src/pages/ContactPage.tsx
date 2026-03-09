@@ -85,7 +85,6 @@ export default function ContactPage() {
             toast.success('Message sent successfully!');
             setFormData({ name: '', email: '', subject: '', message: '' }); // Clear form
         } catch (error) {
-            console.error('Error sending message:', error);
             toast.error('Failed to send message. Please try again.'); // Show error toast
         } finally {
             setIsLoading(false);

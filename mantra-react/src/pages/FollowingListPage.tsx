@@ -64,8 +64,7 @@ export default function FollowingListPage() {
                     setFollowingSet(new Set(userFollowing.map(f => f.following_id)));
                 }
             }
-        } catch (error) {
-            console.error('Error loading following:', error);
+        } catch {
         } finally {
             setIsLoading(false);
         }
@@ -88,7 +87,6 @@ export default function FollowingListPage() {
                     .eq('following_id', targetUserId);
 
                 if (error) {
-                    console.error('Unfollow error:', error);
                     alert(`Failed to unfollow: ${error.message}`);
                     return;
                 }
@@ -104,15 +102,13 @@ export default function FollowingListPage() {
                     .insert({ follower_id: currentUserId, following_id: targetUserId });
 
                 if (error) {
-                    console.error('Follow error:', error);
                     alert(`Failed to follow: ${error.message}`);
                     return;
                 }
 
                 setFollowingSet(prev => new Set(prev).add(targetUserId));
             }
-        } catch (err) {
-            console.error('Follow toggle exception:', err);
+        } catch {
             alert('An unexpected error occurred');
         }
     };

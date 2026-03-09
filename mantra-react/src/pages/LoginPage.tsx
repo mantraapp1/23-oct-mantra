@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { checkRateLimit, getRemainingWaitTimeMs } from '@/utils/rateLimiter';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -17,6 +18,17 @@ export default function LoginPage() {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+
+        // 1. Rate Limiting Check
+        // Allow max 5 login attempts per minute (60000ms)
+        const isAllowed = checkRateLimit('login-attempt', 5, 60000);
+        if (!isAllowed) {
+            const remainingMs = getRemainingWaitTimeMs('login-attempt', 5, 60000);
+            const remainingSeconds = Math.ceil(remainingMs / 1000);
+            setError(`Too many login attempts. Please try again in ${remainingSeconds} seconds.`);
+            setIsLoading(false);
+            return;
+        }
 
         const { error } = await supabase.auth.signInWithPassword({
             email,
@@ -42,7 +54,7 @@ export default function LoginPage() {
                             <p className="text-[var(--foreground-secondary)] text-sm mt-2">Sign in to continue your reading journey</p>
                         </div>
 
-                        <form onSubmit={handleLogin} className="space-y-5" noValidate>
+                        <form onSubmit={handleLogin} className="space-y-5">
                             <div>
                                 <label htmlFor="email-input" className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5">Email</label>
                                 <Input

@@ -83,7 +83,6 @@ export default function ChapterUnlockModal({
     };
 
     const handleAdError = (error: string) => {
-        console.error('Ad error:', error);
         setShowVideoAd(false);
         alert('Failed to load ad. Please try again.');
     };

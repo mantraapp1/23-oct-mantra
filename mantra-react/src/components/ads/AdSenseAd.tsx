@@ -55,7 +55,7 @@ export default function AdSenseAd({ format, position, className = '', slotId }: 
 
         // Check if AdSense is configured
         if (ADSENSE_CLIENT === 'ca-pub-XXXXXXXXXXXXXXXX') {
-            console.log(`[AdSenseAd] Demo mode - position: ${position}, format: ${format}`);
+
             return;
         }
 
@@ -75,8 +75,7 @@ export default function AdSenseAd({ format, position, className = '', slotId }: 
                 // @ts-ignore
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
                 initialized.current = true;
-            } catch (err) {
-                console.error('[AdSenseAd] Failed to push ad:', err);
+            } catch {
             }
         }, 100);
 

@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
 import { ChevronLeft } from 'lucide-react';
 
 export default function EmailVerificationPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const email = searchParams.get('email') || '';
+    const location = useLocation();
+    const stateData = location.state as { email?: string; username?: string } | null;
+    const email = stateData?.email || searchParams.get('email') || '';
     // Username passed for potential future use in onboarding
 
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -28,7 +30,7 @@ export default function EmailVerificationPage() {
             if (session) {
                 const isConfirmed = session.user.email_confirmed_at || session.user.phone_confirmed_at;
                 if (isConfirmed) {
-                    console.log('[Verify] User already confirmed. Redirecting to onboarding.');
+
                     navigate('/onboarding', { replace: true });
                 }
             }
@@ -89,7 +91,7 @@ export default function EmailVerificationPage() {
 
         setIsLoading(true);
         setError('');
-        console.log('[Verify] Attempting verification for:', email, 'Code:', otpCode);
+
 
         try {
             const { data, error } = await supabase.auth.verifyOtp({
@@ -99,14 +101,14 @@ export default function EmailVerificationPage() {
             });
 
             if (error) {
-                console.error('[Verify] Error:', error);
+
                 throw error;
             }
 
-            console.log('[Verify] Success:', data);
+
 
             if (!data.session) {
-                console.warn('[Verify] Verification successful but no session returned. User might need to login manually.');
+
                 // This can happen if Autoconfirm is off or other settings. But usually verifyOtp logs them in.
             }
 
@@ -117,7 +119,7 @@ export default function EmailVerificationPage() {
                 navigate('/onboarding', { replace: true });
             }, 500);
         } catch (err: any) {
-            console.error('[Verify] Exception:', err);
+
             setError(err.message || 'Verification failed. Please try again.');
         } finally {
             setIsLoading(false);

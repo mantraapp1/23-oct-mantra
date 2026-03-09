@@ -10,10 +10,12 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import profileService from '@/services/profileService';
 import { useQuery } from '@tanstack/react-query';
 import UserAvatar from '@/components/common/UserAvatar';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 export default function ProfilePage() {
     const { user, profile, isLoading: authLoading } = useAuth();
     const navigate = useNavigate();
+    const { unreadCount } = useNotifications();
 
     // Fetch User Stats
     const { data: stats, isLoading: statsLoading } = useQuery({
@@ -45,10 +47,10 @@ export default function ProfilePage() {
         { icon: BookMarked, title: 'My Library', subtitle: `${stats?.libraryCount || 0} novels`, path: '/library' },
         { icon: PenTool, title: 'Author Dashboard', subtitle: 'Manage your works', path: '/dashboard' },
         { icon: Wallet, title: 'Wallet', subtitle: `$${(stats?.balance || 0).toFixed(2)}`, path: '/wallet' },
-        { icon: Bell, title: 'Notifications', subtitle: '3 unread', path: '/notifications' },
+        { icon: Bell, title: 'Notifications', subtitle: unreadCount > 0 ? `${unreadCount} unread` : 'No new notifications', path: '/notifications', hasIndicator: unreadCount > 0 },
         { icon: Settings, title: 'Settings', subtitle: 'Preferences', path: '/settings' },
         { icon: HelpCircle, title: 'FAQ', subtitle: 'Common questions', path: '/faq' },
-        { icon: Star, title: 'Rate the App', subtitle: 'Share your feedback', onClick: () => console.log('Rate') },
+        { icon: Star, title: 'Rate the App', subtitle: 'Share your feedback', onClick: () => { } },
         { icon: Mail, title: 'Contact Us', subtitle: 'Get in touch', path: '/contact' },
         { icon: Flag, title: 'Report', subtitle: 'Report an issue', path: '/report' },
     ];
@@ -144,7 +146,12 @@ export default function ProfilePage() {
                                         to={item.path}
                                         className="w-full flex items-center gap-3 p-3 md:p-4 rounded-xl border border-border hover:bg-background-secondary transition-colors bg-card"
                                     >
-                                        <item.icon className="w-5 h-5 text-foreground-secondary" />
+                                        <div className="relative">
+                                            <item.icon className="w-5 h-5 text-foreground-secondary" />
+                                            {'hasIndicator' in item && item.hasIndicator && (
+                                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[var(--card)]" />
+                                            )}
+                                        </div>
                                         <div className="flex-1 text-left">
                                             <div className="text-sm md:text-base font-semibold text-foreground">{item.title}</div>
                                             <div className="text-xs text-foreground-secondary">{item.subtitle}</div>

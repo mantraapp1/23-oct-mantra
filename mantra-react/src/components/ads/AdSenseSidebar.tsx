@@ -29,7 +29,7 @@ export default function AdSenseSidebar({ position, className = '' }: AdSenseSide
 
         // Check if AdSense is configured
         if (ADSENSE_CLIENT === 'ca-pub-XXXXXXXXXXXXXXXX') {
-            console.log('[AdSenseSidebar] Running in demo mode - no AdSense client configured');
+
             return;
         }
 
@@ -48,8 +48,7 @@ export default function AdSenseSidebar({ position, className = '' }: AdSenseSide
             // @ts-ignore
             (window.adsbygoogle = window.adsbygoogle || []).push({});
             initialized.current = true;
-        } catch (err) {
-            console.error('[AdSenseSidebar] Failed to push ad:', err);
+        } catch {
         }
     }, []);
 

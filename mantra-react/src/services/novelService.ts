@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { handleSupabaseError, paginateQuery } from '@/utils/supabaseHelpers';
+import { sanitizeSearchInput } from '@/utils/sanitize';
 import type { Novel, NovelWithAuthor, NovelFilters } from '@/types/supabase';
 
 // Constants (inline or from PAGINATION constant if ported)
@@ -53,15 +54,7 @@ class NovelService {
             const fileName = `${authorId}_${Date.now()}.${fileExt}`;
             const filePath = `${authorId}/${fileName}`;
 
-            // Debug: Check session before upload
-            const { data: { session } } = await supabase.auth.getSession();
-            console.log("Upload Debug: ", {
-                hasSession: !!session,
-                sessionUserId: session?.user?.id,
-                passedAuthorId: authorId,
-                filePath: filePath,
-                bucket: 'novel-covers'
-            });
+
 
             const { error } = await supabase.storage
                 .from('novel-covers')
@@ -71,7 +64,7 @@ class NovelService {
                 });
 
             if (error) {
-                console.error("Upload Error Details:", error);
+
                 throw error;
             }
 
@@ -100,12 +93,6 @@ class NovelService {
             // Validate data
             this.validateNovelData(data);
 
-            const { data: { user } } = await supabase.auth.getUser();
-            console.log("CreateNovel Debug: ", {
-                passedAuthorId: authorId,
-                supabaseAuthUserId: user?.id,
-                match: authorId === user?.id
-            });
 
             const { data: novel, error } = await supabase
                 .from('novels')
@@ -203,8 +190,7 @@ class NovelService {
 
             if (error) throw error;
             return data as NovelWithAuthor;
-        } catch (error) {
-            console.error('Error getting novel:', error);
+        } catch {
             return null;
         }
     }
@@ -247,7 +233,8 @@ class NovelService {
             }
 
             if (filters.search) {
-                query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+                const sanitizedSearch = sanitizeSearchInput(filters.search);
+                query = query.or(`title.ilike.%${sanitizedSearch}%,description.ilike.%${sanitizedSearch}%`);
             }
 
             // Apply pagination
@@ -260,8 +247,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error getting novels:', error);
+        } catch {
             return [];
         }
     }
@@ -287,8 +273,7 @@ class NovelService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting novels by author:', error);
+        } catch {
             return [];
         }
     }
@@ -314,8 +299,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error getting trending novels:', error);
+        } catch {
             return [];
         }
     }
@@ -341,8 +325,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error getting popular novels:', error);
+        } catch {
             return [];
         }
     }
@@ -369,8 +352,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error getting top rated novels:', error);
+        } catch {
             return [];
         }
     }
@@ -396,8 +378,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error getting recently updated novels:', error);
+        } catch {
             return [];
         }
     }
@@ -423,8 +404,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error getting new arrivals:', error);
+        } catch {
             return [];
         }
     }
@@ -451,8 +431,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error getting editor\'s picks:', error);
+        } catch {
             return [];
         }
     }
@@ -472,7 +451,7 @@ class NovelService {
           *,
           author:profiles(*)
         `)
-                .or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+                .or(`title.ilike.%${sanitizeSearchInput(query)}%,description.ilike.%${sanitizeSearchInput(query)}%`);
 
             searchQuery = paginateQuery(searchQuery, page, pageSize);
             searchQuery = searchQuery.order('total_views', { ascending: false });
@@ -481,8 +460,7 @@ class NovelService {
 
             if (error) throw error;
             return (data as NovelWithAuthor[]) || [];
-        } catch (error) {
-            console.error('Error searching novels:', error);
+        } catch {
             return [];
         }
     }
@@ -494,10 +472,8 @@ class NovelService {
         try {
             const { error } = await supabase.rpc('increment_novel_views', { novel_id_param: novelId });
             if (error) {
-                console.warn('View increment failed:', error.message);
             }
-        } catch (error) {
-            console.error('Error incrementing views:', error);
+        } catch {
         }
     }
 
@@ -569,7 +545,7 @@ class NovelService {
 
                 // Decrement votes count
                 // await supabase.rpc('decrement_votes', { novel_id_param: novelId });
-                console.log('Vote decrement skipped (RPC not available)');
+
 
                 return {
                     success: true,
@@ -589,7 +565,7 @@ class NovelService {
 
                 // Increment votes count
                 // await supabase.rpc('increment_votes', { novel_id_param: novelId });
-                console.log('Vote increment skipped (RPC not available)');
+
 
                 return {
                     success: true,
@@ -651,14 +627,6 @@ class NovelService {
             if (error) throw error;
             return !!data;
         } catch (error: any) {
-            console.error('[NovelService] Error checking vote status:', {
-                error,
-                errorMessage: error?.message || 'Unknown error',
-                errorCode: error?.code,
-                userId,
-                novelId,
-                timestamp: new Date().toISOString()
-            });
             return false;
         }
     }
@@ -692,14 +660,6 @@ class NovelService {
             // Convert array of objects to Set of novel IDs
             return new Set(data?.map(vote => vote.novel_id) || []);
         } catch (error: any) {
-            console.error('[NovelService] Error fetching user votes:', {
-                error,
-                errorMessage: error?.message || 'Unknown error',
-                errorCode: error?.code,
-                userId,
-                novelIdsCount: novelIds.length,
-                timestamp: new Date().toISOString()
-            });
             // Return empty Set on error to prevent UI crashes
             return new Set();
         }
@@ -720,8 +680,7 @@ class NovelService {
                 averageRating: novel.average_rating,
                 totalReviews: novel.total_reviews,
             };
-        } catch (error) {
-            console.error('Error getting novel stats:', error);
+        } catch {
             return null;
         }
     }
@@ -738,8 +697,7 @@ class NovelService {
 
             if (error) throw error;
             return { count: count || 0 };
-        } catch (error) {
-            console.error('Error getting library count:', error);
+        } catch {
             return { count: 0 };
         }
     }

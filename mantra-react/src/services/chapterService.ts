@@ -138,8 +138,7 @@ class ChapterService {
 
             if (error) throw error;
             return data as ChapterWithNovel;
-        } catch (error) {
-            console.error('Error getting chapter:', error);
+        } catch {
             return null;
         }
     }
@@ -165,8 +164,7 @@ class ChapterService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting chapters:', error);
+        } catch {
             return [];
         }
     }
@@ -184,8 +182,7 @@ class ChapterService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting all chapters:', error);
+        } catch {
             return [];
         }
     }
@@ -204,8 +201,7 @@ class ChapterService {
 
             if (error) throw error;
             return data;
-        } catch (error) {
-            console.error('Error getting chapter by number:', error);
+        } catch {
             return null;
         }
     }
@@ -226,8 +222,7 @@ class ChapterService {
 
             if (error) throw error;
             return data;
-        } catch (error) {
-            console.error('Error getting next chapter:', error);
+        } catch {
             return null;
         }
     }
@@ -248,8 +243,7 @@ class ChapterService {
 
             if (error) throw error;
             return data;
-        } catch (error) {
-            console.error('Error getting previous chapter:', error);
+        } catch {
             return null;
         }
     }
@@ -294,7 +288,6 @@ class ChapterService {
             });
 
             if (error) {
-                console.error('Error calling increment_chapter_views RPC:', error);
                 // Fallback to manual update if RPC doesn't exist yet
                 const chapter = await this.getChapter(chapterId);
                 if (!chapter) return;
@@ -306,8 +299,7 @@ class ChapterService {
 
                 if (updateError) throw updateError;
             }
-        } catch (error) {
-            console.error('Error incrementing chapter views:', error);
+        } catch {
         }
     }
 
@@ -330,8 +322,7 @@ class ChapterService {
                 wordCount: chapter.word_count,
                 commentCount: commentCount || 0,
             };
-        } catch (error) {
-            console.error('Error getting chapter stats:', error);
+        } catch {
             return null;
         }
     }
@@ -352,8 +343,7 @@ class ChapterService {
 
             if (error) throw error;
             return (data as ChapterWithNovel[]) || [];
-        } catch (error) {
-            console.error('Error getting latest chapters:', error);
+        } catch {
             return [];
         }
     }
@@ -370,8 +360,7 @@ class ChapterService {
 
             if (error) throw error;
             return count || 0;
-        } catch (error) {
-            console.error('Error getting chapter count:', error);
+        } catch {
             return 0;
         }
     }

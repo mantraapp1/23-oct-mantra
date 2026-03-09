@@ -81,8 +81,7 @@ class ReportService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting user reports:', error);
+        } catch {
             return [];
         }
     }
@@ -100,8 +99,7 @@ class ReportService {
 
             if (error) throw error;
             return count || 0;
-        } catch (error) {
-            console.error('Error getting report count:', error);
+        } catch {
             return 0;
         }
     }
@@ -125,8 +123,7 @@ class ReportService {
 
             if (error) throw error;
             return !!data;
-        } catch (error) {
-            console.error('Error checking if user reported:', error);
+        } catch {
             return false;
         }
     }
@@ -272,8 +269,7 @@ class ReportService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting all reports:', error);
+        } catch {
             return [];
         }
     }
@@ -299,8 +295,7 @@ class ReportService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting reports by type:', error);
+        } catch {
             return [];
         }
     }
@@ -322,8 +317,7 @@ class ReportService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting reports for item:', error);
+        } catch {
             return [];
         }
     }
@@ -359,8 +353,7 @@ class ReportService {
                 return data ? { name: data.display_name || data.username || 'Unknown User' } : null;
             }
             return null;
-        } catch (error) {
-            console.error('Error fetching report context:', error);
+        } catch {
             return null;
         }
     }

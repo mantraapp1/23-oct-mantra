@@ -120,8 +120,7 @@ export default function UserPublicProfilePage() {
                     setBookmarkedNovels(new Set(libraryData.map(item => item.novel_id)));
                 }
             }
-        } catch (error) {
-            console.error('Error loading user profile:', error);
+        } catch {
         } finally {
             setIsLoading(false);
         }

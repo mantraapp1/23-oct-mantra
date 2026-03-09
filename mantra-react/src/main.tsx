@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { DialogProvider } from '@/contexts/DialogContext'
 import { NavigationProvider } from '@/contexts/NavigationContext'
+import { NotificationProvider } from '@/contexts/NotificationContext'
 import { ErrorBoundary } from '@/components/error/ErrorBoundary'
 import './index.css'
 import QueryProvider from '@/providers/QueryProvider'
@@ -53,9 +54,11 @@ createRoot(document.getElementById('root')!).render(
                 <ToastProvider>
                   <DialogProvider>
                     <AuthProvider>
-                      <Suspense fallback={<GlobalLoader />}>
-                        <App />
-                      </Suspense>
+                      <NotificationProvider>
+                        <Suspense fallback={<GlobalLoader />}>
+                          <App />
+                        </Suspense>
+                      </NotificationProvider>
                     </AuthProvider>
                   </DialogProvider>
                 </ToastProvider>

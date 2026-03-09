@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { sanitizeSearchInput } from '@/utils/sanitize';
 
 export interface SearchFilters {
     genres?: string[];
@@ -29,7 +30,7 @@ const searchService = {
 
             // Text Search
             if (query.trim()) {
-                const searchTerm = query.trim();
+                const searchTerm = sanitizeSearchInput(query.trim());
                 // Use textSearch or ilike
                 queryBuilder = queryBuilder.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
             }
@@ -75,8 +76,7 @@ const searchService = {
             if (error) throw error;
             return data || [];
 
-        } catch (error) {
-            console.error('Error searching novels:', error);
+        } catch {
             return [];
         }
     },
@@ -87,7 +87,7 @@ const searchService = {
     async searchAuthors(query: string) {
         if (!query.trim()) return [];
         try {
-            const searchTerm = query.trim();
+            const searchTerm = sanitizeSearchInput(query.trim());
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
@@ -96,8 +96,7 @@ const searchService = {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error searching authors:', error);
+        } catch {
             return [];
         }
     },

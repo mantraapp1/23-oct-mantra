@@ -37,7 +37,6 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
             // Navigate back to novel management or novel page
             navigate(`/novel/${novelId}`);
         } catch (error) {
-            console.error('Failed to delete chapter', error);
             toast.error('Failed to delete chapter');
         }
     };

@@ -150,7 +150,7 @@ export default function CreateNovelPage() {
         e.preventDefault();
         if (!user || !validate() || isSubmitting) return;
 
-        console.log("Submitting novel creation for user:", user.id);
+
 
         setIsSubmitting(true);
         try {
@@ -181,7 +181,7 @@ export default function CreateNovelPage() {
                         cover_image_url: uploadResult.url,
                     });
                 } else {
-                    console.warn('Cover upload failed, novel created without cover:', uploadResult.message);
+
                     // Don't throw - novel was created successfully, just without cover
                 }
             }
@@ -189,7 +189,7 @@ export default function CreateNovelPage() {
             toast.success('Novel created successfully!');
             navigate(`/novel/${novelId}`, { replace: true });
         } catch (error: any) {
-            console.error('Error creating novel:', error);
+
             toast.error(error.message || 'Failed to create novel');
         } finally {
             setIsSubmitting(false);

@@ -38,8 +38,7 @@ class ProfileService {
 
             if (error) throw error;
             return data;
-        } catch (error) {
-            console.error('Error getting profile:', error);
+        } catch {
             return null;
         }
     }
@@ -88,8 +87,7 @@ class ProfileService {
                 earnings: wallet?.total_earned || 0,
                 balance: wallet?.balance || 0,
             };
-        } catch (error) {
-            console.error('Error getting user stats:', error);
+        } catch {
             // Return zeros if fails
             return {
                 followerCount: 0,

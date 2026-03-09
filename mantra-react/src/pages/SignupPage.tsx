@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { checkRateLimit, getRemainingWaitTimeMs } from '@/utils/rateLimiter';
 
 export default function SignupPage() {
     const navigate = useNavigate();
@@ -19,13 +20,30 @@ export default function SignupPage() {
         setIsLoading(true);
         setError('');
 
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters');
+        // 1. Rate Limiting Check
+        // Allow max 3 signup attempts per 2 minutes (120000ms)
+        const isAllowed = checkRateLimit('signup-attempt', 3, 120000);
+        if (!isAllowed) {
+            const remainingMs = getRemainingWaitTimeMs('signup-attempt', 3, 120000);
+            const remainingSeconds = Math.ceil(remainingMs / 1000);
+            setError(`Too many signup attempts. Please try again in ${remainingSeconds} seconds.`);
             setIsLoading(false);
             return;
         }
 
-        console.log('[Signup] Starting signup for:', email);
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+            setError('Username must be 3-20 characters (letters, numbers, underscores only)');
+            setIsLoading(false);
+            return;
+        }
+
+        if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^a-zA-Z0-9]/.test(password)) {
+            setError('Password must be at least 8 characters with uppercase, number, and special character');
+            setIsLoading(false);
+            return;
+        }
+
+
 
         // Sign up
         const { data, error } = await supabase.auth.signUp({
@@ -39,15 +57,13 @@ export default function SignupPage() {
         });
 
         if (error) {
-            console.error('[Signup] Error:', error);
+
             setError(error.message);
             setIsLoading(false);
             return;
         }
 
-        console.log('[Signup] Success:', data);
-        console.log('[Signup] Session?', !!data.session, 'User?', !!data.user);
-        console.log('[Signup] email_confirmed_at:', data.user?.email_confirmed_at);
+
 
         if (data.user) {
             // Try to create profile (may fail if no session, that's OK - the DB trigger handles it)
@@ -57,8 +73,8 @@ export default function SignupPage() {
                     username,
                     email,
                 });
-            } catch (profileErr) {
-                console.warn('[Signup] Profile upsert failed (expected if no session):', profileErr);
+            } catch {
+                // Profile upsert may fail if no session - expected, DB trigger handles it
             }
         }
 
@@ -67,7 +83,7 @@ export default function SignupPage() {
         // 1. Email confirmation enabled: user enters OTP
         // 2. Email confirmation disabled: page detects session and auto-redirects
         setIsLoading(false);
-        navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
+        navigate('/verify-email', { state: { email, username } });
     };
 
 
@@ -83,7 +99,7 @@ export default function SignupPage() {
                             <p className="text-[var(--foreground-secondary)] text-sm mt-2">Join us and start reading today</p>
                         </div>
 
-                        <form onSubmit={handleSignup} className="space-y-5" noValidate>
+                        <form onSubmit={handleSignup} className="space-y-5">
                             <div>
                                 <label htmlFor="username-input" className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5">Username</label>
                                 <Input

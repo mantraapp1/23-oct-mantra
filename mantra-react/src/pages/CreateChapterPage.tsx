@@ -46,8 +46,7 @@ export default function CreateChapterPage() {
                 const chapters = await chapterService.getAllChaptersByNovel(novelId);
                 const maxNum = chapters.reduce((max, ch) => Math.max(max, ch.chapter_number), 0);
                 setChapterNumber((maxNum + 1).toString());
-            } catch (error) {
-                console.error('Error loading novel data:', error);
+            } catch {
             } finally {
                 setIsLoading(false);
             }

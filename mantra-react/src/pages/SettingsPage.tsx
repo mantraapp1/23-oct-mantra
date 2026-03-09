@@ -60,7 +60,6 @@ export default function SettingsPage() {
             setShowMatureContent(newValue);
             toast.success(newValue ? 'Mature content enabled' : 'Mature content disabled');
         } catch (error) {
-            console.error('Error updating mature content setting:', error);
             toast.error('Failed to update setting');
         } finally {
             setIsTogglingMature(false);
@@ -71,8 +70,7 @@ export default function SettingsPage() {
         try {
             await signOut();
             navigate('/login');
-        } catch (error) {
-            console.error('Error signing out:', error);
+        } catch {
         }
     };
 

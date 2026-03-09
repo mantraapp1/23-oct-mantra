@@ -51,8 +51,7 @@ export default function ActionButtons({ novelId, currentUser, chapters = [], onV
             if (progress) {
                 setReadingProgress(progress);
             }
-        } catch (error) {
-            console.error('Error checking status:', error);
+        } catch {
         }
     };
 
@@ -82,8 +81,7 @@ export default function ActionButtons({ novelId, currentUser, chapters = [], onV
                 if (error) throw error;
                 setIsInLibrary(true);
             }
-        } catch (error) {
-            console.error('Error updating library:', error);
+        } catch {
         } finally {
             setIsLoadingLibrary(false);
         }
@@ -107,8 +105,7 @@ export default function ActionButtons({ novelId, currentUser, chapters = [], onV
                     onVoteChange(newVotedState); // true = increment, false = decrement
                 }
             }
-        } catch (error) {
-            console.error('Error voting:', error);
+        } catch {
         } finally {
             setIsLoadingVote(false);
         }

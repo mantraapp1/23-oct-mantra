@@ -1,8 +1,9 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Check, UserPlus, MessageCircle, Heart, DollarSign, CreditCard, ChevronLeft } from 'lucide-react';
+import { Bell, Check, UserPlus, MessageCircle, Heart, DollarSign, CreditCard, ChevronLeft, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotifications } from '@/contexts/NotificationContext';
 import notificationService, { type Notification } from '@/services/notificationService';
 
 function formatTimeAgo(dateString: string) {
@@ -25,6 +26,7 @@ function formatTimeAgo(dateString: string) {
 
 export default function NotificationsPage() {
     const { user, isLoading: authLoading } = useAuth();
+    const { refreshUnreadCount } = useNotifications();
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -47,23 +49,33 @@ export default function NotificationsPage() {
         if (!user) return;
         await notificationService.markAllAsRead(user.id);
         setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+        refreshUnreadCount();
     };
 
     const handleMarkRead = async (id: string) => {
         await notificationService.markAsRead(id);
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+        refreshUnreadCount();
     };
 
     const getIcon = (type: string) => {
         switch (type) {
+            case 'system': return <Sparkles className="w-5 h-5 text-amber-500" />;
             case 'new_chapter': return <Bell className="w-5 h-5 text-sky-500" />;
             case 'new_follower': return <UserPlus className="w-5 h-5 text-amber-500" />;
-            case 'new_comment': return <MessageCircle className="w-5 h-5 text-sky-500" />;
+            case 'new_comment':
             case 'comment_reply': return <MessageCircle className="w-5 h-5 text-sky-500" />;
+            case 'new_review': return <Heart className="w-5 h-5 text-amber-500" />;
+            case 'novel_voted': return <Heart className="w-5 h-5 text-purple-500" />;
             case 'review_like':
-            case 'comment_like': return <Heart className="w-5 h-5 text-rose-500" />;
-            case 'wallet_earning': return <DollarSign className="w-5 h-5 text-emerald-500" />;
-            case 'withdrawal_status': return <CreditCard className="w-5 h-5 text-sky-500" />;
+            case 'comment_like':
+            case 'comment_liked': return <Heart className="w-5 h-5 text-rose-500" />;
+            case 'wallet_earning':
+            case 'wallet_earnings': return <DollarSign className="w-5 h-5 text-emerald-500" />;
+            case 'withdrawal_status':
+            case 'withdrawal_completed': return <CreditCard className="w-5 h-5 text-sky-500" />;
+            case 'admin_message': return <Bell className="w-5 h-5 text-red-500" />;
+            case 'custom': return <Sparkles className="w-5 h-5 text-indigo-500" />;
             default: return <Bell className="w-5 h-5 text-slate-500" />;
         }
     };

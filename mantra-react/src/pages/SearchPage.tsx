@@ -59,8 +59,7 @@ export default function SearchPage() {
                     const data = await searchService.searchAuthors(trimmedQuery);
                     setAuthorResults(data);
                 }
-            } catch (error) {
-                console.error('Search error:', error);
+            } catch {
             } finally {
                 setLoading(false);
             }

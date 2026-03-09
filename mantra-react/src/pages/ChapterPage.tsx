@@ -5,6 +5,9 @@ import ChapterUnlockModal from '@/components/reader/ChapterUnlockModal';
 import { supabase } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import novelService from '@/services/novelService';
+import { trackUniqueView } from '@/utils/viewTracker';
+import { detectAdBlocker } from '@/utils/adBlocker';
+import { AlertTriangle } from 'lucide-react';
 
 // Chapter locking configuration
 const FREE_CHAPTERS = 7; // First 7 chapters are always free
@@ -29,6 +32,16 @@ export default function ChapterPage() {
     const [timerEndTime, setTimerEndTime] = useState<Date | null>(null);
     const [isUnlocking, setIsUnlocking] = useState(false);
     const [unlockMethod, setUnlockMethod] = useState<'ad' | null>(null);
+    const [hasAdBlocker, setHasAdBlocker] = useState(false);
+
+    // Check for ad blocker
+    useEffect(() => {
+        const checkAdBlocker = async () => {
+            const isBlocked = await detectAdBlocker();
+            setHasAdBlocker(isBlocked);
+        };
+        checkAdBlocker();
+    }, []);
 
     // Check if URL has unlock=ad parameter (coming from ad view)
     useEffect(() => {
@@ -107,17 +120,19 @@ export default function ChapterPage() {
 
                 // If not locked or unlocked via ad, increment views
                 if (!lockStatus.isLocked || unlockMethod === 'ad') {
-                    // Increment View (optional, silently)
-                    supabase.rpc('increment_chapter_views', { chapter_id_param: chapterId });
-                    // Also increment novel views
-                    novelService.incrementViews(novelId);
+                    // Check if view is unique (debounced)
+                    if (trackUniqueView(chapterId)) {
+                        // Increment View (optional, silently)
+                        supabase.rpc('increment_chapter_views', { chapter_id_param: chapterId });
+                        // Also increment novel views
+                        novelService.incrementViews(novelId);
 
-                    // Record view for author payment if unlocked via ad or view
-                    await recordChapterView(chapterId, novelId, normalizedNovel?.author?.id);
+                        // Record view for author payment if unlocked via ad or view
+                        await recordChapterView(chapterId, novelId, normalizedNovel?.author?.id);
+                    }
                 }
 
-            } catch (error) {
-                console.error('Error fetching chapter:', error);
+            } catch {
             } finally {
                 setLoading(false);
             }
@@ -157,29 +172,27 @@ export default function ChapterPage() {
                 .maybeSingle();
 
             if (unlock) {
-                // Check if unlock has a timer
-                if (unlock.timer_start) {
-                    const timerStart = new Date(unlock.timer_start);
-                    const waitHours = getWaitHours(chapterNumber);
-                    const timerEnd = new Date(timerStart.getTime() + waitHours * 60 * 60 * 1000);
+                // Check if unlock has a timer or is immediate
+                if (unlock.expiration_timestamp) {
+                    const expirationTime = new Date(unlock.expiration_timestamp);
 
-                    if (new Date() >= timerEnd) {
-                        // Timer complete - chapter is unlocked
-                        return { isLocked: false, timerEndTime: null };
-                    } else {
-                        // Timer still running
-                        return { isLocked: true, timerEndTime: timerEnd };
+                    // Check if the unlock is completely expired
+                    if (new Date() >= expirationTime || unlock.is_expired) {
+                        return { isLocked: true, timerEndTime: null };
                     }
-                }
 
-                // Check if unlock is not expired
-                if (unlock.unlocked_at) {
-                    const unlockedAt = new Date(unlock.unlocked_at);
-                    const expiresAt = new Date(unlockedAt.getTime() + UNLOCK_EXPIRY_HOURS * 60 * 60 * 1000);
+                    // For timers: Check if unlock timestamp is in the future
+                    if (unlock.unlock_timestamp) {
+                        const unlockTime = new Date(unlock.unlock_timestamp);
 
-                    if (new Date() < expiresAt) {
-                        return { isLocked: false, timerEndTime: null };
+                        if (new Date() < unlockTime) {
+                            // Timer still running
+                            return { isLocked: true, timerEndTime: unlockTime };
+                        }
                     }
+
+                    // Otherwise it's unlocked (timer complete, or immediate Ad unlock)
+                    return { isLocked: false, timerEndTime: null };
                 }
             }
         }
@@ -189,20 +202,20 @@ export default function ChapterPage() {
         const localUnlock = localUnlocks[targetChapterId];
 
         if (localUnlock) {
-            if (localUnlock.timerStart) {
-                const timerEnd = new Date(localUnlock.timerStart + getWaitHours(chapterNumber) * 60 * 60 * 1000);
-                if (new Date() >= timerEnd) {
-                    return { isLocked: false, timerEndTime: null };
-                }
-                return { isLocked: true, timerEndTime: timerEnd };
+            const expirationTime = new Date(localUnlock.expirationTimestamp);
+
+            if (new Date() >= expirationTime) {
+                return { isLocked: true, timerEndTime: null };
             }
 
-            if (localUnlock.unlockedAt) {
-                const expiresAt = new Date(localUnlock.unlockedAt + UNLOCK_EXPIRY_HOURS * 60 * 60 * 1000);
-                if (new Date() < expiresAt) {
-                    return { isLocked: false, timerEndTime: null };
+            if (localUnlock.unlockTimestamp) {
+                const unlockTime = new Date(localUnlock.unlockTimestamp);
+                if (new Date() < unlockTime) {
+                    return { isLocked: true, timerEndTime: unlockTime };
                 }
             }
+
+            return { isLocked: false, timerEndTime: null };
         }
 
         // Chapter is locked
@@ -233,7 +246,8 @@ export default function ChapterPage() {
             if (method === 'timer') {
                 const now = new Date();
                 const waitHours = getWaitHours(chapter.chapter_number);
-                const timerEnd = new Date(now.getTime() + waitHours * 60 * 60 * 1000);
+                const unlockTime = new Date(now.getTime() + waitHours * 60 * 60 * 1000);
+                const expirationTime = new Date(unlockTime.getTime() + UNLOCK_EXPIRY_HOURS * 60 * 60 * 1000);
 
                 if (currentUser) {
                     // Save to database
@@ -241,20 +255,27 @@ export default function ChapterPage() {
                         user_id: currentUser.id,
                         chapter_id: chapterId,
                         novel_id: novelId,
-                        timer_start: now.toISOString(),
-                        unlocked_at: null,
+                        unlock_method: 'timer',
+                        unlock_timestamp: unlockTime.toISOString(),
+                        expiration_timestamp: expirationTime.toISOString(),
+                        is_expired: false
                     });
                 } else {
                     // Save to localStorage
                     const localUnlocks = JSON.parse(localStorage.getItem('chapter_unlocks') || '{}');
-                    localUnlocks[chapterId] = { timerStart: now.getTime() };
+                    localUnlocks[chapterId] = {
+                        method: 'timer',
+                        unlockTimestamp: unlockTime.getTime(),
+                        expirationTimestamp: expirationTime.getTime()
+                    };
                     localStorage.setItem('chapter_unlocks', JSON.stringify(localUnlocks));
                 }
 
-                setTimerEndTime(timerEnd);
+                setTimerEndTime(unlockTime);
                 setIsLocked(true);
             } else if (method === 'ad') {
                 const now = new Date();
+                const expirationTime = new Date(now.getTime() + UNLOCK_EXPIRY_HOURS * 60 * 60 * 1000);
 
                 if (currentUser) {
                     // Save to database
@@ -262,13 +283,19 @@ export default function ChapterPage() {
                         user_id: currentUser.id,
                         chapter_id: chapterId,
                         novel_id: novelId,
-                        timer_start: null,
-                        unlocked_at: now.toISOString(),
+                        unlock_method: 'ad',
+                        unlock_timestamp: now.toISOString(),
+                        expiration_timestamp: expirationTime.toISOString(),
+                        is_expired: false
                     });
                 } else {
                     // Save to localStorage
                     const localUnlocks = JSON.parse(localStorage.getItem('chapter_unlocks') || '{}');
-                    localUnlocks[chapterId] = { unlockedAt: now.getTime() };
+                    localUnlocks[chapterId] = {
+                        method: 'ad',
+                        unlockTimestamp: now.getTime(),
+                        expirationTimestamp: expirationTime.getTime()
+                    };
                     localStorage.setItem('chapter_unlocks', JSON.stringify(localUnlocks));
                 }
 
@@ -279,11 +306,12 @@ export default function ChapterPage() {
                 setShowUnlockModal(false);
 
                 // Increment views now that we're unlocked
-                supabase.rpc('increment_chapter_views', { chapter_id_param: chapterId });
-                novelService.incrementViews(novelId!);
+                if (trackUniqueView(chapterId)) {
+                    supabase.rpc('increment_chapter_views', { chapter_id_param: chapterId });
+                    novelService.incrementViews(novelId!);
+                }
             }
-        } catch (error) {
-            console.error('Error unlocking chapter:', error);
+        } catch {
             alert('Failed to unlock chapter. Please try again.');
         } finally {
             setIsUnlocking(false);
@@ -311,14 +339,31 @@ export default function ChapterPage() {
                 viewed_at: new Date().toISOString(),
                 paid: false,
             });
-        } catch (error) {
+        } catch {
             // Silently fail - view recording shouldn't block reading
-            console.error('Error recording chapter view:', error);
         }
     };
 
     if (loading) return <div className="flex justify-center items-center min-h-screen bg-background"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div></div>;
     if (!chapter) return <div className="text-center py-20 bg-background text-foreground min-h-screen">Chapter not found</div>;
+
+    if (hasAdBlocker) {
+        return (
+            <div className="flex flex-col justify-center items-center min-h-screen bg-background text-foreground p-4">
+                <AlertTriangle className="w-16 h-16 text-amber-500 mb-4" />
+                <h1 className="text-2xl font-bold mb-2 text-center">Ad Blocker Detected</h1>
+                <p className="text-center text-slate-500 mb-6 max-w-md">
+                    We rely on ads to keep this platform running and support our authors. Please disable your ad blocker to continue reading this chapter.
+                </p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600 font-medium transition-colors"
+                >
+                    I've disabled it, reload page
+                </button>
+            </div>
+        );
+    }
 
     // Show unlock modal for locked chapters
     if (isLocked && showUnlockModal) {

@@ -58,7 +58,6 @@ export default function EditChapterPage() {
                     setTimeout(() => navigate(`/novel/manage/${novelId}`, { replace: true }), 1000);
                 }
             } catch (error) {
-                console.error('Error loading chapter data:', error);
                 toast.error('Failed to load chapter data');
             } finally {
                 setIsLoading(false);
@@ -95,7 +94,6 @@ export default function EditChapterPage() {
                 toast.error(result.message || 'Error updating chapter');
             }
         } catch (error: any) {
-            console.error('Error updating chapter:', error);
             toast.error(error.message || 'Error updating chapter');
         } finally {
             setIsSubmitting(false);
@@ -117,7 +115,6 @@ export default function EditChapterPage() {
                 toast.error(result.message || 'Error deleting chapter');
             }
         } catch (error: any) {
-            console.error('Error deleting chapter:', error);
             toast.error(error.message || 'Error deleting chapter');
         } finally {
             setIsDeleting(false);

@@ -3,7 +3,7 @@ import { handleSupabaseError } from '@/utils/supabaseHelpers';
 
 export interface Notification {
     id: string;
-    type: 'new_chapter' | 'new_follower' | 'new_comment' | 'comment_reply' | 'review_like' | 'comment_like' | 'wallet_earning' | 'withdrawal_status';
+    type: 'system' | 'new_chapter' | 'new_follower' | 'new_comment' | 'comment_reply' | 'comment_liked' | 'review_like' | 'comment_like' | 'new_review' | 'novel_voted' | 'admin_message' | 'wallet_earning' | 'wallet_earnings' | 'withdrawal_status' | 'withdrawal_completed' | 'custom';
     title?: string;
     message: string;
     is_read: boolean;
@@ -35,8 +35,7 @@ class NotificationService {
 
             if (error) throw error;
             return data as Notification[];
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
+        } catch {
             return [];
         }
     }
@@ -53,8 +52,7 @@ class NotificationService {
 
             if (error) throw error;
             return true;
-        } catch (error) {
-            console.error('Error marking notification as read:', error);
+        } catch {
             return false;
         }
     }
@@ -73,7 +71,6 @@ class NotificationService {
             if (error) throw error;
             return { success: true, message: 'All notifications marked as read' };
         } catch (error: any) {
-            console.error('Error marking all notifications as read:', error);
             return { success: false, message: handleSupabaseError(error) };
         }
     }
@@ -91,8 +88,7 @@ class NotificationService {
 
             if (error) throw error;
             return count || 0;
-        } catch (error) {
-            console.error('Error getting unread count:', error);
+        } catch {
             return 0;
         }
     }

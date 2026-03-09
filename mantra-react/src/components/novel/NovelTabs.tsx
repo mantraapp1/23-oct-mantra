@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, ArrowUpDown } from 'lucide-react';
 import ChapterList from './ChapterList';
 import ReviewSection from './ReviewSection';
 import { getUserDisplayName, getUserProfileImage } from '@/lib/utils/profileUtils';
+import { supabase } from '@/lib/supabase/client';
 
 import type { User } from '@supabase/supabase-js';
 
@@ -21,6 +22,50 @@ export default function NovelTabs({ description, chapters, novelId, reviews, tag
     const [searchQuery, setSearchQuery] = useState('');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [activeChunkIndex, setActiveChunkIndex] = useState(0);
+    const [unlocks, setUnlocks] = useState<Record<string, any>>({});
+
+    // Fetch user's chapter unlocks for this novel
+    useEffect(() => {
+        const fetchUnlocks = async () => {
+            const unlocksMap: Record<string, any> = {};
+
+            // 1. Get local unlocks
+            try {
+                const localUnlocks = JSON.parse(localStorage.getItem('chapter_unlocks') || '{}');
+                Object.assign(unlocksMap, localUnlocks);
+            } catch {
+            }
+
+            // 2. Get DB unlocks if user is logged in
+            if (currentUser) {
+                try {
+                    const { data } = await supabase
+                        .from('chapter_unlocks')
+                        .select('chapter_id, unlock_timestamp, expiration_timestamp, is_expired')
+                        .eq('user_id', currentUser.id)
+                        .eq('novel_id', novelId);
+
+                    if (data) {
+                        data.forEach(unlock => {
+                            // Merge DB unlocks over local unlocks
+                            unlocksMap[unlock.chapter_id] = {
+                                unlockTimestamp: unlock.unlock_timestamp ? new Date(unlock.unlock_timestamp).getTime() : undefined,
+                                expirationTimestamp: unlock.expiration_timestamp ? new Date(unlock.expiration_timestamp).getTime() : undefined,
+                                isExpired: unlock.is_expired
+                            };
+                        });
+                    }
+                } catch {
+                }
+            }
+
+            setUnlocks(unlocksMap);
+        };
+
+        if (activeTab === 'chapters') {
+            fetchUnlocks();
+        }
+    }, [currentUser, novelId, activeTab]);
 
     const filteredChapters = useMemo(() => {
         let result = [...chapters];
@@ -180,6 +225,7 @@ export default function NovelTabs({ description, chapters, novelId, reviews, tag
                             chapters={searchQuery ? filteredChapters : filteredChapters.slice(activeChunkIndex * 50, (activeChunkIndex + 1) * 50)}
                             novelId={novelId}
                             currentChapterNumber={currentChapterNumber}
+                            unlocks={unlocks}
                         />
 
                         {/* Load More Trigger or Pagination Info could go here if managed server side */}

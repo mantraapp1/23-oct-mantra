@@ -78,8 +78,7 @@ export default function NovelManagePage() {
 
             const libData = await novelService.getLibraryInfo(id);
             setTotalBookmarks(libData.count);
-        } catch (error) {
-            console.error('Error loading novel management data:', error);
+        } catch {
         } finally {
             setIsLoading(false);
         }
@@ -127,8 +126,7 @@ export default function NovelManagePage() {
             if (result.success) {
                 navigate('/dashboard');
             }
-        } catch (error) {
-            console.error('Error deleting novel:', error);
+        } catch {
         } finally {
             setIsDeleting(false);
             setShowDeleteModal(false);
@@ -143,7 +141,6 @@ export default function NovelManagePage() {
             setActiveMenu(null);
             toast.success('Review deleted');
         } catch (error) {
-            console.error('Failed to delete review:', error);
             toast.error('Failed to delete review');
         }
     };
@@ -191,7 +188,6 @@ export default function NovelManagePage() {
         try {
             await reviewService.voteReview(reviewId, user.id, type);
         } catch (error) {
-            console.error('Failed to vote:', error);
             // Revert on error
             setReviews(previousReviews);
         }

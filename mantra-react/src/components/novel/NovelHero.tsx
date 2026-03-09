@@ -50,8 +50,7 @@ export default function NovelHero({ novel, chapters = [], children, onVoteChange
                 await navigator.clipboard.writeText(window.location.href);
                 toast.success('Link copied to clipboard!');
             }
-        } catch (error) {
-            console.error('Error sharing:', error);
+        } catch {
         }
     };
 

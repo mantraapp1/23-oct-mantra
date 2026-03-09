@@ -29,7 +29,7 @@ export default function ExoclickVideoAd({ onComplete, onError, onClose }: Exocli
 
         if (EXOCLICK_ZONE_ID === 'YOUR_EXOCLICK_ZONE_ID') {
             // Demo mode - simulate a 5 second video
-            console.log('[ExoclickVideoAd] Running in demo mode - no zone ID configured');
+
 
             setIsLoading(false);
 
@@ -75,7 +75,7 @@ export default function ExoclickVideoAd({ onComplete, onError, onClose }: Exocli
                     window.ExoLoader.addZone({ id: EXOCLICK_ZONE_ID });
                 }
                 setIsLoading(false);
-            } catch (err) {
+            } catch {
                 onError('Failed to initialize ad');
             }
         };

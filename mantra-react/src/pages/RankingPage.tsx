@@ -25,7 +25,6 @@ export default function RankingPage() {
     const { data: novels = [], isLoading, error } = useRankedNovels(sortBy, filters);
 
     if (error) {
-        console.error('Error loading rankings:', error);
     }
 
 

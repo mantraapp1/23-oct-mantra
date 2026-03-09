@@ -37,8 +37,7 @@ export default function AuthorDashboardPage() {
                 views: formatViews(totalViews),
                 earnings: wallet?.total_earned?.toFixed(2) || '0.00',
             });
-        } catch (error) {
-            console.error('Error loading dashboard:', error);
+        } catch {
         } finally {
             setIsLoading(false);
         }
@@ -59,8 +58,7 @@ export default function AuthorDashboardPage() {
                 setNovels(prev => prev.filter(n => n.id !== deleteId));
                 setStats(prev => ({ ...prev, novels: prev.novels - 1 }));
             }
-        } catch (error) {
-            console.error('Error deleting novel:', error);
+        } catch {
         } finally {
             setIsDeleting(false);
             setDeleteId(null);

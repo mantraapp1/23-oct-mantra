@@ -1,15 +1,19 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
 import { useAuth } from '../../contexts/AuthContext';
 import { FullScreenLoader } from '@/components/ui/LoadingSpinner';
+import { detectAdBlocker } from '@/utils/adBlocker';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function AppLayout() {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, profile, isLoading } = useAuth();
+    const { toast } = useToast();
+    const hasCheckedAdBlocker = useRef(false);
 
     // Pages that should take up the full screen (no header/footer/nav)
     const isImmersive =
@@ -45,12 +49,31 @@ export default function AppLayout() {
             if (profile.onboarding_completed === false) {
                 // Allow access to onboarding and verify-email
                 if (location.pathname !== '/onboarding' && location.pathname !== '/verify-email') {
-                    console.log('[AppLayout] Redirecting to onboarding (incomplete profile)');
+
                     navigate('/onboarding', { replace: true });
                 }
             }
         }
     }, [user, profile, isLoading, location.pathname, navigate]);
+
+    // Check for Ad Blocker (runs once after a short delay)
+    useEffect(() => {
+        if (hasCheckedAdBlocker.current) return;
+
+        let mounted = true;
+        const checkAdBlocker = async () => {
+            const isBlocked = await detectAdBlocker();
+            if (mounted && isBlocked) {
+                toast.warning('Ad blocker detected. Please consider whitelisting us to support the authors.', 8000);
+            }
+        };
+
+        hasCheckedAdBlocker.current = true;
+        // 2 second delay to ensure everything is loaded before checking
+        setTimeout(checkAdBlocker, 2000);
+
+        return () => { mounted = false; };
+    }, [toast]);
 
     if (isLoading) {
         return <FullScreenLoader />;

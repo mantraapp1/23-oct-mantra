@@ -53,8 +53,7 @@ export default function YouMayLike({ currentNovelId, genres }: YouMayLikeProps) 
 
                     setNovels(popularData || []);
                 }
-            } catch (error) {
-                console.error('Error fetching similar novels:', error);
+            } catch {
             } finally {
                 setLoading(false);
             }

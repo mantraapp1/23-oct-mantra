@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
+import AuthGuard from './components/auth/AuthGuard';
 import './App.css';
 
 // ============================================
@@ -94,31 +95,31 @@ function App() {
           <Route path="/novel/:id" element={<NovelPage />} />
           <Route path="/novel/:novelId/chapter/:chapterId" element={<ChapterPage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile" element={<AuthGuard><ProfilePage /></AuthGuard>} />
           <Route path="/ranking" element={<RankingPage />} />
-          <Route path="/library" element={<LibraryPage />} />
-          <Route path="/dashboard" element={<AuthorDashboardPage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/settings/account" element={<AccountSettingsPage />} />
-          <Route path="/profile/edit" element={<EditProfilePage />} />
+          <Route path="/library" element={<AuthGuard><LibraryPage /></AuthGuard>} />
+          <Route path="/dashboard" element={<AuthGuard><AuthorDashboardPage /></AuthGuard>} />
+          <Route path="/notifications" element={<AuthGuard><NotificationsPage /></AuthGuard>} />
+          <Route path="/settings" element={<AuthGuard><SettingsPage /></AuthGuard>} />
+          <Route path="/settings/account" element={<AuthGuard><AccountSettingsPage /></AuthGuard>} />
+          <Route path="/profile/edit" element={<AuthGuard><EditProfilePage /></AuthGuard>} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/report" element={<ReportPage />} />
+          <Route path="/report" element={<AuthGuard><ReportPage /></AuthGuard>} />
           <Route path="/user/:id" element={<UserPublicProfilePage />} />
           <Route path="/user/:id/followers" element={<FollowersListPage />} />
           <Route path="/user/:id/following" element={<FollowingListPage />} />
-          <Route path="/wallet" element={<WalletPage />} />
-          <Route path="/wallet/history" element={<WalletHistoryPage />} />
-          <Route path="/wallet/withdraw" element={<WalletWithdrawPage />} />
+          <Route path="/wallet" element={<AuthGuard><WalletPage /></AuthGuard>} />
+          <Route path="/wallet/history" element={<AuthGuard><WalletHistoryPage /></AuthGuard>} />
+          <Route path="/wallet/withdraw" element={<AuthGuard><WalletWithdrawPage /></AuthGuard>} />
 
 
           {/* Authoring Routes */}
-          <Route path="/novel/create" element={<CreateNovelPage />} />
-          <Route path="/novel/edit/:id" element={<EditNovelPage />} />
-          <Route path="/novel/manage/:id" element={<NovelManagePage />} />
-          <Route path="/novel/:novelId/create-chapter" element={<CreateChapterPage />} />
-          <Route path="/novel/:novelId/chapter/:chapterId/edit" element={<EditChapterPage />} />
+          <Route path="/novel/create" element={<AuthGuard><CreateNovelPage /></AuthGuard>} />
+          <Route path="/novel/edit/:id" element={<AuthGuard><EditNovelPage /></AuthGuard>} />
+          <Route path="/novel/manage/:id" element={<AuthGuard><NovelManagePage /></AuthGuard>} />
+          <Route path="/novel/:novelId/create-chapter" element={<AuthGuard><CreateChapterPage /></AuthGuard>} />
+          <Route path="/novel/:novelId/chapter/:chapterId/edit" element={<AuthGuard><EditChapterPage /></AuthGuard>} />
           <Route path="/onboarding" element={<OnboardingPage />} />
 
           {/* Discovery Routes */}

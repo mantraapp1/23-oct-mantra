@@ -58,8 +58,7 @@ export default function WalletWithdrawPage() {
             if (stored) {
                 setSavedAddresses(JSON.parse(stored));
             }
-        } catch (error) {
-            console.error('Error loading saved addresses:', error);
+        } catch {
         }
     };
 
@@ -67,8 +66,7 @@ export default function WalletWithdrawPage() {
         try {
             localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(addresses));
             setSavedAddresses(addresses);
-        } catch (error) {
-            console.error('Error saving addresses:', error);
+        } catch {
         }
     };
 

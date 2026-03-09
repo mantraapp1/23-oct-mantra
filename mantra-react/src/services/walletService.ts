@@ -44,8 +44,7 @@ class WalletService {
             }
 
             return data;
-        } catch (error) {
-            console.error('Error getting wallet:', error);
+        } catch {
             return null;
         }
     }
@@ -76,8 +75,7 @@ class WalletService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting transactions:', error);
+        } catch {
             return [];
         }
     }
@@ -155,8 +153,7 @@ class WalletService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting saved addresses:', error);
+        } catch {
             return [];
         }
     }
@@ -175,8 +172,7 @@ class WalletService {
 
             if (error) throw error;
             return data;
-        } catch (error) {
-            console.error('Error getting default address:', error);
+        } catch {
             return null;
         }
     }
@@ -351,8 +347,7 @@ class WalletService {
 
             if (error) throw error;
             return data || [];
-        } catch (error) {
-            console.error('Error getting withdrawal requests:', error);
+        } catch {
             return [];
         }
     }
@@ -398,8 +393,7 @@ class WalletService {
                 novel_id,
                 ...data,
             }));
-        } catch (error) {
-            console.error('Error getting earnings by novel:', error);
+        } catch {
             return [];
         }
     }

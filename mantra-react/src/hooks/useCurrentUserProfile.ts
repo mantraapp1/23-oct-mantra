@@ -55,12 +55,10 @@ export function useCurrentUserProfile() {
 
                 if (error) {
                     // If error (e.g. no profile row), keep metadata version if it exists
-                    console.error('Error fetching profile:', error);
                 } else {
                     setProfile(data);
                 }
-            } catch (err) {
-                console.error('Failed to fetch profile', err);
+            } catch {
             } finally {
                 setLoading(false);
             }

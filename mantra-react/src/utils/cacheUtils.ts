@@ -8,20 +8,16 @@ export async function unregisterAllServiceWorkers(): Promise<void> {
 
             for (const registration of registrations) {
                 await registration.unregister();
-                console.log('[SW] Unregistered service worker:', registration.scope);
             }
 
             if (registrations.length > 0) {
-                console.log('[SW] All service workers unregistered. Reloading...');
                 // Clear all caches
                 if ('caches' in window) {
                     const cacheNames = await caches.keys();
                     await Promise.all(cacheNames.map(name => caches.delete(name)));
-                    console.log('[SW] All caches cleared');
                 }
             }
-        } catch (error) {
-            console.error('[SW] Error unregistering service workers:', error);
+        } catch {
         }
     }
 }
@@ -32,10 +28,8 @@ export async function clearAllCaches(): Promise<void> {
         if ('caches' in window) {
             const cacheNames = await caches.keys();
             await Promise.all(cacheNames.map(name => caches.delete(name)));
-            console.log('[Cache] All caches cleared');
         }
-    } catch (error) {
-        console.error('[Cache] Error clearing caches:', error);
+    } catch {
     }
 }
 

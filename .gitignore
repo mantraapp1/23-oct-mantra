@@ -20,3 +20,6 @@ build/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Sensitive files
+database details.txt

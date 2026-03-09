@@ -6,12 +6,14 @@ import { Sun, Moon } from 'lucide-react';
 import UserAvatar from '@/components/common/UserAvatar';
 import { Button } from '@/components/ui/Button';
 import { getUserDisplayName } from '@/lib/utils/profileUtils';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 export default function Header() {
     const { user, profile, isLoading: authLoading } = useAuth();
     const { resolvedTheme, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const { unreadCount } = useNotifications();
 
     useEffect(() => {
         // Scroll listener for header shadow
@@ -48,10 +50,10 @@ export default function Header() {
                                 />
                             </div>
                             <div className="flex flex-col justify-center">
-                                <span className="text-lg md:text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-indigo-600 leading-none tracking-tight">
+                                <span className="text-xl md:text-2xl font-serif font-bold text-sky-500 leading-none tracking-tight italic">
                                     Mantra
                                 </span>
-                                <span className="text-[0.6rem] md:text-[0.65rem] font-medium text-[var(--primary)] uppercase tracking-wider leading-none mt-0.5">
+                                <span className="text-[0.6rem] md:text-[0.65rem] font-semibold text-sky-600/80 uppercase tracking-widest leading-none mt-0.5 ml-1">
                                     Novel
                                 </span>
                             </div>
@@ -102,11 +104,14 @@ export default function Header() {
                         {user ? (
                             <>
                                 {/* Notifications */}
-                                <Link to="/notifications" className="hidden md:block">
+                                <Link to="/notifications">
                                     <Button variant="ghost" size="icon" className="rounded-full text-[var(--foreground-secondary)] hover:text-[var(--foreground)] relative">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                         </svg>
+                                        {unreadCount > 0 && (
+                                            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[var(--background)]" />
+                                        )}
                                     </Button>
                                 </Link>
 

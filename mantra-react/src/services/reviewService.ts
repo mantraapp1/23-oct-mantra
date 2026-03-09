@@ -82,7 +82,6 @@ class ReviewService {
                 total: count || 0
             };
         } catch (error) {
-            console.error('Error fetching reviews:', error);
             throw new Error(handleSupabaseError(error as any));
         }
     }
@@ -103,8 +102,7 @@ class ReviewService {
 
             if (error) throw error;
             return data as ReviewWithUser;
-        } catch (error) {
-            console.error('Error fetching review:', error);
+        } catch {
             return null;
         }
     }
@@ -135,7 +133,6 @@ class ReviewService {
             if (error) throw error;
             return data as Review;
         } catch (error) {
-            console.error('Error creating review:', error);
             throw new Error(handleSupabaseError(error as any));
         }
     }
@@ -163,7 +160,6 @@ class ReviewService {
             if (error) throw error;
             return data as Review;
         } catch (error) {
-            console.error('Error updating review:', error);
             throw new Error(handleSupabaseError(error as any));
         }
     }
@@ -180,7 +176,6 @@ class ReviewService {
 
             if (error) throw error;
         } catch (error) {
-            console.error('Error deleting review:', error);
             throw new Error(handleSupabaseError(error as any));
         }
     }
@@ -198,8 +193,7 @@ class ReviewService {
 
             if (error) throw error;
             return (count || 0) > 0;
-        } catch (error) {
-            console.error('Error checking user review:', error);
+        } catch {
             return false;
         }
     }
@@ -272,7 +266,6 @@ class ReviewService {
 
             return { success: true, newState };
         } catch (error) {
-            console.error('Error voting on review:', error);
             throw new Error(handleSupabaseError(error as any));
         }
     }
@@ -294,7 +287,6 @@ class ReviewService {
                 .single();
 
             if (fetchError || !currentReview) {
-                console.error('Error fetching review for count update:', fetchError);
                 return;
             }
 
@@ -314,10 +306,8 @@ class ReviewService {
                 .eq('id', reviewId);
 
             if (updateError) {
-                console.error('Error updating review counts:', updateError);
             }
-        } catch (err) {
-            console.error('Exception updating review counts:', err);
+        } catch {
         }
     }
 }
