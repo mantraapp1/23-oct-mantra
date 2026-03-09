@@ -30,6 +30,26 @@ This is the most critical step. The default template might send a "Magic Link" i
 
   > **Note**: Do not use `{{ .ConfirmationURL }}` if you want to force OTP entry in the app.
 
-## 3. Verify SMTP (Optional but Recommended)
-- For production, use a custom SMTP server (like AWS SES, Resend, or SendGrid) to ensure emails are delivered to the Inbox and not Spam.
-- Go to **Settings** -> **SMTP Settings** to configure this.
+## 3. FIXING 500 ERROR: ENABLE CUSTOM SMTP (RESEND)
+If you see a **500 Error** or "Error sending confirmation email", it means you have hit Supabase's built-in email rate limit (3 emails per hour). You **MUST** set up a custom SMTP provider like **Resend** (it's free and takes 5 mins).
+
+### Step-by-Step with [Resend.com](https://resend.com):
+1.  **Create account**: Go to [resend.com](https://resend.com) and sign up.
+2.  **Get API Key**: Go to **API Keys** in Resend and create one.
+3.  **Supabase Settings**:
+    *   Go to **Project Settings** -> **Authentication**.
+    *   Scroll down to **SMTP Settings**.
+    *   **Enable SMTP**: Toggle this ON.
+    *   **Sender Email**: Use the email you verified in Resend (or `onboarding@resend.dev` for testing).
+    *   **Sender Name**: `Mantra App`
+    *   **SMTP Host**: `smtp.resend.com`
+    *   **SMTP Port**: `587`
+    *   **SMTP User**: `resend`
+    *   **SMTP Password**: Paste your **Resend API Key** here.
+4.  **Save** and try signing up again.
+
+---
+
+## 4. Final Verification
+1.  **Onboarding Loop Fixed**: I fixed a bug in `AppLayout.tsx` that was skipping the OTP page.
+2.  **Profile Creation**: I added a Database Trigger (`ADD_AUTH_TRIGGER.sql`) so your profile is created even if verification is pending.

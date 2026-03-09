@@ -46,43 +46,28 @@ export default function SignupPage() {
         }
 
         console.log('[Signup] Success:', data);
+        console.log('[Signup] Session?', !!data.session, 'User?', !!data.user);
+        console.log('[Signup] email_confirmed_at:', data.user?.email_confirmed_at);
 
         if (data.user) {
-            console.log('[Signup] Creating profile for:', data.user.id);
-            await supabase.from('profiles').upsert({
-                id: data.user.id,
-                username,
-                email,
-            });
-        }
-
-
-        if (data.session) {
-            console.log('[Signup] Session created immediately.', data.session);
-
-            // Check if email is actually confirmed
-            const isEmailConfirmed = data.session.user.email_confirmed_at || data.session.user.phone_confirmed_at; // simplistic check, detailed check below
-
-            if (isEmailConfirmed) {
-                console.log('[Signup] User is confirmed. Redirecting to onboarding.');
-                setIsLoading(false);
-                navigate('/onboarding');
-            } else {
-                console.warn('[Signup] Session exists but email NOT confirmed? Redirecting to verify.');
-                // This path is unusual but handling it just in case
-                setIsLoading(false);
-                navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
+            // Try to create profile (may fail if no session, that's OK - the DB trigger handles it)
+            try {
+                await supabase.from('profiles').upsert({
+                    id: data.user.id,
+                    username,
+                    email,
+                });
+            } catch (profileErr) {
+                console.warn('[Signup] Profile upsert failed (expected if no session):', profileErr);
             }
-        } else if (data.user && !data.session) {
-            console.log('[Signup] User created but no session (Email verification required)');
-            // Email verification is enabled, user needs to verify
-            setIsLoading(false);
-            navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
-        } else {
-            console.warn('[Signup] Unexpected state: No user and no session');
-            setError('Something went wrong during signup. Please try again.');
-            setIsLoading(false);
         }
+
+        // ALWAYS redirect to verify-email after signup
+        // The verify-email page will handle both cases:
+        // 1. Email confirmation enabled: user enters OTP
+        // 2. Email confirmation disabled: page detects session and auto-redirects
+        setIsLoading(false);
+        navigate(`/verify-email?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`);
     };
 
 

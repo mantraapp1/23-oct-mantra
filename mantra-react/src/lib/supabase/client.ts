@@ -41,7 +41,7 @@ export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
         detectSessionInUrl: true,
         storage: window.localStorage,
         storageKey: 'supabase.auth.token',
-        flowType: 'pkce',
+        flowType: 'implicit',
     },
     realtime: {
         timeout: 60000

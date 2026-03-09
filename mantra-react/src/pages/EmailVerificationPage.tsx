@@ -13,6 +13,7 @@ export default function EmailVerificationPage() {
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isResending, setIsResending] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(60);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -20,7 +21,29 @@ export default function EmailVerificationPage() {
     // Auto-focus first input on mount
     useEffect(() => {
         inputRefs.current[0]?.focus();
-    }, []);
+
+        // Check if user is already verified (e.g. forced redirect from signup but backend auto-confirmed)
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const isConfirmed = session.user.email_confirmed_at || session.user.phone_confirmed_at;
+                if (isConfirmed) {
+                    console.log('[Verify] User already confirmed. Redirecting to onboarding.');
+                    navigate('/onboarding', { replace: true });
+                }
+            }
+        };
+        checkSession();
+    }, [navigate]);
+
+    // Resend cooldown timer
+    useEffect(() => {
+        if (resendCooldown <= 0) return;
+        const timer = setInterval(() => {
+            setResendCooldown((prev) => prev - 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [resendCooldown]);
 
     const handleOtpChange = (value: string, index: number) => {
         // Only allow single digit
@@ -115,6 +138,7 @@ export default function EmailVerificationPage() {
 
             setSuccess('Verification code sent to your email');
             setOtp(['', '', '', '', '', '']);
+            setResendCooldown(60);
             inputRefs.current[0]?.focus();
         } catch (err: any) {
             setError(err.message || 'Failed to resend code. Please try again.');
@@ -196,10 +220,10 @@ export default function EmailVerificationPage() {
                             Didn't receive the code?{' '}
                             <button
                                 onClick={handleResend}
-                                disabled={isResending}
+                                disabled={isResending || resendCooldown > 0}
                                 className="text-[var(--primary)] font-bold hover:underline disabled:opacity-50"
                             >
-                                {isResending ? 'Sending...' : 'Resend'}
+                                {isResending ? 'Sending...' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend'}
                             </button>
                         </div>
                     </div>
