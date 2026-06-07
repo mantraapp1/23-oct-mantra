@@ -10,7 +10,7 @@ export default function Footer() {
                         <Link to="/" className="flex items-center gap-3 group mb-4">
                             <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-200">
                                 <img
-                                    src="/logo.jpeg"
+                                    src="/logo-circle.png"
                                     alt="Mantra Logo"
                                     className="w-full h-full object-cover"
                                 />

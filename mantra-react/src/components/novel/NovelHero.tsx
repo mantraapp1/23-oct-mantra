@@ -203,7 +203,7 @@ export default function NovelHero({ novel, chapters = [], children, onVoteChange
                                     <div className="text-[11px] sm:text-xs text-foreground-secondary">Votes</div>
                                 </div>
                                 <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
-                                    <div className="text-sm sm:text-base font-bold text-foreground">{novel.total_chapters || '0'}</div>
+                                    <div className="text-sm sm:text-base font-bold text-foreground">{chapters.length || novel.total_chapters || '0'}</div>
                                     <div className="text-[11px] sm:text-xs text-foreground-secondary">Chapters</div>
                                 </div>
                             </div>

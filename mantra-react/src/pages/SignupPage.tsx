@@ -43,7 +43,35 @@ export default function SignupPage() {
             return;
         }
 
+        // Check if username is already taken
+        const { data: usernameCheck, error: usernameError } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('username', username)
+            .limit(1);
 
+        if (usernameError) {
+            console.error('Error checking username:', usernameError);
+        } else if (usernameCheck && usernameCheck.length > 0) {
+            setError('Username is already taken');
+            setIsLoading(false);
+            return;
+        }
+
+        // Check if email is already registered
+        const { data: emailCheck, error: emailError } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email)
+            .limit(1);
+
+        if (emailError) {
+            console.error('Error checking email:', emailError);
+        } else if (emailCheck && emailCheck.length > 0) {
+            setError('Email is already registered');
+            setIsLoading(false);
+            return;
+        }
 
         // Sign up
         const { data, error } = await supabase.auth.signUp({
@@ -65,7 +93,7 @@ export default function SignupPage() {
 
 
 
-        if (data.user) {
+        if (data.user && data.session) {
             // Try to create profile (may fail if no session, that's OK - the DB trigger handles it)
             try {
                 await supabase.from('profiles').upsert({
@@ -94,7 +122,7 @@ export default function SignupPage() {
                 <section className="h-full">
                     <div className="px-6 py-10 md:px-10 md:py-12">
                         <div className="mb-8 text-center md:text-left">
-                            <img src="/logo.jpeg" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
+                            <img src="/logo-circle.png" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
                             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Create account</h1>
                             <p className="text-[var(--foreground-secondary)] text-sm mt-2">Join us and start reading today</p>
                         </div>

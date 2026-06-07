@@ -163,7 +163,7 @@ export default function AuthorDashboardPage() {
                                                 {novel.title}
                                             </h3>
                                             <p className="text-xs text-foreground-secondary mt-1">
-                                                {novel.total_chapters || 0} chapters · {formatViews(novel.total_views || 0)} views
+                                                {novel.chapters?.[0]?.count ?? novel.total_chapters ?? 0} chapters · {formatViews(novel.total_views || 0)} views
                                             </p>
                                         </button>
 

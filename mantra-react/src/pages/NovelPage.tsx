@@ -100,7 +100,7 @@ export default function NovelPage() {
                         .select('id, title, chapter_number, created_at:published_at, views')
                         .eq('novel_id', id)
                         .order('chapter_number', { ascending: true })
-                        .then(({ data, error }) => {
+                        .then(({ data }) => {
                             if (data) setChapters(data);
                         });
 

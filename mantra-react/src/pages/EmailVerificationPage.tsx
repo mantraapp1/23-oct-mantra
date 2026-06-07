@@ -22,6 +22,16 @@ export default function EmailVerificationPage() {
 
     // Auto-focus first input on mount
     useEffect(() => {
+        if (!email) {
+            setError('No email address provided. Redirecting to signup...');
+            const timer = setTimeout(() => {
+                navigate('/signup');
+            }, 3000);
+            return () => {
+                clearTimeout(timer);
+            };
+        }
+
         inputRefs.current[0]?.focus();
 
         // Check if user is already verified (e.g. forced redirect from signup but backend auto-confirmed)
@@ -36,7 +46,7 @@ export default function EmailVerificationPage() {
             }
         };
         checkSession();
-    }, [navigate]);
+    }, [navigate, email]);
 
     // Resend cooldown timer
     useEffect(() => {
@@ -165,7 +175,7 @@ export default function EmailVerificationPage() {
 
                         {/* Header */}
                         <div className="mb-8 text-center md:text-left">
-                            <img src="/logo.jpeg" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
+                            <img src="/logo-circle.png" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
                             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Verify your email</h1>
                             <p className="text-[var(--foreground-secondary)] text-sm mt-2">
                                 Enter the 6-digit code sent to <span className="font-medium text-[var(--foreground)]">{email}</span>

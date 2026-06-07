@@ -799,83 +799,30 @@ export async function logDistribution(logEntry: StellarDistributionLog): Promise
 // =========================================================
 
 /**
- * Call Supabase function to expire chapter unlocks
- */
-export async function expireChapterUnlocks(): Promise<number> {
-    try {
-        const { error } = await supabase.rpc('expire_chapter_unlocks');
-
-        if (error) {
-            log(LogLevel.ERROR, 'Failed to expire unlocks', { error: error.message });
-            throw new Error(`Failed to expire unlocks: ${error.message}`);
-        }
-
-        // Get count of recently expired unlocks
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-        const { count } = await supabase
-            .from('chapter_unlocks')
-            .select('*', { count: 'exact', head: true })
-            .eq('is_expired', true)
-            .gte('expiration_timestamp', oneHourAgo);
-
-        log(LogLevel.INFO, 'Expired chapter unlocks', { count: count || 0 });
-        return count || 0;
-    } catch (error: any) {
-        log(LogLevel.ERROR, 'expire_chapter_unlocks failed', { error: error.message });
-        throw error;
-    }
-}
-
-/**
- * Call Supabase function to process expired timers
- */
-export async function processExpiredTimers(): Promise<number> {
-    try {
-        const { error } = await supabase.rpc('process_expired_timers');
-
-        if (error) {
-            log(LogLevel.ERROR, 'Failed to process timers', { error: error.message });
-            throw new Error(`Failed to process timers: ${error.message}`);
-        }
-
-        // Get count of recently processed timers
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-        const { count } = await supabase
-            .from('chapter_timers')
-            .select('*', { count: 'exact', head: true })
-            .eq('is_active', false)
-            .gte('timer_expiration_timestamp', oneHourAgo);
-
-        log(LogLevel.INFO, 'Processed expired timers', { count: count || 0 });
-        return count || 0;
-    } catch (error: any) {
-        log(LogLevel.ERROR, 'process_expired_timers failed', { error: error.message });
-        throw error;
-    }
-}
-
-/**
  * Get author earnings statistics
  */
 export async function getAuthorEarningsStats(authorId: string) {
     const wallet = await getOrCreateWallet(authorId);
 
     const { count: unpaidCount } = await supabase
-        .from('ads_view_records')
+        .from('chapter_views_for_payment')
         .select('*', { count: 'exact', head: true })
         .eq('author_id', authorId)
-        .eq('payment_status', 'pending');
+        .eq('paid', false);
 
     const { count: totalCount } = await supabase
-        .from('ads_view_records')
+        .from('chapter_views_for_payment')
         .select('*', { count: 'exact', head: true })
         .eq('author_id', authorId);
 
     return {
         authorId,
-        totalAdViews: totalCount || 0,
-        unpaidAdViews: unpaidCount || 0,
-        paidAdViews: (totalCount || 0) - (unpaidCount || 0),
+        totalChapterViews: totalCount || 0,
+        unpaidChapterViews: unpaidCount || 0,
+        paidChapterViews: (totalCount || 0) - (unpaidCount || 0),
+        totalAdViews: totalCount || 0, // Legacy support
+        unpaidAdViews: unpaidCount || 0, // Legacy support
+        paidAdViews: (totalCount || 0) - (unpaidCount || 0), // Legacy support
         totalEarnings: wallet.total_earned,
         pendingEarnings: 0, // Dynamic rate - calculated at distribution time based on admin wallet balance
         withdrawnAmount: wallet.total_withdrawn,

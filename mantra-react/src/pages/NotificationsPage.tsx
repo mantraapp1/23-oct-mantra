@@ -96,7 +96,7 @@ export default function NotificationsPage() {
         <div className="max-w-[1800px] mx-auto px-4 py-6 font-inter text-foreground min-h-screen pb-20">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate('/profile')} className="p-2 -ml-2 hover:bg-background-secondary rounded-full items-center justify-center flex transition-colors">
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 hover:bg-background-secondary rounded-full items-center justify-center flex transition-colors">
                         <ChevronLeft className="w-6 h-6 text-foreground-secondary" />
                     </button>
                     <h1 className="text-2xl font-bold text-foreground">Notifications</h1>

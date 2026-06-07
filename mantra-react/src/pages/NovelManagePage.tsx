@@ -350,7 +350,7 @@ export default function NovelManagePage() {
                                     {[
                                         { label: 'Total Views', value: formatNumber(novel.total_views || 0), icon: Eye, color: 'text-sky-500' },
                                         { label: 'Total Votes', value: formatNumber(novel.total_votes || 0), icon: ThumbsUp, color: 'text-amber-500' },
-                                        { label: 'Chapters', value: novel.total_chapters || 0, icon: BookOpen, color: 'text-indigo-500' },
+                                        { label: 'Chapters', value: chapters.length, icon: BookOpen, color: 'text-indigo-500' },
                                         { label: 'Rating', value: novel.average_rating?.toFixed(1) || '0.0', icon: Star, color: 'text-amber-400' },
                                     ].map((stat, i) => (
                                         <div key={i} className="bg-card border border-border rounded-xl p-5 flex flex-col justify-between h-28 hover:border-sky-500/30 transition-colors">
@@ -407,13 +407,13 @@ export default function NovelManagePage() {
                                             <div className="flex justify-between items-center text-sm">
                                                 <span className="text-muted-foreground flex items-center gap-2"><Eye className="w-4 h-4" /> Avg. Views / Chapter</span>
                                                 <span className="font-bold text-foreground">
-                                                    {novel.total_chapters > 0
-                                                        ? formatNumber(Math.round((novel.total_views || 0) / novel.total_chapters))
+                                                    {chapters.length > 0
+                                                        ? formatNumber(Math.round((novel.total_views || 0) / chapters.length))
                                                         : '0'}
                                                 </span>
                                             </div>
                                             {(() => {
-                                                const avgViews = novel.total_chapters > 0 ? Math.round((novel.total_views || 0) / novel.total_chapters) : 0;
+                                                const avgViews = chapters.length > 0 ? Math.round((novel.total_views || 0) / chapters.length) : 0;
                                                 const stats = getProgressStats(avgViews);
                                                 return (
                                                     <div className="space-y-1">

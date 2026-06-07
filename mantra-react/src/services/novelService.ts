@@ -263,7 +263,7 @@ class NovelService {
         try {
             let query = supabase
                 .from('novels')
-                .select('*')
+                .select('*, chapters(count)')
                 .eq('author_id', authorId);
 
             query = paginateQuery(query, page, pageSize);
@@ -272,7 +272,7 @@ class NovelService {
             const { data, error } = await query;
 
             if (error) throw error;
-            return data || [];
+            return (data as any) || [];
         } catch {
             return [];
         }

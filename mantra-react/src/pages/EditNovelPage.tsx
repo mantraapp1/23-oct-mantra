@@ -209,7 +209,7 @@ export default function EditNovelPage() {
 
             if (result.success) {
                 toast.success('Novel updated successfully!');
-                navigate(`/novel/${id}`, { replace: true });
+                navigate(`/novel/manage/${id}`, { replace: true });
             } else {
                 toast.error(result.message);
             }

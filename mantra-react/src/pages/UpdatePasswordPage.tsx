@@ -135,7 +135,7 @@ export default function UpdatePasswordPage() {
                             Back to Login
                         </Link>
                         <div className="mb-8 text-center md:text-left">
-                            <img src="/logo.jpeg" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
+                            <img src="/logo-circle.png" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
                             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Set new password</h1>
                             <p className="text-[var(--foreground-secondary)] text-sm mt-2">Enter your new password below</p>
                         </div>

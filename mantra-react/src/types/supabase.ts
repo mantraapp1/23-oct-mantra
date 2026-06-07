@@ -45,6 +45,7 @@ export interface Novel {
     created_at: string;
     updated_at: string;
     completed_at: string | null;
+    chapters?: { count: number }[];
 }
 
 export interface Chapter {

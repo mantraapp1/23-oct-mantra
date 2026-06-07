@@ -49,7 +49,7 @@ export default function LoginPage() {
                 <section className="h-full">
                     <div className="px-6 py-10 md:px-10 md:py-12">
                         <div className="mb-8 text-center md:text-left">
-                            <img src="/logo.jpeg" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
+                            <img src="/logo-circle.png" alt="Mantra" className="h-12 w-12 mb-6 rounded-xl mx-auto md:mx-0 shadow-lg shadow-sky-500/20" />
                             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Welcome back</h1>
                             <p className="text-[var(--foreground-secondary)] text-sm mt-2">Sign in to continue your reading journey</p>
                         </div>

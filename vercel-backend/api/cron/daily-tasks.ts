@@ -21,9 +21,9 @@ import {
     getExplorerUrl
 } from '../../lib/stellar';
 import {
-    getUnpaidAdViewsByAuthor,
-    markAdViewsAsPaid,
-    updateWalletBalance,
+    getUnpaidViewsByAuthor,
+    markViewsAsPaid,
+    updateWalletBalanceForViews,
     createEarningTransaction,
     getApprovedWithdrawals,
     getRejectedWithdrawals,
@@ -33,8 +33,6 @@ import {
     createWithdrawalTransaction,
     lockWithdrawalForProcessing,
     isWithdrawalProcessed,
-    expireChapterUnlocks,
-    processExpiredTimers,
     logDistribution,
 } from '../../lib/supabase';
 import { notifyAuthorEarnings, notifyWithdrawalStatus } from '../../lib/notifications';
@@ -123,46 +121,7 @@ export default async function handler(
     }
 
     // =========================================================
-    // TASK 3: Expire chapter unlocks
-    // =========================================================
-    try {
-        const expiredCount = await expireChapterUnlocks();
-        result.tasks.push({
-            taskName: 'expire_chapter_unlocks',
-            success: true,
-            affectedRows: expiredCount,
-        });
-        result.totalSuccess++;
-    } catch (error: any) {
-        logError('expire_chapter_unlocks', error);
-        result.tasks.push({
-            taskName: 'expire_chapter_unlocks',
-            success: false,
-            error: error.message,
-        });
-        result.totalFailed++;
-    }
 
-    // =========================================================
-    // TASK 4: Process expired timers
-    // =========================================================
-    try {
-        const timerCount = await processExpiredTimers();
-        result.tasks.push({
-            taskName: 'process_expired_timers',
-            success: true,
-            affectedRows: timerCount,
-        });
-        result.totalSuccess++;
-    } catch (error: any) {
-        logError('process_expired_timers', error);
-        result.tasks.push({
-            taskName: 'process_expired_timers',
-            success: false,
-            error: error.message,
-        });
-        result.totalFailed++;
-    }
 
     // =========================================================
     // TASK 5: Process rejected withdrawals (refund balance)
@@ -206,14 +165,14 @@ export default async function handler(
  */
 async function distributeEarningsToAuthors(): Promise<DistributionResult> {
     // NOTE: Removed hasDistributedToday() check
-    // The ads being marked as 'paid' IS the idempotency guard
+    // The views being marked as 'paid' IS the idempotency guard
     // This allows retries to process remaining authors if previous run didn't complete all
 
-    // Get ALL unpaid ad views grouped by author (uses pagination internally)
-    const adViewsByAuthor = await getUnpaidAdViewsByAuthor();
+    // Get ALL unpaid views grouped by author (uses pagination internally)
+    const viewsByAuthor = await getUnpaidViewsByAuthor();
 
-    if (adViewsByAuthor.size === 0) {
-        log(LogLevel.INFO, 'No unpaid ad views to distribute');
+    if (viewsByAuthor.size === 0) {
+        log(LogLevel.INFO, 'No unpaid chapter views to distribute');
         return {
             totalDistributed: 0,
             totalAdViews: 0,
@@ -222,11 +181,11 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         };
     }
 
-    // CRITICAL: Calculate rate using ALL pending ads for FAIR distribution
-    // This must happen BEFORE any limiting for timeout protection
-    let totalAdViewsGlobal = 0;
-    for (const [, views] of adViewsByAuthor.entries()) {
-        totalAdViewsGlobal += views.length;
+    // CRITICAL: Calculate rate using ALL pending views globally, not just processed ones.
+    // This ensures every author gets the same rate per view.
+    let totalViewsGlobal = 0;
+    for (const [, views] of viewsByAuthor.entries()) {
+        totalViewsGlobal += views.length;
     }
 
     // Check admin wallet balance BEFORE processing
@@ -236,8 +195,8 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
     log(LogLevel.INFO, 'Admin wallet status', {
         balance: adminBalance,
         minRequired: MIN_ADMIN_BALANCE,
-        totalAuthors: adViewsByAuthor.size,
-        totalAdViews: totalAdViewsGlobal
+        totalAuthors: viewsByAuthor.size,
+        totalAdViews: totalViewsGlobal
     });
 
     // Calculate distributable amount (100% of balance minus reserve for wallet minimum)
@@ -250,62 +209,62 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         });
         return {
             totalDistributed: 0,
-            totalAdViews: totalAdViewsGlobal,
-            authorCount: adViewsByAuthor.size,
+            totalAdViews: totalViewsGlobal,
+            authorCount: viewsByAuthor.size,
             distributions: [],
         };
     }
 
-    // Calculate GLOBAL rate: pool / ALL pending ads
+    // Calculate GLOBAL rate: pool / ALL pending views
     // EVERY author gets this SAME rate - fair distribution
-    const ratePerView = distributableBalance / totalAdViewsGlobal;
+    const ratePerView = distributableBalance / totalViewsGlobal;
 
     log(LogLevel.INFO, 'Global rate calculated (fair distribution)', {
         distributableBalance,
-        totalAdViewsGlobal,
+        totalAdViewsGlobal: totalViewsGlobal,
         ratePerView,
-        totalAuthors: adViewsByAuthor.size
+        totalAuthors: viewsByAuthor.size
     });
 
     // Limit authors per run for Vercel 10s timeout protection
     // But rate was already calculated globally, so this is fair
-    const authorEntries = Array.from(adViewsByAuthor.entries()).slice(0, MAX_AUTHORS_PER_RUN);
+    const authorEntries = Array.from(viewsByAuthor.entries()).slice(0, MAX_AUTHORS_PER_RUN);
 
-    // Count ads in this batch
-    let adViewsThisBatch = 0;
+    // Count views in this batch
+    let viewsThisBatch = 0;
     for (const [, views] of authorEntries) {
-        adViewsThisBatch += views.length;
+        viewsThisBatch += views.length;
     }
 
     log(LogLevel.INFO, 'Processing batch', {
         authorsInBatch: authorEntries.length,
-        totalAuthors: adViewsByAuthor.size,
-        adsInBatch: adViewsThisBatch,
-        totalAds: totalAdViewsGlobal
+        totalAuthors: viewsByAuthor.size,
+        adsInBatch: viewsThisBatch,
+        totalAds: totalViewsGlobal
     });
 
     // Process each author
     const distributions: AuthorDistribution[] = [];
     let successfulDistributions = 0;
 
-    for (const [authorId, adViews] of authorEntries) {
-        const authorViewCount = adViews.length;
+    for (const [authorId, views] of authorEntries) {
+        const authorViewCount = views.length;
         const authorShare = authorViewCount * ratePerView;
-        const adViewIds = adViews.map(v => v.id);
+        const viewIds = views.map(v => v.id);
 
         try {
-            // CRITICAL: Mark ads as paid FIRST to prevent double-payment on retry
-            // This is the idempotency guard - if this succeeds, ads can't be reprocessed
-            const markedCount = await markAdViewsAsPaid(adViewIds);
+            // CRITICAL: Mark views as paid FIRST to prevent double-payment on retry
+            // This is the idempotency guard - if this succeeds, views can't be reprocessed
+            const markedCount = await markViewsAsPaid(viewIds, authorShare);
 
             if (markedCount === 0) {
-                // All ads were already paid (possible duplicate run)
-                log(LogLevel.WARN, 'Skipping author - all ads already paid', { authorId });
+                // All views were already paid (possible duplicate run)
+                log(LogLevel.WARN, 'Skipping author - all views already paid', { authorId });
                 continue;
             }
 
-            // Now safe to credit wallet (ads are already marked as paid)
-            await updateWalletBalance(authorId, authorShare, authorViewCount);
+            // Now safe to credit wallet (views are already marked as paid)
+            await updateWalletBalanceForViews(authorId, authorShare, authorViewCount);
 
             // Create transaction record (with duplicate check using idempotency key)
             await createEarningTransaction(
@@ -348,7 +307,7 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
     // Log distribution
     const result: DistributionResult = {
         totalDistributed: successfulDistributions > 0 ? distributableBalance : 0,
-        totalAdViews: totalAdViewsGlobal,
+        totalAdViews: totalViewsGlobal,
         authorCount: successfulDistributions,
         distributions,
     };
@@ -357,14 +316,14 @@ async function distributeEarningsToAuthors(): Promise<DistributionResult> {
         await logDistribution({
             total_deposited: adminBalance,
             total_distributed: distributableBalance,
-            total_ad_views: totalAdViewsGlobal,
+            total_ad_views: totalViewsGlobal,
             distribution_details: result,
         });
 
         log(LogLevel.INFO, 'Distribution completed', {
             authorCount: successfulDistributions,
             totalDistributed: distributableBalance,
-            totalAdViews: totalAdViewsGlobal
+            totalAdViews: totalViewsGlobal
         });
     }
 
