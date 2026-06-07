@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Settings, Menu, Share2, Flag, BookOpen, User, Edit3, Trash2 } from 'lucide-react';
 import ChapterComments from '@/components/novel/ChapterComments';
-import AdSenseAd, { BeforeContentAd, InContentAd, AfterContentAd, SidebarAd, MultiplexAd } from '@/components/ads/AdSenseAd';
 import chapterService from '@/services/chapterService';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/DialogContext';
@@ -290,21 +289,10 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                 </div>
             )}
 
-            {/* Reading Area with Sidebar Ads */}
+            {/* Reading Area */}
             <div className="flex justify-center gap-4 pt-20 px-2 md:px-4">
-                {/* Left Ad Sidebar - Desktop only */}
-                <SidebarAd position="left" className="hidden xl:block" />
-
                 {/* Main Content */}
                 <main className="w-full max-w-[800px] pb-32 px-1 md:px-4">
-                    {/* BEFORE CONTENT AD - Horizontal banner */}
-                    <BeforeContentAd className="hidden md:block" />
-
-                    {/* Mobile: Rectangle ad before content */}
-                    <div className="md:hidden mb-4">
-                        <AdSenseAd format="rectangle" position="before-content" />
-                    </div>
-
                     <div
                         className="prose max-w-none transition-all duration-300"
                         style={{
@@ -313,11 +301,8 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                             color: 'inherit'
                         }}
                     >
-                        <ContentWithAds content={chapter.content} theme={theme} />
+                        <ContentWithAds content={chapter.content} />
                     </div>
-
-                    {/* AFTER CONTENT AD */}
-                    <AfterContentAd />
 
                     {/* Chapter Navigation */}
                     <div className={`flex items-center gap-4 py-6 border-t border-b ${theme === 'dark' ? 'border-gray-800' : theme === 'sepia' ? 'border-[#e6dec1]' : 'border-slate-200'}`}>
@@ -357,51 +342,29 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
                         )}
                     </div>
 
-                    {/* MULTIPLEX AD - Recommended content style ads */}
-                    <MultiplexAd />
-
                     {/* Comments Section */}
                     <div className="mt-4">
                         <ChapterComments chapterId={chapter.id} currentUser={currentUser} theme={theme} />
                     </div>
                 </main>
-
-                {/* Right Ad Sidebar - Desktop only */}
-                <SidebarAd position="right" className="hidden xl:block" />
             </div>
         </div>
     );
 }
 
 /**
- * Component that inserts ads within the chapter content strategically
- * Inserts in-content ads at ~40% and ~75% of content for optimal revenue
+ * Component that displays the chapter content
  */
-function ContentWithAds({ content, theme: _theme }: { content: string; theme: 'light' | 'sepia' | 'dark' }) {
+function ContentWithAds({ content }: { content: string }) {
     const paragraphs = useMemo(() => {
         // Split content into paragraphs
-        const lines = content.split('\n\n').filter(p => p.trim());
-        return lines;
+        return content.split('\n\n').filter(p => p.trim());
     }, [content]);
-
-    // Calculate ad insertion points
-    const adPositions = useMemo(() => {
-        const total = paragraphs.length;
-        if (total < 6) return []; // No in-content ads for short chapters
-        if (total < 12) return [Math.floor(total * 0.5)]; // One ad at 50%
-        // Two ads at ~40% and ~75% for longer chapters
-        return [Math.floor(total * 0.4), Math.floor(total * 0.75)];
-    }, [paragraphs.length]);
 
     return (
         <div className="whitespace-pre-wrap">
             {paragraphs.map((paragraph, index) => (
-                <div key={index}>
-                    <p className="mb-4">{paragraph}</p>
-                    {adPositions.includes(index + 1) && (
-                        <InContentAd className="my-6" />
-                    )}
-                </div>
+                <p key={index} className="mb-4">{paragraph}</p>
             ))}
         </div>
     );

@@ -5,8 +5,6 @@ import { supabase } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import novelService from '@/services/novelService';
 import { trackUniqueView } from '@/utils/viewTracker';
-import { detectAdBlocker } from '@/utils/adBlocker';
-import { AlertTriangle } from 'lucide-react';
 import SEO from '@/components/seo/SEO';
 
 export default function ChapterPage() {
@@ -18,16 +16,6 @@ export default function ChapterPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const [hasAdBlocker, setHasAdBlocker] = useState(false);
-
-    // Check for ad blocker
-    useEffect(() => {
-        const checkAdBlocker = async () => {
-            const isBlocked = await detectAdBlocker();
-            setHasAdBlocker(isBlocked);
-        };
-        checkAdBlocker();
-    }, []);
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
@@ -135,24 +123,6 @@ export default function ChapterPage() {
 
     if (loading) return <div className="flex justify-center items-center min-h-screen bg-background"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div></div>;
     if (!chapter) return <div className="text-center py-20 bg-background text-foreground min-h-screen">Chapter not found</div>;
-
-    if (hasAdBlocker) {
-        return (
-            <div className="flex flex-col justify-center items-center min-h-screen bg-background text-foreground p-4">
-                <AlertTriangle className="w-16 h-16 text-amber-500 mb-4" />
-                <h1 className="text-2xl font-bold mb-2 text-center">Ad Blocker Detected</h1>
-                <p className="text-center text-slate-500 mb-6 max-w-md">
-                    We rely on ads to keep this platform running and support our authors. Please disable your ad blocker to continue reading this chapter.
-                </p>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="px-6 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600 font-medium transition-colors"
-                >
-                    I've disabled it, reload page
-                </button>
-            </div>
-        );
-    }
 
     const authorName = novel?.author?.username || 'Unknown';
     const chapterSchema = {
