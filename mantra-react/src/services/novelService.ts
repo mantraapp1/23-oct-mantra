@@ -780,7 +780,7 @@ class NovelService {
     /**
      * Get real-time ranked novels with database-calculated position changes.
      */
-    async getRealtimeRankedNovels(sortBy: string, genres?: string[]): Promise<(NovelWithAuthor & { position_change: number; rank_position: number; last_views_change: number; last_votes_change: number })[]> {
+    async getRealtimeRankedNovels(sortBy: string, genres?: string[]): Promise<(NovelWithAuthor & { position_change: number; rank_position: number })[]> {
         try {
             const sortTypeMap: Record<string, string> = {
                 'Trending': 'trending',
