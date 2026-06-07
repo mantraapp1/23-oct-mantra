@@ -3,22 +3,15 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+    Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea'; // Need to create textarea or use input
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Need to create select
+import { Textarea } from '@/components/ui/textarea';
 import { adminService } from '@/services/adminService';
 import { Profile } from '@/types/supabase';
-import { Gift, MessageSquare, Loader2 } from 'lucide-react';
-import { toast } from 'sonner'; // Need to install sonner or use toast
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface UserActionsProps {
     user: Profile;
@@ -31,6 +24,7 @@ export function UserActionsDialog({ user, type, open, onOpenChange }: UserAction
     const [loading, setLoading] = useState(false);
     const [amount, setAmount] = useState('');
     const [message, setMessage] = useState('');
+    const [title, setTitle] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,18 +33,18 @@ export function UserActionsDialog({ user, type, open, onOpenChange }: UserAction
         try {
             if (type === 'gift') {
                 await adminService.giftUser(user.id, Number(amount), message);
-                // toast.success(`Gifted ${amount} coins to ${user.username}`);
-                alert(`Gifted ${amount} coins to ${user.username}`);
+                toast.success(`Gifted ₹${amount} to ${user.display_name || user.username}`);
             } else {
-                // await adminService.sendMessage(user.id, message);
-                // toast.success(`Message sent to ${user.username}`);
-                alert(`Message sent to ${user.username}`);
+                await adminService.sendUserNotification(user.id, title, message);
+                toast.success(`Message sent to ${user.display_name || user.username}`);
             }
             onOpenChange(false);
+            setAmount('');
+            setMessage('');
+            setTitle('');
         } catch (error) {
             console.error(error);
-            // toast.error('Action failed');
-            alert('Action failed');
+            toast.error('Action failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -60,45 +54,55 @@ export function UserActionsDialog({ user, type, open, onOpenChange }: UserAction
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{type === 'gift' ? 'Send Gift' : 'Send Message'}</DialogTitle>
+                    <DialogTitle>{type === 'gift' ? '🎁 Send Gift' : '💬 Send Message'}</DialogTitle>
                     <DialogDescription>
                         {type === 'gift'
-                            ? `Add coins or bonus to ${user.username}'s wallet.`
-                            : `Send a direct system message to ${user.username}.`}
+                            ? `Add coins to ${user.display_name || user.username}'s wallet.`
+                            : `Send a system notification to ${user.display_name || user.username}.`}
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         {type === 'gift' && (
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="amount" className="text-right">
-                                    Amount
-                                </Label>
+                            <div className="space-y-2">
+                                <Label htmlFor="amount">Amount (₹)</Label>
                                 <Input
                                     id="amount"
                                     type="number"
+                                    min="1"
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
-                                    className="col-span-3"
+                                    placeholder="Enter amount"
                                     required
                                 />
                             </div>
                         )}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="message" className="text-right">
-                                Message
-                            </Label>
-                            <Input
+                        {type === 'message' && (
+                            <div className="space-y-2">
+                                <Label htmlFor="title">Title</Label>
+                                <Input
+                                    id="title"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="Notification title"
+                                    required
+                                />
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            <Label htmlFor="message">{type === 'gift' ? 'Reason' : 'Message'}</Label>
+                            <Textarea
                                 id="message"
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
-                                className="col-span-3"
-                                placeholder={type === 'gift' ? "Reason (optional)" : "Type your message..."}
+                                placeholder={type === 'gift' ? 'Reason for gift (optional)' : 'Type your message...'}
+                                rows={3}
                                 required={type === 'message'}
                             />
                         </div>
                     </div>
                     <DialogFooter>
+                        <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <Button type="submit" disabled={loading}>
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {type === 'gift' ? 'Send Gift' : 'Send Message'}

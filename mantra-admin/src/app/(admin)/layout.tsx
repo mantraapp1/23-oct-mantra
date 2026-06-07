@@ -15,30 +15,27 @@ export default async function AdminLayout({
         redirect('/login');
     }
 
-    // Check role
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+    // Check if user is in the admins table securely
+    const { data: admin, error } = await supabase
+        .from('admins')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-    if (profile?.role !== 'admin') {
-        // Create a dedicated unauthorized page later
-        // For now, redirect to home or show error
-        // redirect('/unauthorized'); 
-        // Or just let them be if we handle it in pages?
-        // Better to redirect to login if not admin
-        // redirect('/login');
+    if (!admin || error) {
+        redirect('/login');
     }
 
     return (
-        <div className="h-full relative">
-            <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-[80] bg-gray-900">
+        <div className="h-screen flex overflow-hidden">
+            {/* Sidebar - desktop */}
+            <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0 z-[80]">
                 <Sidebar className="h-full" />
             </div>
-            <main className="md:pl-72">
+            {/* Main content */}
+            <main className="flex-1 md:pl-72 flex flex-col min-h-screen">
                 <AdminHeader />
-                <div className="p-8">
+                <div className="flex-1 overflow-y-auto p-6 md:p-8">
                     {children}
                 </div>
             </main>

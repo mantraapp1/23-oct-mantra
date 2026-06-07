@@ -1,9 +1,12 @@
 /**
  * Database types for Supabase tables
- * Ported from mantra-mobile/types/supabase.ts
+ * Complete type definitions for Mantra Admin Panel
  */
 
-// Placeholder for Profile if not imported from database (React uses direct definitions usually, but we match mobile)
+// Database type alias for Supabase client generics
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type Database = {};
+
 export interface Profile {
     id: string;
     username: string | null;
@@ -11,16 +14,19 @@ export interface Profile {
     avatar_url: string | null;
     profile_picture_url: string | null;
     website: string | null;
+    created_at: string | null;
     updated_at: string | null;
     display_name: string | null;
     bio: string | null;
     role: 'user' | 'author' | 'admin';
     is_verified: boolean;
+    is_banned?: boolean;
     cover_image: string | null;
     gender: 'male' | 'female' | 'other' | 'prefer_not_to_say' | null;
     age: number | null;
     preferred_language: string | null;
     favorite_genres: string[] | null;
+    email?: string | null;
 }
 
 export interface Novel {
@@ -60,8 +66,6 @@ export interface Chapter {
     published_at: string;
     updated_at: string;
 }
-
-
 
 export interface AdViewRecord {
     id: string;
@@ -314,10 +318,8 @@ export interface CommentWithUser extends Comment {
 
 export interface ReviewWithUser extends Review {
     user: Profile;
-    // Consistent profile data fields (added by reviewService)
     displayName?: string;
     profileImage?: string;
-    // User reaction fields (added by reviewService)
     user_has_liked?: boolean;
     user_has_disliked?: boolean;
 }
@@ -330,6 +332,23 @@ export interface NotificationWithDetails extends Notification {
 
 export interface TransactionWithNovel extends Transaction {
     novel?: Novel;
+}
+
+export interface ReportWithDetails extends Report {
+    reporter?: Profile;
+    reported_novel?: Novel;
+    reported_user?: Profile;
+    reported_chapter?: Chapter;
+    reported_comment?: Comment;
+    reported_review?: Review;
+}
+
+export interface WithdrawalWithUser extends WithdrawalRequest {
+    user?: Profile;
+}
+
+export interface TransactionWithUser extends Transaction {
+    user?: Profile;
 }
 
 export interface NovelFilters {
@@ -358,4 +377,31 @@ export interface CreateNovelData {
 
 export interface UpdateNovelData extends Partial<CreateNovelData> {
     id: string;
+}
+
+// Dashboard types
+export interface DashboardStats {
+    totalUsers: number;
+    totalNovels: number;
+    totalRevenue: number;
+    pendingReports: number;
+    newUsersThisWeek: number;
+    newNovelsThisWeek: number;
+    pendingWithdrawals: number;
+    totalChapters: number;
+}
+
+export interface ChartDataPoint {
+    date: string;
+    value: number;
+    label?: string;
+}
+
+export interface ActivityItem {
+    id: string;
+    type: 'new_user' | 'new_novel' | 'new_report' | 'withdrawal' | 'new_chapter';
+    title: string;
+    description: string;
+    timestamp: string;
+    metadata?: Record<string, string>;
 }

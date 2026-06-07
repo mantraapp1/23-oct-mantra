@@ -107,7 +107,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         let mounted = true;
         let initialized = false;
 
-
+        // Check initial session to handle any recovery errors (like Invalid Refresh Token)
+        const checkInitialSession = async () => {
+            try {
+                const { error } = await supabase.auth.getSession();
+                if (error) {
+                    // If session recovery fails due to missing or invalid refresh token, clear local storage
+                    // to prevent getting stuck in a console error loop on every reload.
+                    if (
+                        error.message.includes('Refresh Token') ||
+                        error.message.includes('not found') ||
+                        error.status === 400
+                    ) {
+                        localStorage.removeItem('supabase.auth.token');
+                    }
+                }
+            } catch {
+                // Ignore any internal errors
+            }
+        };
+        checkInitialSession();
 
         // Safety timeout - guarantee loading clears after 3 seconds
         const timeoutId = setTimeout(() => {

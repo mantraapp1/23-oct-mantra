@@ -52,6 +52,7 @@ export default function EditNovelPage() {
     });
 
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [customGenreInput, setCustomGenreInput] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState('');
     const [coverImage, setCoverImage] = useState<File | null>(null);
@@ -59,6 +60,30 @@ export default function EditNovelPage() {
     const [originalCoverUrl, setOriginalCoverUrl] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleAddCustomGenre = () => {
+        const cleanGenre = customGenreInput.trim();
+        if (!cleanGenre) return;
+
+        // Capitalize first letter of each word to keep it consistent
+        const formattedGenre = cleanGenre.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
+        if (selectedGenres.includes(formattedGenre)) {
+            setErrors({ ...errors, genres: 'Genre already selected' });
+            setTimeout(() => setErrors({ ...errors, genres: '' }), 3000);
+            return;
+        }
+
+        if (selectedGenres.length >= 3) {
+            setErrors({ ...errors, genres: 'You can only select up to 3 genres' });
+            setTimeout(() => setErrors({ ...errors, genres: '' }), 3000);
+            return;
+        }
+
+        setSelectedGenres([...selectedGenres, formattedGenre]);
+        setCustomGenreInput('');
+        setErrors({ ...errors, genres: '' });
+    };
 
     useEffect(() => {
         if (id && user) {
@@ -325,8 +350,8 @@ export default function EditNovelPage() {
                         <label className="block text-xs font-medium text-muted-foreground mb-2.5">
                             Genres (select up to 3)
                         </label>
-                        <div className="flex flex-wrap gap-2">
-                            {GENRES.map(genre => (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                            {[...GENRES, ...selectedGenres.filter(g => !GENRES.includes(g))].map(genre => (
                                 <button
                                     key={genre}
                                     type="button"
@@ -340,6 +365,25 @@ export default function EditNovelPage() {
                                     {genre}
                                 </button>
                             ))}
+                        </div>
+
+                        {/* Custom Genre Input */}
+                        <div className="flex gap-2 max-w-sm mb-4">
+                            <input
+                                type="text"
+                                value={customGenreInput}
+                                onChange={e => setCustomGenreInput(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddCustomGenre())}
+                                className="flex-1 px-3 py-2 border border-input rounded-lg text-sm text-foreground bg-background outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                                placeholder="Add custom genre..."
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddCustomGenre}
+                                className="px-4 py-2 bg-muted text-foreground text-sm font-medium rounded-lg hover:bg-muted/80 active:scale-95 transition"
+                            >
+                                Add
+                            </button>
                         </div>
                         {errors.genres && <p className="text-destructive text-xs mt-1">{errors.genres}</p>}
                     </div>

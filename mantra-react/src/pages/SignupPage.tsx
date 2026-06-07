@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
 
@@ -12,7 +12,7 @@ export default function SignupPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<ReactNode>('');
 
 
     const handleSignup = async (e: React.FormEvent) => {
@@ -44,31 +44,106 @@ export default function SignupPage() {
         }
 
         // Check if username is already taken
-        const { data: usernameCheck, error: usernameError } = await supabase
+        let usernameCheckData: any = null;
+        const { data: userCheckVal, error: usernameError } = await supabase
             .from('profiles')
-            .select('username')
+            .select('username, email, email_confirmed_at')
             .eq('username', username)
             .limit(1);
 
         if (usernameError) {
-            console.error('Error checking username:', usernameError);
-        } else if (usernameCheck && usernameCheck.length > 0) {
-            setError('Username is already taken');
+            // Fallback in case email_confirmed_at is not in table schema yet
+            const { data: fallbackUserCheck, error: fallbackUserError } = await supabase
+                .from('profiles')
+                .select('username, email')
+                .eq('username', username)
+                .limit(1);
+            if (fallbackUserError) {
+                console.error('Error checking username:', fallbackUserError);
+            } else {
+                usernameCheckData = fallbackUserCheck;
+            }
+        } else {
+            usernameCheckData = userCheckVal;
+        }
+
+        if (usernameCheckData && usernameCheckData.length > 0) {
+            const registeredEmail = usernameCheckData[0].email;
+            const isUnconfirmed = usernameCheckData[0].email_confirmed_at === null;
+
+            if (registeredEmail === email) {
+                // User is trying to sign up with the same username & email they already registered.
+                // If it is unconfirmed, offer them verification. Otherwise, redirect to login.
+                if (isUnconfirmed || usernameCheckData[0].email_confirmed_at === undefined) {
+                    setError(
+                        <span>
+                            You have already registered this account. Please{' '}
+                            <button
+                                type="button"
+                                onClick={() => navigate('/verify-email', { state: { email, username } })}
+                                className="underline font-bold hover:text-[var(--primary)] text-[var(--primary)] cursor-pointer"
+                            >
+                                verify your email now
+                            </button>
+                            .
+                        </span>
+                    );
+                } else {
+                    setError('Email is already registered. Please log in instead.');
+                }
+            } else {
+                setError('Username is already taken');
+            }
             setIsLoading(false);
             return;
         }
 
         // Check if email is already registered
-        const { data: emailCheck, error: emailError } = await supabase
+        let emailCheckData: any = null;
+        let isEmailUnconfirmed = false;
+        
+        const { data: emailCheckVal, error: emailError } = await supabase
             .from('profiles')
-            .select('email')
+            .select('email, email_confirmed_at')
             .eq('email', email)
             .limit(1);
 
         if (emailError) {
-            console.error('Error checking email:', emailError);
-        } else if (emailCheck && emailCheck.length > 0) {
-            setError('Email is already registered');
+            // Fallback in case email_confirmed_at is not in table schema yet
+            const { data: fallbackEmailCheck, error: fallbackEmailError } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('email', email)
+                .limit(1);
+            if (fallbackEmailError) {
+                console.error('Error checking email:', fallbackEmailError);
+            } else if (fallbackEmailCheck && fallbackEmailCheck.length > 0) {
+                emailCheckData = fallbackEmailCheck;
+                isEmailUnconfirmed = true; // Assume unconfirmed for fallback to allow redirection
+            }
+        } else if (emailCheckVal && emailCheckVal.length > 0) {
+            emailCheckData = emailCheckVal;
+            isEmailUnconfirmed = emailCheckVal[0].email_confirmed_at === null;
+        }
+
+        if (emailCheckData && emailCheckData.length > 0) {
+            if (isEmailUnconfirmed) {
+                setError(
+                    <span>
+                        Email is already registered but not verified. Please{' '}
+                        <button
+                            type="button"
+                            onClick={() => navigate('/verify-email', { state: { email, username } })}
+                            className="underline font-bold hover:text-[var(--primary)] text-[var(--primary)] cursor-pointer"
+                        >
+                            verify your email now
+                        </button>
+                        .
+                    </span>
+                );
+            } else {
+                setError('Email is already registered. Please log in instead.');
+            }
             setIsLoading(false);
             return;
         }

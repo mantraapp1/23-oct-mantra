@@ -47,27 +47,39 @@ export const useLatestNovels = () => {
 };
 
 // Ranked novels with filters - PUBLIC but waits for auth init
-export const useRankedNovels = (sortBy: string, filters: Record<string, unknown> = {}) => {
+export const useRankedNovels = (sortBy: string, genres?: string[]) => {
     const { isLoading: authLoading } = useAuth();
 
     return useQuery({
-        queryKey: ['novels', 'ranked-page', sortBy, filters],
+        queryKey: ['novels', 'ranked-page', sortBy, genres],
         queryFn: async () => {
             const limit = 20;
 
             switch (sortBy) {
                 case 'Trending':
                 case 'Most Viewed':
-                    return novelService.getTrendingNovels(limit);
+                    return novelService.getTrendingNovels(limit, undefined, genres);
                 case 'Most Voted':
-                    return novelService.getPopularNovels(limit);
+                    return novelService.getPopularNovels(limit, undefined, genres);
                 case 'Highest Rated':
-                    return novelService.getTopRatedNovels(limit);
+                    return novelService.getTopRatedNovels(limit, undefined, genres);
                 default:
-                    return novelService.getNovels(filters, 1, limit);
+                    return novelService.getTrendingNovels(limit, undefined, genres);
             }
         },
         enabled: !authLoading,
+    });
+};
+
+// Ranking position changes from database snapshots - PUBLIC
+export const useRankingChanges = (sortBy: string) => {
+    const { isLoading: authLoading } = useAuth();
+
+    return useQuery({
+        queryKey: ['ranking-changes', sortBy],
+        queryFn: () => novelService.getRankingChanges(sortBy),
+        enabled: !authLoading,
+        staleTime: 5 * 60 * 1000, // Cache for 5 minutes since snapshots are daily
     });
 };
 
@@ -122,6 +134,17 @@ export const useEditorsPicks = (limit: number = 10) => {
     return useQuery({
         queryKey: ['novels', 'editors-picks', limit],
         queryFn: () => novelService.getEditorsPicks(limit),
+        enabled: !authLoading,
+    });
+};
+
+// Fetch all novels in database - PUBLIC but waits for auth init
+export const useAllNovels = (limit: number = 50) => {
+    const { isLoading: authLoading } = useAuth();
+
+    return useQuery({
+        queryKey: ['novels', 'all', limit],
+        queryFn: () => novelService.getNovels({}, 1, limit),
         enabled: !authLoading,
     });
 };

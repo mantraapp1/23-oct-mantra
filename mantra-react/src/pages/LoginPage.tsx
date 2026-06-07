@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
 import { Eye, EyeOff } from 'lucide-react';
@@ -11,7 +11,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<ReactNode>('');
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -36,7 +36,24 @@ export default function LoginPage() {
         });
 
         if (error) {
-            setError(error.message);
+            const errMsg = error.message.toLowerCase();
+            if (errMsg.includes('email not confirmed') || errMsg.includes('confirm your email')) {
+                setError(
+                    <span>
+                        Email not confirmed. Please{' '}
+                        <button
+                            type="button"
+                            onClick={() => navigate('/verify-email', { state: { email } })}
+                            className="underline font-bold hover:text-[var(--primary)] text-[var(--primary)] cursor-pointer"
+                        >
+                            verify your email first
+                        </button>
+                        .
+                    </span>
+                );
+            } else {
+                setError(error.message);
+            }
             setIsLoading(false);
         } else {
             navigate('/');

@@ -4,25 +4,26 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Badge } from '@/components/ui/badge-2';
 import { getNovelCover } from '@/lib/defaultImages';
 import { NovelListCardSkeleton } from '@/components/ui/Skeleton';
-import { useRankedNovels } from '@/hooks/useNovels';
+import { useRankedNovels, useRankingChanges } from '@/hooks/useNovels';
+import SEO from '@/components/seo/SEO';
 
-const SORT_OPTIONS = ['Trending', 'Most Viewed', 'Most Voted', 'Highest Rated'];
+const SORT_OPTIONS = ['Most Voted', 'Trending', 'Most Viewed', 'Highest Rated'];
 const TIME_OPTIONS = ['Today', 'Weekly', 'Monthly', 'Yearly'];
-const GENRE_OPTIONS = ['All Genres', 'Fantasy', 'Romance', 'Adventure', 'Thriller', 'Slice of Life'];
+const GENRE_OPTIONS = ['All Genres', 'Romance', 'Fantasy', 'Action', 'Adventure', 'Drama', 'Mystery', 'Thriller', 'Isekai', 'Reincarnation', 'Slice of Life', 'Supernatural', 'Historical', 'Psychological', 'Sci-Fi', 'Martial Arts', 'Comedy', 'Mythology'];
 
 export default function RankingPage() {
-    const [sortBy, setSortBy] = useState('Trending');
+    const [sortBy, setSortBy] = useState('Most Voted');
     const [timeRange, setTimeRange] = useState('Today');
     const [genre, setGenre] = useState('All Genres');
 
-    // Mapped filters for novelService
-    const filters = {
-        genres: genre !== 'All Genres' ? [genre] : undefined,
-        status: sortBy === 'Most Voted' ? 'popular' : undefined,
-    };
+    // Pass genre filter directly to the hook
+    const selectedGenres = genre !== 'All Genres' ? [genre] : undefined;
 
-    // Use React Query Hook with sortBy strategy
-    const { data: novels = [], isLoading, error } = useRankedNovels(sortBy, filters);
+    // Use React Query Hook with sortBy strategy and genre filter
+    const { data: novels = [], isLoading, error } = useRankedNovels(sortBy, selectedGenres);
+
+    // Fetch real position changes from database snapshots
+    const { data: rankingChanges } = useRankingChanges(sortBy);
 
     if (error) {
     }
@@ -41,8 +42,34 @@ export default function RankingPage() {
         return (count || 0).toLocaleString();
     };
 
+    // Get real position change for a novel from the database
+    const getPositionChange = (novelId: string): number => {
+        if (!rankingChanges) return 0;
+        return rankingChanges.get(novelId) || 0;
+    };
+
+    // Format position change for display
+    const formatPositionChange = (change: number): string => {
+        if (change > 0) return `+${change} Position${change > 1 ? 's' : ''}`;
+        if (change < 0) return `${change} Position${change < -1 ? 's' : ''}`;
+        return '~ Stable';
+    };
+
+    // Get badge variant based on position change
+    const getChangeVariant = (change: number): 'success' | 'destructive' | 'secondary' => {
+        if (change > 0) return 'success';
+        if (change < 0) return 'destructive';
+        return 'secondary';
+    };
+
     return (
         <div className="min-h-screen bg-background font-inter text-foreground pb-24">
+            <SEO
+                title="Top Ranked Web Novels & Stories | Mantra"
+                description="Explore the best web novels, light novels, and popular stories ranked by readers on Mantra. Browse trending, most viewed, and highest rated stories."
+                keywords="best webnovels, top web novels, ranked webnovels, most popular novels, ranking list, mantra ranking"
+                url="/ranking"
+            />
             {/* Sticky Header with Filters */}
             <div className="sticky top-[56px] md:top-[64px] bg-background z-40 border-b border-border">
                 <div className="px-4 py-3 w-full">
@@ -79,7 +106,9 @@ export default function RankingPage() {
                 ) : novels.length > 0 ? (
                     // Responsive Vertical List
                     <div className="flex flex-col gap-3">
-                        {novels.map((novel, index) => (
+                        {novels.map((novel, index) => {
+                            const posChange = getPositionChange(novel.id);
+                            return (
                             <Link
                                 key={novel.id}
                                 to={`/novel/${novel.id}`}
@@ -120,13 +149,13 @@ export default function RankingPage() {
                                             </div>
                                         </div>
 
-                                        {/* Status/Change Badge */}
+                                        {/* Real Position Change Badge from DB */}
                                         <div className="hidden sm:flex">
                                             <Badge
-                                                variant={index < 3 ? 'success' : 'purple'}
+                                                variant={getChangeVariant(posChange)}
                                                 className="rounded-full text-xs font-semibold"
                                             >
-                                                {index < 3 ? `+${3 - index} Positions` : '~ Stable'}
+                                                {formatPositionChange(posChange)}
                                             </Badge>
                                         </div>
                                     </div>
@@ -136,15 +165,19 @@ export default function RankingPage() {
                                         {novel.description || 'No description available.'}
                                     </p>
 
-                                    {/* Stats Row */}
+                                    {/* Stats Row - all real data */}
                                     <div className="flex items-center gap-4 text-xs font-medium text-foreground-secondary mt-auto">
                                         <div className="flex items-center gap-1.5">
                                             <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                             {formatCount(novel.total_views)}
                                         </div>
                                         <div className="flex items-center gap-1.5">
+                                            <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                                            {formatCount(novel.total_votes)} votes
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
                                             <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                                            {novel.average_rating || '0.0'}
+                                            {novel.average_rating?.toFixed(1) || '0.0'}
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
@@ -153,7 +186,8 @@ export default function RankingPage() {
                                     </div>
                                 </div>
                             </Link>
-                        ))}
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="text-center py-20">

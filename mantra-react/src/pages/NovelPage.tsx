@@ -9,6 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import readingService from '@/services/readingService';
 import { detectAdBlocker } from '@/utils/adBlocker';
 import { AlertTriangle } from 'lucide-react';
+import SEO from '@/components/seo/SEO';
+import { getNovelCover } from '@/lib/defaultImages';
 
 // Session storage key for confirmed mature novels
 const CONFIRMED_MATURE_NOVELS_KEY = 'confirmed_mature_novels';
@@ -220,6 +222,29 @@ export default function NovelPage() {
     // Derived stats
     const author = Array.isArray(novel.author) ? novel.author[0] : novel.author;
     const genres = novel.genres || [];
+    const authorName = author?.display_name || author?.username || 'Unknown';
+    const coverUrl = getNovelCover(novel.cover_image_url);
+
+    const novelSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Book',
+        'name': novel.title,
+        'description': novel.description || `Read ${novel.title} web novel on Mantra.`,
+        'image': coverUrl.startsWith('http') ? coverUrl : `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}${coverUrl}`,
+        'author': {
+            '@type': 'Person',
+            'name': authorName
+        },
+        'genre': genres.join(', '),
+        'inLanguage': novel.language || 'English',
+        'aggregateRating': novel.average_rating ? {
+            '@type': 'AggregateRating',
+            'ratingValue': novel.average_rating,
+            'reviewCount': Math.max(1, novel.total_reviews || 0),
+            'bestRating': '5',
+            'worstRating': '1'
+        } : undefined
+    };
 
     // Handle immediate vote update
     const handleVoteChange = (increment: boolean) => {
@@ -227,10 +252,26 @@ export default function NovelPage() {
             if (!prev) return prev;
             return {
                 ...prev,
-                total_votes: (prev.total_votes || 0) + (increment ? 1 : -1)
+                total_votes: Math.max(0, (prev.total_votes || 0) + (increment ? 1 : -1))
             };
         });
     };
+
+    const langMapping: Record<string, string> = {
+        'English': 'en',
+        'Hindi': 'hi',
+        'Spanish': 'es',
+        'French': 'fr',
+        'German': 'de',
+        'Portuguese': 'pt',
+        'Italian': 'it',
+        'Russian': 'ru',
+        'Japanese': 'ja',
+        'Korean': 'ko',
+        'Chinese': 'zh',
+        'Arabic': 'ar'
+    };
+    const novelLang = langMapping[novel.language] || 'en';
 
     return (
         <>
@@ -245,6 +286,19 @@ export default function NovelPage() {
             {/* Only show content if age confirmed or not mature */}
             {isAgeConfirmed && (
                 <div className="min-h-screen bg-background pb-24 font-inter">
+                    <SEO
+                        title={`Read ${novel.title} Web Novel Online | Mantra`}
+                        description={novel.description ? `${novel.description.slice(0, 155)}...` : `Read ${novel.title} web novel online on Mantra. Find the latest chapters, reviews, and ratings.`}
+                        keywords={`${novel.title}, read ${novel.title}, ${novel.title} webnovel, ${novel.title} chapter, ${(novel.tags || []).join(', ')}, ${genres.join(', ')}`}
+                        image={coverUrl}
+                        url={`/novel/${novel.id}`}
+                        type="book"
+                        schema={novelSchema}
+                        lang={novelLang}
+                        author={authorName}
+                        publishDate={novel.created_at}
+                        modifiedDate={novel.updated_at}
+                    />
                     {/* 1. Hero Section */}
                     {/* 1. Hero Section + Content (Nested for single Overlapping Container) */}
                     <NovelHero

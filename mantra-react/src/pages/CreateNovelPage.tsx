@@ -61,12 +61,37 @@ export default function CreateNovelPage() {
     });
 
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [customGenreInput, setCustomGenreInput] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState('');
     const [coverImage, setCoverImage] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleAddCustomGenre = () => {
+        const cleanGenre = customGenreInput.trim();
+        if (!cleanGenre) return;
+
+        // Capitalize first letter of each word to keep it consistent
+        const formattedGenre = cleanGenre.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
+        if (selectedGenres.includes(formattedGenre)) {
+            setErrors({ ...errors, genres: 'Genre already selected' });
+            setTimeout(() => setErrors({ ...errors, genres: '' }), 3000);
+            return;
+        }
+
+        if (selectedGenres.length >= 3) {
+            setErrors({ ...errors, genres: 'You can only select up to 3 genres' });
+            setTimeout(() => setErrors({ ...errors, genres: '' }), 3000);
+            return;
+        }
+
+        setSelectedGenres([...selectedGenres, formattedGenre]);
+        setCustomGenreInput('');
+        setErrors({ ...errors, genres: '' });
+    };
 
     if (authLoading) return null;
     if (!user) {
@@ -319,8 +344,8 @@ export default function CreateNovelPage() {
                                 <label className="block text-xs font-medium text-foreground-secondary mb-2.5">
                                     Genres * (select up to 3)
                                 </label>
-                                <div className="flex flex-wrap gap-2">
-                                    {GENRES.map(genre => (
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {[...GENRES, ...selectedGenres.filter(g => !GENRES.includes(g))].map(genre => (
                                         <button
                                             key={genre}
                                             type="button"
@@ -334,6 +359,25 @@ export default function CreateNovelPage() {
                                             {genre}
                                         </button>
                                     ))}
+                                </div>
+
+                                {/* Custom Genre Input */}
+                                <div className="flex gap-2 max-w-sm mb-4">
+                                    <input
+                                        type="text"
+                                        value={customGenreInput}
+                                        onChange={e => setCustomGenreInput(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddCustomGenre())}
+                                        className="flex-1 px-4 py-2.5 border border-border rounded-lg text-sm text-foreground bg-card outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                                        placeholder="Add custom genre..."
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleAddCustomGenre}
+                                        className="px-4 py-2.5 bg-background-secondary text-foreground text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition"
+                                    >
+                                        Add
+                                    </button>
                                 </div>
                                 {errors.genres && <p className="text-red-500 text-xs mt-1">{errors.genres}</p>}
                             </div>

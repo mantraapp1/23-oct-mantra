@@ -281,7 +281,7 @@ class NovelService {
     /**
      * Get trending novels
      */
-    async getTrendingNovels(limit: number = 10, language?: string): Promise<NovelWithAuthor[]> {
+    async getTrendingNovels(limit: number = 10, language?: string, genres?: string[]): Promise<NovelWithAuthor[]> {
         try {
             let query = supabase
                 .from('novels')
@@ -293,6 +293,10 @@ class NovelService {
 
             if (language && language !== 'All') {
                 query = query.eq('language', language);
+            }
+
+            if (genres && genres.length > 0) {
+                query = query.contains('genres', genres);
             }
 
             const { data, error } = await query.limit(limit);
@@ -307,7 +311,7 @@ class NovelService {
     /**
      * Get popular novels (by votes)
      */
-    async getPopularNovels(limit: number = 10, language?: string): Promise<NovelWithAuthor[]> {
+    async getPopularNovels(limit: number = 10, language?: string, genres?: string[]): Promise<NovelWithAuthor[]> {
         try {
             let query = supabase
                 .from('novels')
@@ -319,6 +323,10 @@ class NovelService {
 
             if (language && language !== 'All') {
                 query = query.eq('language', language);
+            }
+
+            if (genres && genres.length > 0) {
+                query = query.contains('genres', genres);
             }
 
             const { data, error } = await query.limit(limit);
@@ -333,7 +341,7 @@ class NovelService {
     /**
      * Get top rated novels
      */
-    async getTopRatedNovels(limit: number = 10, language?: string): Promise<NovelWithAuthor[]> {
+    async getTopRatedNovels(limit: number = 10, language?: string, genres?: string[]): Promise<NovelWithAuthor[]> {
         try {
             let query = supabase
                 .from('novels')
@@ -341,11 +349,15 @@ class NovelService {
           *,
           author:profiles(*)
         `)
-                .gte('total_reviews', 5) // At least 5 reviews
+                .gte('total_reviews', 1) // At least 1 review
                 .order('average_rating', { ascending: false });
 
             if (language && language !== 'All') {
                 query = query.eq('language', language);
+            }
+
+            if (genres && genres.length > 0) {
+                query = query.contains('genres', genres);
             }
 
             const { data, error } = await query.limit(limit);
@@ -716,6 +728,54 @@ class NovelService {
 
         if (data.tags && data.tags.length > 10) {
             throw new Error('Maximum 10 tags allowed');
+        }
+    }
+
+    /**
+     * Get ranking position changes from database snapshots.
+     * Compares today's ranking with yesterday's to compute position changes.
+     * Returns a Map of novel_id -> position_change (positive = moved up).
+     */
+    async getRankingChanges(sortBy: string): Promise<Map<string, number>> {
+        try {
+            // Map UI sort names to DB sort_type values
+            const sortTypeMap: Record<string, string> = {
+                'Trending': 'trending',
+                'Most Viewed': 'most_viewed',
+                'Most Voted': 'most_voted',
+                'Highest Rated': 'highest_rated',
+            };
+            const sortType = sortTypeMap[sortBy] || 'trending';
+
+            const { data, error } = await supabase.rpc('get_ranking_changes', {
+                p_sort_type: sortType,
+            });
+
+            if (error) throw error;
+
+            const changeMap = new Map<string, number>();
+            if (data) {
+                for (const row of data) {
+                    changeMap.set(row.novel_id, row.position_change);
+                }
+            }
+            return changeMap;
+        } catch {
+            return new Map();
+        }
+    }
+
+    /**
+     * Trigger a fresh ranking snapshot (call after votes/views change significantly).
+     * Normally called by a cron job, but can be triggered manually.
+     */
+    async refreshRankingSnapshot(): Promise<boolean> {
+        try {
+            const { error } = await supabase.rpc('take_ranking_snapshot');
+            if (error) throw error;
+            return true;
+        } catch {
+            return false;
         }
     }
 }

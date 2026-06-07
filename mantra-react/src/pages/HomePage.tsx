@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useTrendingNovels, useTopRankedNovels, useLatestNovels, useNewArrivals, useEditorsPicks } from '@/hooks/useNovels';
+import { useTrendingNovels, useLatestNovels, useNewArrivals, useEditorsPicks, useAllNovels } from '@/hooks/useNovels';
 import { getNovelCover } from '@/lib/defaultImages';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { NovelCardSkeleton } from '@/components/ui/Skeleton';
 import NovelCard from '@/components/ui/NovelCard';
 import HeroSection from '@/components/ui/HeroSection';
+import SEO from '@/components/seo/SEO';
 
 
 
@@ -21,13 +22,6 @@ export default function HomePage() {
     } = useTrendingNovels();
 
     const {
-        data: topRankedNovels = [],
-        isLoading: loadingRanked,
-        error: errorRankedObj,
-        refetch: refetchRanked
-    } = useTopRankedNovels();
-
-    const {
         data: latestNovels = [],
         isLoading: loadingLatest,
         error: errorLatestObj,
@@ -42,22 +36,18 @@ export default function HomePage() {
     } = useNewArrivals(6);
 
     const {
-        data: editorsPicks = [],
-        isLoading: loadingEditors
+        data: editorsPicks = []
     } = useEditorsPicks(6);
 
-    // Fallback for You May Like: Use trending if editors picks are empty
-    const recommendedNovels = editorsPicks.length > 0 ? editorsPicks : trendingNovels;
-    const loadingRecommended = loadingEditors || (editorsPicks.length === 0 && loadingTrending);
+    const {
+        data: allNovels = [],
+        isLoading: loadingAll,
+        error: errorAllObj,
+        refetch: refetchAll
+    } = useAllNovels(50);
 
     const getGenre = (novel: any) => {
         return novel.genres?.[0] || 'Unknown';
-    };
-
-    const formatViews = (count: number): string => {
-        if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-        if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
-        return count?.toString() || '0';
     };
 
 
@@ -102,28 +92,6 @@ export default function HomePage() {
         </div>
     );
 
-    // List Item Card (for You May Like This)
-    const ListItemCard = ({ novel }: { novel: any }) => (
-        <Link
-            to={`/novel/${novel.id}`}
-            className="flex gap-3 p-3 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] shadow-sm hover:shadow-md transition-all group hover:border-[var(--primary)]/30"
-        >
-            <div className="h-20 w-16 rounded-[var(--radius-lg)] overflow-hidden bg-[var(--background-secondary)] flex-shrink-0">
-                <img src={getNovelCover(novel.cover_image_url)} className="h-full w-full object-cover" alt={novel.title} />
-            </div>
-            <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold line-clamp-1 group-hover:text-[var(--primary)] transition-colors text-[var(--foreground)]">
-                    {novel.title}
-                </div>
-                <div className="text-[11px] text-[var(--foreground-secondary)] mt-0.5">
-                    {getGenre(novel)} · {novel.average_rating || '0'}★ · {formatViews(novel.total_views || 0)} views
-                </div>
-                <p className="text-xs text-[var(--foreground-secondary)] mt-1 line-clamp-2">
-                    {novel.description || 'No description available'}
-                </p>
-            </div>
-        </Link>
-    );
 
     // Recently Updated Card
     const RecentlyUpdatedCard = ({ novel }: { novel: any }) => (
@@ -153,8 +121,22 @@ export default function HomePage() {
         </Link>
     );
 
+    const homeSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Mantra',
+        'url': import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app',
+        'description': 'Read the best web novels, light novels, and web fictions online for free on Mantra.',
+        'potentialAction': {
+            '@type': 'SearchAction',
+            'target': `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}/search?q={search_term_string}`,
+            'query-input': 'required name=search_term_string'
+        }
+    };
+
     return (
         <div className="min-h-screen bg-background text-foreground pb-24 font-sans">
+            <SEO schema={homeSchema} />
             <div className="w-full">
                 {/* Search Bar */}
 
@@ -205,47 +187,6 @@ export default function HomePage() {
                     </div>
                 </div>
 
-                {/* Top Rankings */}
-                <div className="mt-4">
-                    <SectionHeader title="Top Rankings" onSeeAll={() => navigate('/ranking')} />
-                    <div className="overflow-x-auto px-4 no-scrollbar pb-4">
-                        {loadingRanked ? (
-                            <SkeletonRow />
-                        ) : errorRankedObj ? (
-                            <ErrorBlock error={errorRankedObj} onRetry={() => refetchRanked()} />
-                        ) : (
-                            <div className="flex gap-4 min-w-max">
-                                {topRankedNovels.slice(0, 6).map((novel: any) => (
-                                    <NovelCard key={novel.id} novel={novel} className="w-44 md:w-52" />
-                                ))}
-                                {topRankedNovels.length === 0 && (
-                                    <div className="text-sm text-[var(--foreground-secondary)] py-8">No ranked novels yet</div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Popular Section */}
-                <div className="mt-4">
-                    <SectionHeader title="Popular" onSeeAll={() => navigate('/see-all/popular')} />
-                    <div className="overflow-x-auto px-4 no-scrollbar pb-4">
-                        {loadingRanked ? (
-                            <SkeletonRow />
-                        ) : errorRankedObj ? (
-                            <ErrorBlock error={errorRankedObj} onRetry={() => refetchRanked()} />
-                        ) : (
-                            <div className="flex gap-4 min-w-max">
-                                {topRankedNovels.map((novel: any) => (
-                                    <NovelCard key={novel.id} novel={novel} className="w-36 md:w-44" />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-
-
                 {/* Recently Updated */}
                 <div className="mt-6">
                     <SectionHeader title="Recently Updated" showSeeAll={false} />
@@ -277,29 +218,29 @@ export default function HomePage() {
                     )}
                 </div>
 
-                {/* You May Like This Section */}
-                <div className="mt-6">
-                    <SectionHeader title="You May Like This" showSeeAll={false} />
-                    <div className="px-4 space-y-3">
-                        {loadingRecommended ? (
-                            Array.from({ length: 6 }).map((_, i) => (
-                                <div key={i} className="flex gap-3 p-3 rounded-xl border border-border bg-card">
-                                    <div className="h-20 w-16 rounded-lg bg-background-secondary animate-pulse"></div>
-                                    <div className="flex-1 space-y-2 py-1">
-                                        <div className="h-4 bg-background-secondary rounded w-3/4 animate-pulse"></div>
-                                        <div className="h-3 bg-background-secondary rounded w-1/2 animate-pulse"></div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            recommendedNovels.slice(0, 6).map((novel: any) => (
-                                <ListItemCard key={novel.id} novel={novel} />
-                            ))
-                        )}
-                        {!loadingRecommended && recommendedNovels.length === 0 && (
-                            <div className="text-sm text-foreground-secondary py-4 text-center">No recommendations available</div>
-                        )}
-                    </div>
+                {/* All Novels Section */}
+                <div className="mt-8">
+                    <SectionHeader title="All Stories" showSeeAll={false} />
+                    {loadingAll ? (
+                        <div className="px-4 grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+                            {Array.from({ length: 12 }).map((_, i) => (
+                                <NovelCardSkeleton key={i} />
+                            ))}
+                        </div>
+                    ) : errorAllObj ? (
+                        <div className="px-4">
+                            <ErrorBlock error={errorAllObj} onRetry={() => refetchAll()} />
+                        </div>
+                    ) : (
+                        <div className="px-4 grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+                            {allNovels.map((novel: any) => (
+                                <NovelCard key={novel.id} novel={novel} />
+                            ))}
+                            {allNovels.length === 0 && (
+                                <div className="text-sm text-[var(--foreground-secondary)] py-8 col-span-full text-center">No stories available yet</div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="h-6"></div>

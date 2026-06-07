@@ -1,0 +1,8 @@
+-- ============================================================================
+-- DEPRECATED: Insecure Column Additions
+-- ============================================================================
+-- This script has been deprecated because adding a 'role' column directly to 
+-- public.profiles creates a privilege escalation security vulnerability under 
+-- client-side profile update policies.
+--
+-- Please use ADD_FIRST_ADMIN.sql to grant admin rights securely via the private admins table.

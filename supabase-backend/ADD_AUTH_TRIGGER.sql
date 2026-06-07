@@ -17,7 +17,8 @@ BEGIN
     email,
     display_name,
     profile_picture_url,
-    account_status
+    account_status,
+    email_confirmed_at
   )
   VALUES (
     NEW.id,
@@ -25,7 +26,8 @@ BEGIN
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', ''),
     NEW.raw_user_meta_data->>'avatar_url',
-    'active'
+    'active',
+    NEW.email_confirmed_at
   )
   ON CONFLICT (id) DO NOTHING;
   
@@ -41,17 +43,38 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public;
 
--- 2. Create the trigger on auth.users
+-- 2. Create the trigger on auth.users for insertions
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- 3. Create function and trigger for user updates (to sync email_confirmed_at)
+CREATE OR REPLACE FUNCTION public.handle_user_update()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.profiles
+  SET 
+    email_confirmed_at = NEW.email_confirmed_at,
+    updated_at = NOW()
+  WHERE id = NEW.id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public;
+
+DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;
+
+CREATE TRIGGER on_auth_user_updated
+  AFTER UPDATE ON auth.users
+  FOR EACH ROW
+  WHEN (OLD.email_confirmed_at IS DISTINCT FROM NEW.email_confirmed_at)
+  EXECUTE FUNCTION public.handle_user_update();
+
 -- ============================================================================
 -- VERIFICATION
 -- ============================================================================
--- Run this query to check if the trigger was created:
--- SELECT tgname FROM pg_trigger WHERE tgname = 'on_auth_user_created';
+-- Run this query to check if the triggers were created:
+-- SELECT tgname FROM pg_trigger WHERE tgname IN ('on_auth_user_created', 'on_auth_user_updated');

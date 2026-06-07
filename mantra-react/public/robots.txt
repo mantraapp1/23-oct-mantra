@@ -1,0 +1,30 @@
+User-agent: *
+Allow: /
+Allow: /novel/
+Allow: /ranking
+Allow: /faq
+Allow: /terms
+Allow: /privacy
+Allow: /cookies
+Allow: /contact
+Allow: /content-policy
+Allow: /dmca
+Allow: /acceptable-use
+Allow: /see-all/
+Allow: /user/
+Disallow: /profile/
+Disallow: /library
+Disallow: /dashboard/
+Disallow: /notifications
+Disallow: /settings/
+Disallow: /wallet/
+Disallow: /login
+Disallow: /signup
+Disallow: /verify-email
+Disallow: /reset-password
+Disallow: /update-password
+Disallow: /onboarding
+Disallow: /report
+
+# Sitemap location
+Sitemap: https://mantra-webnovels.vercel.app/sitemap.xml

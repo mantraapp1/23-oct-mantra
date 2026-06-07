@@ -5,6 +5,7 @@ import NovelListCard from '@/components/ui/NovelListCard';
 import AuthorResultCard from '@/components/ui/AuthorResultCard';
 import searchService from '@/services/searchService';
 import type { SearchResult } from '@/services/searchService';
+import SEO from '@/components/seo/SEO';
 
 type TabType = 'all' | 'novels' | 'authors';
 
@@ -91,6 +92,12 @@ export default function SearchPage() {
 
     return (
         <div className="min-h-screen bg-background pb-10">
+            <SEO
+                title={query ? `Search results for "${query}" | Mantra` : "Search Web Novels, Light Novels, and Authors | Mantra"}
+                description={query ? `Find search results for "${query}" on Mantra. Discover popular light novels, web novels, and authors.` : "Search and discover thousands of free web novels, light novels, and fictions on Mantra."}
+                keywords={query ? `search ${query}, ${query} webnovel, ${query} lightnovel` : "search novels, find light novels, discover webnovels"}
+                url={query ? `/search?q=${encodeURIComponent(query)}` : "/search"}
+            />
             {/* Search Header - Sticky */}
             <div className="sticky top-0 bg-background z-30 border-b border-border px-4 py-2">
                 <div className="max-w-[1800px] mx-auto w-full">

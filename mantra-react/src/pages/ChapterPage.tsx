@@ -7,6 +7,7 @@ import novelService from '@/services/novelService';
 import { trackUniqueView } from '@/utils/viewTracker';
 import { detectAdBlocker } from '@/utils/adBlocker';
 import { AlertTriangle } from 'lucide-react';
+import SEO from '@/components/seo/SEO';
 
 export default function ChapterPage() {
     const { novelId, chapterId } = useParams<{ novelId: string; chapterId: string }>();
@@ -52,7 +53,7 @@ export default function ChapterPage() {
                 // Fetch Novel Info (with author as single object)
                 const { data: novelData } = await supabase
                     .from('novels')
-                    .select('id, title, author_id, author:profiles!novels_author_id_fkey(id, username)')
+                    .select('id, title, author_id, language, author:profiles!novels_author_id_fkey(id, username)')
                     .eq('id', novelId)
                     .single();
 
@@ -153,14 +154,69 @@ export default function ChapterPage() {
         );
     }
 
+    const authorName = novel?.author?.username || 'Unknown';
+    const chapterSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        'headline': `${novel?.title || ''} - Chapter ${chapter.chapter_number}: ${chapter.title}`,
+        'description': `Read Chapter ${chapter.chapter_number}: ${chapter.title} of ${novel?.title || ''} on Mantra.`,
+        'articleBody': chapter.content ? chapter.content.slice(0, 300) : '',
+        'author': {
+            '@type': 'Person',
+            'name': authorName
+        },
+        'publisher': {
+            '@type': 'Organization',
+            'name': 'Mantra',
+            'logo': {
+                '@type': 'ImageObject',
+                'url': `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}/logo-circle.png`
+            }
+        },
+        'isPartOf': novel ? {
+            '@type': 'Book',
+            'name': novel.title,
+            'url': `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}/novel/${novel.id}`
+        } : undefined
+    };
+
+    const langMapping: Record<string, string> = {
+        'English': 'en',
+        'Hindi': 'hi',
+        'Spanish': 'es',
+        'French': 'fr',
+        'German': 'de',
+        'Portuguese': 'pt',
+        'Italian': 'it',
+        'Russian': 'ru',
+        'Japanese': 'ja',
+        'Korean': 'ko',
+        'Chinese': 'zh',
+        'Arabic': 'ar'
+    };
+    const novelLang = novel ? (langMapping[novel.language] || 'en') : 'en';
+
     return (
-        <ReaderContent
-            chapter={chapter}
-            novel={novel}
-            prevChapter={prevChapter}
-            nextChapter={nextChapter}
-            novelId={novelId!}
-            currentUser={user}
-        />
+        <>
+            <SEO
+                title={`Read ${novel?.title || ''} - Chapter ${chapter.chapter_number}: ${chapter.title} | Mantra`}
+                description={`Read Chapter ${chapter.chapter_number}: ${chapter.title} of ${novel?.title || ''} web novel online on Mantra. ${chapter.content ? chapter.content.slice(0, 120) : ''}...`}
+                keywords={`${novel?.title || ''} chapter ${chapter.chapter_number}, read ${novel?.title || ''} chapter ${chapter.chapter_number}, ${chapter.title}, webnovel, lightnovel`}
+                url={`/novel/${novelId}/chapter/${chapterId}`}
+                type="article"
+                schema={chapterSchema}
+                lang={novelLang}
+                author={authorName}
+                publishDate={chapter.published_at}
+            />
+            <ReaderContent
+                chapter={chapter}
+                novel={novel}
+                prevChapter={prevChapter}
+                nextChapter={nextChapter}
+                novelId={novelId!}
+                currentUser={user}
+            />
+        </>
     );
 }
