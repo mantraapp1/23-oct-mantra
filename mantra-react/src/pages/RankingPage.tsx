@@ -40,9 +40,9 @@ export default function RankingPage() {
 
     // Format position change for display
     const formatPositionChange = (change: number): string => {
-        if (change > 0) return `+${change} Position${change > 1 ? 's' : ''}`;
-        if (change < 0) return `${change} Position${change < -1 ? 's' : ''}`;
-        return '~ Stable';
+        if (change > 0) return `+${change}`;
+        if (change < 0) return `${change}`;
+        return 'Stable';
     };
 
     // Get badge variant based on position change
@@ -141,10 +141,10 @@ export default function RankingPage() {
                                         </div>
 
                                         {/* Real Position Change Badge from DB */}
-                                        <div className="hidden sm:flex">
+                                        <div className="flex flex-shrink-0">
                                             <Badge
                                                 variant={getChangeVariant(posChange)}
-                                                className="rounded-full text-xs font-semibold"
+                                                className="rounded-full text-[10px] sm:text-xs font-semibold px-2 py-0.5"
                                             >
                                                 {formatPositionChange(posChange)}
                                             </Badge>
