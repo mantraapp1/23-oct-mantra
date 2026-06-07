@@ -732,9 +732,9 @@ class NovelService {
     }
 
     /**
-     * Get ranking position changes from database snapshots.
-     * Compares today's ranking with yesterday's to compute position changes.
-     * Returns a Map of novel_id -> position_change (positive = moved up).
+     * Get yesterday's ranking positions from database snapshots.
+     * Returns a Map of novel_id -> yesterday_rank_position.
+     * Used to calculate real-time position changes on the client side.
      */
     async getRankingChanges(sortBy: string): Promise<Map<string, number>> {
         try {
@@ -747,16 +747,28 @@ class NovelService {
             };
             const sortType = sortTypeMap[sortBy] || 'trending';
 
-            const { data, error } = await supabase.rpc('get_ranking_changes', {
-                p_sort_type: sortType,
-            });
+            // Calculate yesterday's date in local time string (matching DB date type format)
+            const yesterdayDate = new Date();
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+            
+            // Formats date to YYYY-MM-DD
+            const year = yesterdayDate.getFullYear();
+            const month = String(yesterdayDate.getMonth() + 1).padStart(2, '0');
+            const day = String(yesterdayDate.getDate()).padStart(2, '0');
+            const yesterdayStr = `${year}-${month}-${day}`;
+
+            const { data, error } = await supabase
+                .from('ranking_snapshots')
+                .select('novel_id, rank_position')
+                .eq('sort_type', sortType)
+                .eq('snapshot_date', yesterdayStr);
 
             if (error) throw error;
 
             const changeMap = new Map<string, number>();
             if (data) {
                 for (const row of data) {
-                    changeMap.set(row.novel_id, row.position_change);
+                    changeMap.set(row.novel_id, row.rank_position);
                 }
             }
             return changeMap;

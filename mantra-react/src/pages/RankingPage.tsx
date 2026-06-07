@@ -42,10 +42,12 @@ export default function RankingPage() {
         return (count || 0).toLocaleString();
     };
 
-    // Get real position change for a novel from the database
-    const getPositionChange = (novelId: string): number => {
+    // Get real position change for a novel based on yesterday's snapshot vs current real-time list rank
+    const getPositionChange = (novelId: string, currentRank: number): number => {
         if (!rankingChanges) return 0;
-        return rankingChanges.get(novelId) || 0;
+        const yesterdayRank = rankingChanges.get(novelId);
+        if (!yesterdayRank) return 0; // If not ranked yesterday, show as stable
+        return yesterdayRank - currentRank; // Positive if currentRank is smaller (e.g., 2nd is better than 5th)
     };
 
     // Format position change for display
@@ -107,7 +109,7 @@ export default function RankingPage() {
                     // Responsive Vertical List
                     <div className="flex flex-col gap-3">
                         {novels.map((novel, index) => {
-                            const posChange = getPositionChange(novel.id);
+                            const posChange = getPositionChange(novel.id, index + 1);
                             return (
                             <Link
                                 key={novel.id}
