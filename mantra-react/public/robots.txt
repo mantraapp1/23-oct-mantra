@@ -27,4 +27,4 @@ Disallow: /onboarding
 Disallow: /report
 
 # Sitemap location
-Sitemap: https://mantra-webnovels.vercel.app/sitemap.xml
+Sitemap: https://mantranovels.com/sitemap.xml
