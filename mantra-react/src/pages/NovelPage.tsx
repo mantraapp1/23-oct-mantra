@@ -230,7 +230,7 @@ export default function NovelPage() {
         '@type': 'Book',
         'name': novel.title,
         'description': novel.description || `Read ${novel.title} web novel on Mantra.`,
-        'image': coverUrl.startsWith('http') ? coverUrl : `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}${coverUrl}`,
+        'image': coverUrl.startsWith('http') ? coverUrl : `${import.meta.env.VITE_SITE_URL || 'https://mantranovels.com'}${coverUrl}`,
         'author': {
             '@type': 'Person',
             'name': authorName

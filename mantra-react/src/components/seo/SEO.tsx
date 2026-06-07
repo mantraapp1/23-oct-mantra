@@ -28,7 +28,7 @@ export default function SEO({
     modifiedDate
 }: SEOProps) {
     // Dynamic domain fallback if custom domain isn't defined
-    const siteUrl = import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app';
+    const siteUrl = import.meta.env.VITE_SITE_URL || 'https://mantranovels.com';
     const canonicalUrl = url ? (url.startsWith('http') ? url : `${siteUrl}${url}`) : siteUrl;
     const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 

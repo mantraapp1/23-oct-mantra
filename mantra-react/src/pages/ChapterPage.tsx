@@ -170,13 +170,13 @@ export default function ChapterPage() {
             'name': 'Mantra',
             'logo': {
                 '@type': 'ImageObject',
-                'url': `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}/logo-circle.png`
+                'url': `${import.meta.env.VITE_SITE_URL || 'https://mantranovels.com'}/logo-circle.png`
             }
         },
         'isPartOf': novel ? {
             '@type': 'Book',
             'name': novel.title,
-            'url': `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}/novel/${novel.id}`
+            'url': `${import.meta.env.VITE_SITE_URL || 'https://mantranovels.com'}/novel/${novel.id}`
         } : undefined
     };
 

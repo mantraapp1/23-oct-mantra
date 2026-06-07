@@ -27,7 +27,7 @@ try {
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://hiposzbsobvhkgylmeyy.supabase.co';
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
-const SITE_URL = process.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app';
+const SITE_URL = process.env.VITE_SITE_URL || 'https://mantranovels.com';
 
 const staticPages = [
   { path: '', changefreq: 'daily', priority: '1.0' },

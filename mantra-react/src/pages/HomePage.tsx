@@ -125,11 +125,11 @@ export default function HomePage() {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         'name': 'Mantra',
-        'url': import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app',
+        'url': import.meta.env.VITE_SITE_URL || 'https://mantranovels.com',
         'description': 'Read the best web novels, light novels, and web fictions online for free on Mantra.',
         'potentialAction': {
             '@type': 'SearchAction',
-            'target': `${import.meta.env.VITE_SITE_URL || 'https://mantra-webnovels.vercel.app'}/search?q={search_term_string}`,
+            'target': `${import.meta.env.VITE_SITE_URL || 'https://mantranovels.com'}/search?q={search_term_string}`,
             'query-input': 'required name=search_term_string'
         }
     };
