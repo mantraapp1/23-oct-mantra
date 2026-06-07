@@ -38,11 +38,26 @@ export default function RankingPage() {
     if (error) {
     }
 
-    // Format position change for display
-    const formatPositionChange = (change: number): string => {
-        if (change > 0) return `+${change}`;
-        if (change < 0) return `${change}`;
-        return 'Stable';
+    // Format change for display based on metric type
+    const getChangeLabel = (novel: any, sortBy: string): { label: string; value: number } => {
+        const viewsChange = novel.last_views_change || 0;
+        const votesChange = novel.last_votes_change || 0;
+        const rankChange = novel.position_change || 0;
+
+        if (sortBy === 'Most Voted') {
+            if (votesChange > 0) return { label: `+${formatCount(votesChange)} vote${votesChange > 1 ? 's' : ''}`, value: votesChange };
+            if (votesChange < 0) return { label: `${formatCount(votesChange)} vote${votesChange < -1 ? 's' : ''}`, value: votesChange };
+            return { label: 'Stable', value: 0 };
+        } else if (sortBy === 'Trending' || sortBy === 'Most Viewed') {
+            if (viewsChange > 0) return { label: `+${formatCount(viewsChange)} view${viewsChange > 1 ? 's' : ''}`, value: viewsChange };
+            if (viewsChange < 0) return { label: `${formatCount(viewsChange)} view${viewsChange < -1 ? 's' : ''}`, value: viewsChange };
+            return { label: 'Stable', value: 0 };
+        } else {
+            // Highest Rated or fallback: Rank change
+            if (rankChange > 0) return { label: `+${rankChange}`, value: rankChange };
+            if (rankChange < 0) return { label: `${rankChange}`, value: rankChange };
+            return { label: 'Stable', value: 0 };
+        }
     };
 
     // Get badge variant based on position change
@@ -97,8 +112,8 @@ export default function RankingPage() {
                     // Responsive Vertical List
                     <div className="flex flex-col gap-3">
                         {novels.map((novel, index) => {
-                            const posChange = (novel as any).position_change || 0;
                             const rank = (novel as any).rank_position || (index + 1);
+                            const changeInfo = getChangeLabel(novel, sortBy);
                             return (
                             <Link
                                 key={novel.id}
@@ -143,10 +158,10 @@ export default function RankingPage() {
                                         {/* Real Position Change Badge from DB */}
                                         <div className="flex flex-shrink-0">
                                             <Badge
-                                                variant={getChangeVariant(posChange)}
+                                                variant={getChangeVariant(changeInfo.value)}
                                                 className="rounded-full text-[10px] sm:text-xs font-semibold px-2 py-0.5"
                                             >
-                                                {formatPositionChange(posChange)}
+                                                {changeInfo.label}
                                             </Badge>
                                         </div>
                                     </div>
