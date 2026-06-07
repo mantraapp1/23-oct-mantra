@@ -4,12 +4,25 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Badge } from '@/components/ui/badge-2';
 import { getNovelCover } from '@/lib/defaultImages';
 import { NovelListCardSkeleton } from '@/components/ui/Skeleton';
-import { useRankedNovels, useRankingChanges } from '@/hooks/useNovels';
+import { useRankedNovels } from '@/hooks/useNovels';
 import SEO from '@/components/seo/SEO';
 
 const SORT_OPTIONS = ['Most Voted', 'Trending', 'Most Viewed', 'Highest Rated'];
 const TIME_OPTIONS = ['Today', 'Weekly', 'Monthly', 'Yearly'];
 const GENRE_OPTIONS = ['All Genres', 'Romance', 'Fantasy', 'Action', 'Adventure', 'Drama', 'Mystery', 'Thriller', 'Isekai', 'Reincarnation', 'Slice of Life', 'Supernatural', 'Historical', 'Psychological', 'Sci-Fi', 'Martial Arts', 'Comedy', 'Mythology'];
+
+const getAuthorName = (author: any) => {
+    if (Array.isArray(author)) {
+        return author[0]?.display_name || author[0]?.username || 'Unknown';
+    }
+    return author?.display_name || author?.username || 'Unknown';
+};
+
+const formatCount = (count: number) => {
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
+    return (count || 0).toLocaleString();
+};
 
 export default function RankingPage() {
     const [sortBy, setSortBy] = useState('Most Voted');
@@ -22,33 +35,8 @@ export default function RankingPage() {
     // Use React Query Hook with sortBy strategy and genre filter
     const { data: novels = [], isLoading, error } = useRankedNovels(sortBy, selectedGenres);
 
-    // Fetch real position changes from database snapshots
-    const { data: rankingChanges } = useRankingChanges(sortBy);
-
     if (error) {
     }
-
-
-    const getAuthorName = (author: any) => {
-        if (Array.isArray(author)) {
-            return author[0]?.display_name || author[0]?.username || 'Unknown';
-        }
-        return author?.display_name || author?.username || 'Unknown';
-    };
-
-    const formatCount = (count: number) => {
-        if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-        if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
-        return (count || 0).toLocaleString();
-    };
-
-    // Get real position change for a novel based on yesterday's snapshot vs current real-time list rank
-    const getPositionChange = (novelId: string, currentRank: number): number => {
-        if (!rankingChanges) return 0;
-        const yesterdayRank = rankingChanges.get(novelId);
-        if (!yesterdayRank) return 0; // If not ranked yesterday, show as stable
-        return yesterdayRank - currentRank; // Positive if currentRank is smaller (e.g., 2nd is better than 5th)
-    };
 
     // Format position change for display
     const formatPositionChange = (change: number): string => {
@@ -109,7 +97,8 @@ export default function RankingPage() {
                     // Responsive Vertical List
                     <div className="flex flex-col gap-3">
                         {novels.map((novel, index) => {
-                            const posChange = getPositionChange(novel.id, index + 1);
+                            const posChange = (novel as any).position_change || 0;
+                            const rank = (novel as any).rank_position || (index + 1);
                             return (
                             <Link
                                 key={novel.id}
@@ -117,11 +106,11 @@ export default function RankingPage() {
                                 className="flex items-center gap-4 p-4 rounded-xl border border-border shadow-sm hover:shadow-md transition-all bg-card group cursor-pointer"
                             >
                                 {/* Rank Number Box */}
-                                <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl text-base sm:text-lg font-bold flex items-center justify-center flex-shrink-0 border ${index < 3
+                                <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl text-base sm:text-lg font-bold flex items-center justify-center flex-shrink-0 border ${rank <= 3
                                     ? 'bg-sky-500 text-white border-sky-500 shadow-md shadow-sky-500/20'
                                     : 'bg-card border-border text-foreground-secondary'
                                     }`}>
-                                    {index + 1}
+                                    {rank}
                                 </div>
 
                                 {/* Cover Image */}

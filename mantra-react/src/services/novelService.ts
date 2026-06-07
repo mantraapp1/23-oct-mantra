@@ -778,6 +778,37 @@ class NovelService {
     }
 
     /**
+     * Get real-time ranked novels with database-calculated position changes.
+     */
+    async getRealtimeRankedNovels(sortBy: string, genres?: string[]): Promise<(NovelWithAuthor & { position_change: number; rank_position: number })[]> {
+        try {
+            const sortTypeMap: Record<string, string> = {
+                'Trending': 'trending',
+                'Most Viewed': 'most_viewed',
+                'Most Voted': 'most_voted',
+                'Highest Rated': 'highest_rated',
+                'Trending / Most Viewed': 'trending',
+            };
+            const sortType = sortTypeMap[sortBy] || 'trending';
+
+            let query = supabase.rpc('get_realtime_rankings', {
+                p_sort_type: sortType,
+            });
+
+            if (genres && genres.length > 0) {
+                query = query.contains('genres', genres);
+            }
+
+            const { data, error } = await query;
+
+            if (error) throw error;
+            return (data as any[]) || [];
+        } catch {
+            return [];
+        }
+    }
+
+    /**
      * Trigger a fresh ranking snapshot (call after votes/views change significantly).
      * Normally called by a cron job, but can be triggered manually.
      */

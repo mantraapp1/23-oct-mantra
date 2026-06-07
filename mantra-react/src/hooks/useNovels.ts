@@ -52,21 +52,7 @@ export const useRankedNovels = (sortBy: string, genres?: string[]) => {
 
     return useQuery({
         queryKey: ['novels', 'ranked-page', sortBy, genres],
-        queryFn: async () => {
-            const limit = 20;
-
-            switch (sortBy) {
-                case 'Trending':
-                case 'Most Viewed':
-                    return novelService.getTrendingNovels(limit, undefined, genres);
-                case 'Most Voted':
-                    return novelService.getPopularNovels(limit, undefined, genres);
-                case 'Highest Rated':
-                    return novelService.getTopRatedNovels(limit, undefined, genres);
-                default:
-                    return novelService.getTrendingNovels(limit, undefined, genres);
-            }
-        },
+        queryFn: () => novelService.getRealtimeRankedNovels(sortBy, genres),
         enabled: !authLoading,
     });
 };
