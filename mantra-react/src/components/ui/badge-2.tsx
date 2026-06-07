@@ -30,7 +30,7 @@ const badgeVariants = cva(
                     'bg-[var(--color-warning-accent,var(--color-yellow-500))] text-[var(--color-warning-foreground,var(--color-white))]',
                 info: 'bg-[var(--color-info-accent,var(--color-violet-500))] text-[var(--color-info-foreground,var(--color-white))]',
                 outline: 'bg-transparent border border-border text-secondary-foreground',
-                destructive: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-200 border-transparent',
+                destructive: 'bg-red-700 text-white dark:bg-red-800 dark:text-white border-transparent',
 
                 // Pastel Variants - Restored & Cleaned
                 purple: 'bg-purple-100 text-purple-700 dark:bg-purple-500/15 dark:text-purple-200 border-transparent',
