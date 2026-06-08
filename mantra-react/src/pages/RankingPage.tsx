@@ -141,14 +141,16 @@ export default function RankingPage() {
                                         </div>
 
                                         {/* Real Position Change Badge from DB */}
-                                        <div className="flex flex-shrink-0">
-                                            <Badge
-                                                variant={getChangeVariant(posChange)}
-                                                className="rounded-full text-[10px] sm:text-xs font-semibold px-2 py-0.5"
-                                            >
-                                                {formatPositionChange(posChange)}
-                                            </Badge>
-                                        </div>
+                                        {posChange !== 0 && (
+                                            <div className="flex flex-shrink-0">
+                                                <Badge
+                                                    variant={getChangeVariant(posChange)}
+                                                    className="rounded-full text-[10px] sm:text-xs font-semibold px-2 py-0.5"
+                                                >
+                                                    {formatPositionChange(posChange)}
+                                                </Badge>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Description Preview */}

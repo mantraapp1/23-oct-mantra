@@ -21,6 +21,7 @@ import {
     getExplorerUrl
 } from '../../lib/stellar';
 import {
+    supabase,
     getUnpaidViewsByAuthor,
     markViewsAsPaid,
     updateWalletBalanceForViews,
@@ -121,7 +122,25 @@ export default async function handler(
     }
 
     // =========================================================
-
+    // TASK 3: Take daily ranking snapshot
+    // =========================================================
+    try {
+        const { error } = await supabase.rpc('take_ranking_snapshot');
+        if (error) throw error;
+        result.tasks.push({
+            taskName: 'daily_ranking_snapshot',
+            success: true,
+        });
+        result.totalSuccess++;
+    } catch (error: any) {
+        logError('daily_ranking_snapshot', error);
+        result.tasks.push({
+            taskName: 'daily_ranking_snapshot',
+            success: false,
+            error: error.message,
+        });
+        result.totalFailed++;
+    }
 
     // =========================================================
     // TASK 5: Process rejected withdrawals (refund balance)
