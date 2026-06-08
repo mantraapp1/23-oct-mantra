@@ -149,7 +149,7 @@ export default function NovelHero({ novel, chapters = [], children, onVoteChange
                                     <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground-secondary">
                                         Mantra Original
                                     </div>
-                                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight">
+                                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight break-words">
                                         {novel.title}
                                     </h1>
                                     <div className="text-sm sm:text-base text-foreground-secondary">
@@ -189,20 +189,20 @@ export default function NovelHero({ novel, chapters = [], children, onVoteChange
                                 <span className="hidden md:block h-10" />
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                                <div className="bg-card border border-border rounded-xl p-2.5 sm:p-3 shadow-sm">
                                     <div className="text-sm sm:text-base font-bold text-foreground">{novel.average_rating?.toFixed(1) || '0.0'}</div>
                                     <div className="text-[11px] sm:text-xs text-foreground-secondary">Rating</div>
                                 </div>
-                                <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
+                                <div className="bg-card border border-border rounded-xl p-2.5 sm:p-3 shadow-sm">
                                     <div className="text-sm sm:text-base font-bold text-foreground">{novel.total_views ? (novel.total_views > 1000 ? (novel.total_views / 1000).toFixed(1) + 'K' : novel.total_views) : '0'}</div>
                                     <div className="text-[11px] sm:text-xs text-foreground-secondary">Views</div>
                                 </div>
-                                <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
+                                <div className="bg-card border border-border rounded-xl p-2.5 sm:p-3 shadow-sm">
                                     <div className="text-sm sm:text-base font-bold text-foreground">{novel.total_votes ? (novel.total_votes > 1000 ? (novel.total_votes / 1000).toFixed(1) + 'K' : novel.total_votes) : '0'}</div>
                                     <div className="text-[11px] sm:text-xs text-foreground-secondary">Votes</div>
                                 </div>
-                                <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
+                                <div className="bg-card border border-border rounded-xl p-2.5 sm:p-3 shadow-sm">
                                     <div className="text-sm sm:text-base font-bold text-foreground">{chapters.length || novel.total_chapters || '0'}</div>
                                     <div className="text-[11px] sm:text-xs text-foreground-secondary">Chapters</div>
                                 </div>

@@ -129,7 +129,7 @@ export default function RankingPage() {
                                             <div className="text-base sm:text-lg font-bold text-foreground group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors line-clamp-1 mb-1">
                                                 {novel.title}
                                             </div>
-                                            <div className="text-xs sm:text-sm text-foreground-secondary font-medium flex items-center gap-2 mb-2">
+                                            <div className="text-xs sm:text-sm text-foreground-secondary font-medium flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
                                                 <span>{getAuthorName(novel.author)}</span>
                                                 <span className="w-1 h-1 rounded-full bg-foreground-secondary opacity-50"></span>
                                                 <span className={`${novel.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' : 'text-sky-600 dark:text-sky-400'}`}>
@@ -157,7 +157,7 @@ export default function RankingPage() {
                                     </p>
 
                                     {/* Stats Row - all real data */}
-                                    <div className="flex items-center gap-4 text-xs font-medium text-foreground-secondary mt-auto">
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-foreground-secondary mt-auto">
                                         <div className="flex items-center gap-1.5">
                                             <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                             {formatCount(novel.total_views)}

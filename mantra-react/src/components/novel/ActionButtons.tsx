@@ -137,14 +137,14 @@ export default function ActionButtons({ novelId, currentUser, chapters = [], onV
     const ReadIcon = hasProgress ? Play : BookOpen;
 
     return (
-        <div className="flex gap-3 w-full">
+        <div className="flex gap-2 sm:gap-3 w-full">
             <Button
                 size="lg"
                 onClick={handleReadClick}
                 disabled={!hasChapters}
-                className={`flex-1 font-bold text-base shadow-[var(--primary)]/20 shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${!hasChapters ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`flex-1 font-bold text-xs sm:text-base px-2.5 sm:px-8 h-10 sm:h-12 shadow-[var(--primary)]/20 shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${!hasChapters ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                <ReadIcon className="w-4 h-4 mr-2" />
+                <ReadIcon className="w-4 h-4 mr-1 sm:mr-2" />
                 {hasChapters ? readButtonText : 'Coming Soon'}
             </Button>
 
@@ -153,17 +153,17 @@ export default function ActionButtons({ novelId, currentUser, chapters = [], onV
                 variant={isInLibrary ? "primary" : "secondary"}
                 onClick={handleAddToLibrary}
                 isLoading={isLoadingLibrary}
-                className={`flex-1 font-semibold ${isInLibrary ? 'shadow-[var(--primary)]/20 shadow-lg' : ''}`}
+                className={`flex-1 font-semibold text-xs sm:text-base px-2.5 sm:px-8 h-10 sm:h-12 ${isInLibrary ? 'shadow-[var(--primary)]/20 shadow-lg' : ''}`}
             >
                 {!isLoadingLibrary && (
                     isInLibrary ? (
                         <>
-                            <Check className="w-4 h-4 mr-2" />
+                            <Check className="w-4 h-4 mr-1 sm:mr-2" />
                             In Library
                         </>
                     ) : (
                         <>
-                            <Plus className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4 mr-1 sm:mr-2" />
                             Library
                         </>
                     )
@@ -175,11 +175,11 @@ export default function ActionButtons({ novelId, currentUser, chapters = [], onV
                 variant={hasVoted ? "primary" : "secondary"}
                 onClick={handleVote}
                 isLoading={isLoadingVote}
-                className={`flex-1 font-semibold ${hasVoted ? 'shadow-[var(--primary)]/20 shadow-lg' : ''}`}
+                className={`flex-1 font-semibold text-xs sm:text-base px-2.5 sm:px-8 h-10 sm:h-12 ${hasVoted ? 'shadow-[var(--primary)]/20 shadow-lg' : ''}`}
             >
                 {!isLoadingVote && (
                     <>
-                        <ThumbsUp className={`w-4 h-4 mr-2 ${hasVoted ? 'fill-current' : ''}`} />
+                        <ThumbsUp className={`w-4 h-4 mr-1 sm:mr-2 ${hasVoted ? 'fill-current' : ''}`} />
                         {hasVoted ? 'Voted' : 'Vote'}
                     </>
                 )}

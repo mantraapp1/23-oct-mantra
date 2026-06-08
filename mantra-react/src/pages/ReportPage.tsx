@@ -201,19 +201,40 @@ export default function ReportPage() {
                 }
             }
 
-            // Use selectedChapter.id for chapter reports, otherwise use selectedItem.id
-            const reportedId = reportType === 'chapter' ? selectedChapter!.id : (selectedItem?.id || 'general');
+            let result;
+            if (reportType === 'technical' || reportType === 'other') {
+                const subject = reportType === 'technical' ? 'Technical Issue' : 'Other Report';
+                const name = user.user_metadata?.full_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
+                const { error: insertError } = await supabase
+                    .from('contact_submissions')
+                    .insert([
+                        {
+                            user_id: user.id,
+                            name,
+                            email: user.email || '',
+                            subject: `${subject}: ${selectedReason}`,
+                            message: description.trim() + (evidenceUrl ? `\n\nEvidence Image: ${evidenceUrl}` : ''),
+                            status: 'pending'
+                        }
+                    ]);
 
-            const result = await reportService.submitReport(user.id, {
-                reported_type: reportType as any,
-                reported_id: reportedId,
-                reason: selectedReason,
-                description: description.trim(),
-                evidence_url: evidenceUrl
-            });
+                if (insertError) throw insertError;
+                result = { success: true, message: 'Message submitted successfully' };
+            } else {
+                // Use selectedChapter.id for chapter reports, otherwise use selectedItem.id
+                const reportedId = reportType === 'chapter' ? selectedChapter!.id : selectedItem!.id;
+
+                result = await reportService.submitReport(user.id, {
+                    reported_type: reportType as any,
+                    reported_id: reportedId,
+                    reason: selectedReason,
+                    description: description.trim(),
+                    evidence_url: evidenceUrl
+                });
+            }
 
             if (result.success) {
-                toast.success('Report submitted successfully');
+                toast.success(reportType === 'technical' || reportType === 'other' ? 'Support request submitted successfully' : 'Report submitted successfully');
                 setTimeout(() => navigate('/'), 1500);
             } else {
                 toast.error(result.message);

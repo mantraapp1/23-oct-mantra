@@ -75,6 +75,19 @@ export default function AppLayout() {
         return () => { mounted = false; };
     }, [toast]);
 
+    // Google Tag Manager Virtual Pageview Tracking on route change
+    useEffect(() => {
+        const gtmId = import.meta.env.VITE_GTM_ID;
+        if (gtmId && !gtmId.startsWith('%VITE_')) {
+            const dataLayer = (window as any).dataLayer || [];
+            dataLayer.push({
+                event: 'pageview',
+                page: location.pathname + location.search
+            });
+            (window as any).dataLayer = dataLayer;
+        }
+    }, [location]);
+
     if (isLoading) {
         return <FullScreenLoader />;
     }
