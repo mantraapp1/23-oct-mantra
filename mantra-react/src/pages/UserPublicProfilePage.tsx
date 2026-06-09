@@ -376,7 +376,7 @@ export default function UserPublicProfilePage() {
                                         {/* Bookmark Button */}
                                         <button
                                             onClick={(e) => toggleBookmark(e, novel.id)}
-                                            className={`absolute top-2 right-2 p-2 rounded-full shadow-lg transition-all transform translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 ${bookmarkedNovels.has(novel.id)
+                                            className={`absolute top-2 right-2 p-2 rounded-full shadow-lg transition-all transform translate-y-0 opacity-100 md:translate-y-[-10px] md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 ${bookmarkedNovels.has(novel.id)
                                                 ? 'bg-primary text-primary-foreground'
                                                 : 'bg-card text-foreground hover:bg-background-secondary'}`}
                                         >

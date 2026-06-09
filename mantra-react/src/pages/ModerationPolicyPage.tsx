@@ -38,7 +38,7 @@ export default function ModerationPolicyPage() {
                             <li>User profiles</li>
                             <li>Copyright violations</li>
                         </ul>
-                        <p className="mt-3 text-sm">Use the Report button on any content or email <a href="mailto:report@mantra.run.place" className="text-sky-500">report@mantra.run.place</a>.</p>
+                        <p className="mt-3 text-sm">Use the Report button on any content or email <a href="mailto:report@mantranovels.com" className="text-sky-500">report@mantranovels.com</a>.</p>
                     </div>
                 </section>
 
@@ -104,7 +104,7 @@ export default function ModerationPolicyPage() {
                         <p className="mb-3">You may appeal moderation decisions:</p>
                         <ul className="list-disc ml-6 space-y-2">
                             <li>Submit appeal within <strong className="text-foreground">30 days</strong> of action</li>
-                            <li>Email: <a href="mailto:appeals@mantra.run.place" className="text-sky-500">appeals@mantra.run.place</a></li>
+                            <li>Email: <a href="mailto:appeals@mantranovels.com" className="text-sky-500">appeals@mantranovels.com</a></li>
                             <li>Include your account email and explanation</li>
                             <li>Appeals reviewed within 14 days</li>
                         </ul>

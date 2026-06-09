@@ -33,7 +33,7 @@ export default function GrievanceRedressalPage() {
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p className="mb-2"><strong className="text-foreground">Designated Grievance Officer:</strong></p>
                         <p className="text-muted-foreground text-sm">[To be appointed before launch]</p>
-                        <p className="mt-4">Email: <a href="mailto:grievance@mantra.run.place" className="text-sky-500">grievance@mantra.run.place</a></p>
+                        <p className="mt-4">Email: <a href="mailto:grievance@mantranovels.com" className="text-sky-500">grievance@mantranovels.com</a></p>
                         <p className="text-sm text-muted-foreground mt-2">Response within 24 hours. Resolution within 15 days.</p>
                     </div>
                 </section>
@@ -112,9 +112,9 @@ export default function GrievanceRedressalPage() {
                     <h2 className="text-lg font-bold text-foreground mb-4">6. Contact</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p><strong className="text-foreground">Grievance Officer Email:</strong></p>
-                        <p><a href="mailto:grievance@mantra.run.place" className="text-sky-500">grievance@mantra.run.place</a></p>
+                        <p><a href="mailto:grievance@mantranovels.com" className="text-sky-500">grievance@mantranovels.com</a></p>
                         <p className="mt-3"><strong className="text-foreground">General Support:</strong></p>
-                        <p><a href="mailto:support@mantra.run.place" className="text-sky-500">support@mantra.run.place</a></p>
+                        <p><a href="mailto:support@mantranovels.com" className="text-sky-500">support@mantranovels.com</a></p>
                     </div>
                 </section>
 

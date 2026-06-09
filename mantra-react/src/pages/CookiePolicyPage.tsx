@@ -131,7 +131,7 @@ export default function CookiePolicyPage() {
                 <section>
                     <h2 className="text-lg font-bold text-foreground mb-4">7. Contact</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
-                        <p>Questions about cookies: <a href="mailto:privacy@mantra.run.place" className="text-sky-500">privacy@mantra.run.place</a></p>
+                        <p>Questions about cookies: <a href="mailto:privacy@mantranovels.com" className="text-sky-500">privacy@mantranovels.com</a></p>
                     </div>
                 </section>
 

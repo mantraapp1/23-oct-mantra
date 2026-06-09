@@ -116,7 +116,7 @@ export default function ContactPage() {
                     </div>
                     <h3 className="font-bold text-foreground mb-1">Email Us</h3>
                     <p className="text-xs text-foreground-secondary truncate">
-                        <a href="mailto:mantranovels@gmail.com" className="hover:text-sky-500 transition-colors">mantranovels@gmail.com</a>
+                        <a href="mailto:support@mantranovels.com" className="hover:text-sky-500 transition-colors">support@mantranovels.com</a>
                     </p>
                 </div>
                 <div className="bg-card p-6 rounded-3xl border border-border shadow-sm text-center">

@@ -70,7 +70,7 @@ export default function ChildSafetyPage() {
                             <li>Parents may request deletion of their child's data</li>
                             <li>Parents may review data collected about their child</li>
                         </ul>
-                        <p className="text-sm text-muted-foreground mt-3">Contact <a href="mailto:privacy@mantra.run.place" className="text-sky-500">privacy@mantra.run.place</a> for parental requests.</p>
+                        <p className="text-sm text-muted-foreground mt-3">Contact <a href="mailto:privacy@mantranovels.com" className="text-sky-500">privacy@mantranovels.com</a> for parental requests.</p>
                     </div>
                 </section>
 
@@ -107,7 +107,7 @@ export default function ChildSafetyPage() {
                     <h2 className="text-lg font-bold text-foreground mb-4">6. Reporting Child Safety Concerns</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p className="mb-3">Report child safety concerns immediately:</p>
-                        <p>Email: <a href="mailto:safety@mantra.run.place" className="text-sky-500">safety@mantra.run.place</a></p>
+                        <p>Email: <a href="mailto:safety@mantranovels.com" className="text-sky-500">safety@mantranovels.com</a></p>
                         <p className="mt-2">Use the Report button for content involving minors.</p>
                         <p className="text-sm text-muted-foreground mt-3">All child safety reports are prioritized and reviewed within 24 hours.</p>
                     </div>

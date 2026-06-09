@@ -158,9 +158,11 @@ export default function EditChapterPage() {
                         <button
                             onClick={handleUpdate}
                             disabled={isSubmitting}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-sky-500 text-white rounded-xl text-xs font-extrabold hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 disabled:bg-background-secondary disabled:text-foreground-secondary disabled:shadow-none"
+                            className="flex items-center gap-1.5 px-3 py-2 sm:px-6 sm:py-2.5 bg-sky-500 text-white rounded-xl text-xs font-extrabold hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 disabled:bg-background-secondary disabled:text-foreground-secondary disabled:shadow-none"
                         >
-                            <Send className="w-4 h-4" /> {isSubmitting ? 'SAVING...' : 'SAVE CHANGES'}
+                            <Send className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">{isSubmitting ? 'SAVING...' : 'SAVE CHANGES'}</span>
+                            <span className="inline sm:hidden">{isSubmitting ? 'SAVING...' : 'SAVE'}</span>
                         </button>
                     </div>
                 </div>

@@ -32,7 +32,7 @@ export default function PrivacyPage() {
                     <h2 className="text-lg font-bold text-foreground mb-4">1. Data Fiduciary Information</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p><strong className="text-foreground">Mantra Novels</strong> is the Data Fiduciary for your personal data.</p>
-                        <p className="mt-2">Email: <a href="mailto:privacy@mantra.run.place" className="text-sky-500">privacy@mantra.run.place</a></p>
+                        <p className="mt-2">Email: <a href="mailto:privacy@mantranovels.com" className="text-sky-500">privacy@mantranovels.com</a></p>
                         <p className="text-sm text-muted-foreground mt-2">Our Grievance Officer details are available at <Link to="/grievance-redressal" className="text-sky-500">Grievance Redressal</Link>.</p>
                     </div>
                 </section>
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
                             <li><strong className="text-foreground">Grievance Redressal:</strong> File complaints with our Grievance Officer</li>
                             <li><strong className="text-foreground">Nominate:</strong> Nominate another person to exercise rights on your behalf</li>
                         </ul>
-                        <p className="mt-4 text-sm">Exercise these rights via <a href="mailto:privacy@mantra.run.place" className="text-sky-500">privacy@mantra.run.place</a></p>
+                        <p className="mt-4 text-sm">Exercise these rights via <a href="mailto:privacy@mantranovels.com" className="text-sky-500">privacy@mantranovels.com</a></p>
                     </div>
                 </section>
 
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
                 <section>
                     <h2 className="text-lg font-bold text-foreground mb-4">12. Contact</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
-                        <p>Privacy inquiries: <a href="mailto:privacy@mantra.run.place" className="text-sky-500">privacy@mantra.run.place</a></p>
+                        <p>Privacy inquiries: <a href="mailto:privacy@mantranovels.com" className="text-sky-500">privacy@mantranovels.com</a></p>
                         <p className="mt-2">
                             <Link to="/grievance-redressal" className="text-sky-500">Grievance Officer</Link> |
                             <Link to="/contact" className="text-sky-500 ml-2">Contact Form</Link>

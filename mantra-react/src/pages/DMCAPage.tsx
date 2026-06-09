@@ -44,7 +44,7 @@ export default function DMCAPage() {
                     </div>
                     <div className="bg-card rounded-2xl p-5 border border-border mt-4">
                         <h3 className="font-semibold text-foreground mb-2">Send Notices To:</h3>
-                        <p>Email: <a href="mailto:dmca@mantra.run.place" className="text-sky-500">dmca@mantra.run.place</a></p>
+                        <p>Email: <a href="mailto:dmca@mantranovels.com" className="text-sky-500">dmca@mantranovels.com</a></p>
                         <p className="text-sm text-muted-foreground mt-2">Subject line: "DMCA Takedown Notice"</p>
                     </div>
                 </section>
@@ -112,7 +112,7 @@ export default function DMCAPage() {
                     <h2 className="text-lg font-bold text-foreground mb-4">6. Contact</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p><strong className="text-foreground">DMCA Agent:</strong></p>
-                        <p className="mt-2">Email: <a href="mailto:dmca@mantra.run.place" className="text-sky-500">dmca@mantra.run.place</a></p>
+                        <p className="mt-2">Email: <a href="mailto:dmca@mantranovels.com" className="text-sky-500">dmca@mantranovels.com</a></p>
                     </div>
                 </section>
 

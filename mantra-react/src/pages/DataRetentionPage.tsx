@@ -129,7 +129,7 @@ export default function DataRetentionPage() {
                             <li>You withdraw consent</li>
                             <li>Data was processed unlawfully</li>
                         </ul>
-                        <p className="mt-3 text-sm">Contact: <a href="mailto:privacy@mantra.run.place" className="text-sky-500">privacy@mantra.run.place</a></p>
+                        <p className="mt-3 text-sm">Contact: <a href="mailto:privacy@mantranovels.com" className="text-sky-500">privacy@mantranovels.com</a></p>
                     </div>
                 </section>
 
@@ -139,7 +139,7 @@ export default function DataRetentionPage() {
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p className="mb-3">To request a copy of your data:</p>
                         <ol className="list-decimal ml-6 space-y-2">
-                            <li>Email <a href="mailto:privacy@mantra.run.place" className="text-sky-500">privacy@mantra.run.place</a></li>
+                            <li>Email <a href="mailto:privacy@mantranovels.com" className="text-sky-500">privacy@mantranovels.com</a></li>
                             <li>Subject: "Data Export Request"</li>
                             <li>We'll respond within 15 days</li>
                         </ol>

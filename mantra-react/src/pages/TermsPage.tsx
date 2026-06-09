@@ -195,7 +195,7 @@ export default function TermsPage() {
                     <h2 className="text-lg font-bold text-foreground mb-4">12. Contact</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p>Questions about these Terms:</p>
-                        <p className="mt-2">Email: <a href="mailto:legal@mantra.run.place" className="text-sky-500">legal@mantra.run.place</a></p>
+                        <p className="mt-2">Email: <a href="mailto:legal@mantranovels.com" className="text-sky-500">legal@mantranovels.com</a></p>
                         <p className="mt-2">
                             <Link to="/contact" className="text-sky-500">Contact Form</Link> |
                             <Link to="/grievance-redressal" className="text-sky-500 ml-2">Grievance Redressal</Link>

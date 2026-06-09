@@ -129,7 +129,7 @@ export default function CreatorMonetizationPage() {
                 <section>
                     <h2 className="text-lg font-bold text-foreground mb-4">7. Contact</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
-                        <p>Earnings questions: <a href="mailto:earnings@mantra.run.place" className="text-sky-500">earnings@mantra.run.place</a></p>
+                        <p>Earnings questions: <a href="mailto:earnings@mantranovels.com" className="text-sky-500">earnings@mantranovels.com</a></p>
                     </div>
                 </section>
 

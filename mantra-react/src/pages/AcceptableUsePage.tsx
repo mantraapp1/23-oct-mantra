@@ -105,7 +105,7 @@ export default function AcceptableUsePage() {
                     <h2 className="text-lg font-bold text-foreground mb-4">4. Reporting Violations</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p>Report policy violations:</p>
-                        <p className="mt-2">Email: <a href="mailto:report@mantra.run.place" className="text-sky-500">report@mantra.run.place</a></p>
+                        <p className="mt-2">Email: <a href="mailto:report@mantranovels.com" className="text-sky-500">report@mantranovels.com</a></p>
                     </div>
                 </section>
 

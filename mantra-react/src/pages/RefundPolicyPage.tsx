@@ -94,7 +94,7 @@ export default function RefundPolicyPage() {
                                 <div>
                                     <strong className="text-foreground">Contact Support</strong>
                                     <p className="text-sm text-muted-foreground mt-1">
-                                        Email <a href="mailto:support@mantra.run.place" className="text-sky-500">support@mantra.run.place</a>
+                                        Email <a href="mailto:support@mantranovels.com" className="text-sky-500">support@mantranovels.com</a>
                                         {' '}or use the <Link to="/contact" className="text-sky-500">Contact Form</Link>
                                     </p>
                                 </div>
@@ -162,8 +162,8 @@ export default function RefundPolicyPage() {
                     <h2 className="text-lg font-bold text-foreground mb-4">7. Contact Us</h2>
                     <div className="bg-card rounded-2xl p-5 border border-border">
                         <p className="mb-3">For disputes, complaints, or questions:</p>
-                        <p>Support: <a href="mailto:support@mantra.run.place" className="text-sky-500">support@mantra.run.place</a></p>
-                        <p>Grievance: <a href="mailto:grievance@mantra.run.place" className="text-sky-500">grievance@mantra.run.place</a></p>
+                        <p>Support: <a href="mailto:support@mantranovels.com" className="text-sky-500">support@mantranovels.com</a></p>
+                        <p>Grievance: <a href="mailto:grievance@mantranovels.com" className="text-sky-500">grievance@mantranovels.com</a></p>
                     </div>
                 </section>
 
