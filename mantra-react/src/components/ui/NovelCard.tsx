@@ -9,7 +9,7 @@ interface NovelCardProps {
         cover_image_url: string | null;
         is_mature?: boolean;
         author?: {
-            username: string;
+            username: string | null;
         };
         category?: string;
     };

@@ -48,6 +48,27 @@ If you see a **500 Error** or "Error sending confirmation email", it means you h
     *   **SMTP Password**: Paste your **Resend API Key** here.
 4.  **Save** and try signing up again.
 
+### 3.1 Domain Authentication DNS Records (Crucial for Yahoo & Gmail)
+Yahoo and Gmail have strict authentication policies. If you send email from your custom domain (`@mantranovels.com`) via Resend without verifying the domain via DNS records, Yahoo/Gmail will reject the emails.
+
+To fix this, log into your DNS Manager (Cloudflare, GoDaddy, Namecheap, etc.) and add the following records:
+
+1. **DKIM Records (CNAME):** Resend will provide 3 CNAME records. Add them to your DNS manager. E.g.:
+   - **Type:** `CNAME` | **Name:** `resend._domainkey` | **Target:** `feedback-dkim.resend.com`
+   - **Type:** `CNAME` | **Name:** `resend2._domainkey` | **Target:** `feedback-dkim.resend.com`
+   - **Type:** `CNAME` | **Name:** `resend3._domainkey` | **Target:** `feedback-dkim.resend.com`
+   
+   *(Note: If using Cloudflare, make sure Proxy status is set to **DNS Only** / Gray Cloud, not Proxied).*
+
+2. **SPF Record (TXT):**
+   - **Type:** `TXT` | **Name:** `@` | **Value:** `v=spf1 include:amazonses.com ~all`
+   - *Note:* If you already have an SPF record, do **not** create a second one. Instead, merge them (e.g. `v=spf1 include:_spf.google.com include:amazonses.com ~all`).
+
+3. **DMARC Record (TXT - MANDATORY for Yahoo/Gmail):**
+   - **Type:** `TXT` | **Name:** `_dmarc` | **Value:** `v=DMARC1; p=none;`
+
+Verify the domain inside the Resend dashboard under **Domains** after adding these records.
+
 ---
 
 ## 4. Final Verification

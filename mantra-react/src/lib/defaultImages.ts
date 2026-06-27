@@ -70,3 +70,30 @@ export const getNovelCover = (coverImageUrl?: string | null): string => {
 export const getBannerImage = (bannerImageUrl?: string | null): string => {
     return bannerImageUrl || DEFAULT_IMAGES.BANNER;
 };
+
+/**
+ * Default banners for contests. High-quality images themed around writing, books, libraries, and magic.
+ */
+export const CONTEST_BANNERS = [
+    'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=1200&auto=format&fit=crop', // Magical glowing open book
+    'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1200&auto=format&fit=crop', // Fountain pen writing on paper
+    'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1200&auto=format&fit=crop', // Mystical open book with celestial light
+    'https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200&auto=format&fit=crop', // Aesthetic old library with rows of books
+    'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1200&auto=format&fit=crop', // Vintage writing typewriter
+    'https://images.unsplash.com/photo-1516414447565-b14be0adf13e?q=80&w=1200&auto=format&fit=crop'  // Collection of vintage journals and keys
+];
+
+/**
+ * Get contest banner based on hash of contest ID
+ * @param id - Contest ID
+ * @returns Default contest banner URL
+ */
+export const getContestBanner = (id: string): string => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % CONTEST_BANNERS.length;
+    return CONTEST_BANNERS[index];
+};
+

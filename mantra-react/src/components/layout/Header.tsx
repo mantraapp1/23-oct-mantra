@@ -7,6 +7,7 @@ import UserAvatar from '@/components/common/UserAvatar';
 import { Button } from '@/components/ui/Button';
 import { getUserDisplayName } from '@/lib/utils/profileUtils';
 import { useNotifications } from '@/contexts/NotificationContext';
+import contestService from '@/services/contestService';
 
 export default function Header() {
     const { user, profile, isLoading: authLoading } = useAuth();
@@ -14,6 +15,15 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const { unreadCount } = useNotifications();
+    const [showContestLink, setShowContestLink] = useState(false);
+
+    useEffect(() => {
+        const checkContests = async () => {
+            const hasContests = await contestService.hasAnyContests();
+            setShowContestLink(hasContests);
+        };
+        checkContests();
+    }, []);
 
     useEffect(() => {
         // Scroll listener for header shadow
@@ -68,6 +78,11 @@ export default function Header() {
                         <Link to="/ranking" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors font-medium">
                             Ranking
                         </Link>
+                        {showContestLink && (
+                            <Link to="/contests" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors font-medium">
+                                Contests
+                            </Link>
+                        )}
                         {user && (
                             <Link to="/library" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors font-medium">
                                 Library
@@ -171,6 +186,11 @@ export default function Header() {
                             <Link to="/ranking" className="px-4 py-2 rounded-lg hover:bg-[var(--background-secondary)] text-[var(--foreground)]" onClick={() => setIsMenuOpen(false)}>
                                 Ranking
                             </Link>
+                            {showContestLink && (
+                                <Link to="/contests" className="px-4 py-2 rounded-lg hover:bg-[var(--background-secondary)] text-[var(--foreground)]" onClick={() => setIsMenuOpen(false)}>
+                                    Contests
+                                </Link>
+                            )}
                             {user && (
                                 <Link to="/library" className="px-4 py-2 rounded-lg hover:bg-[var(--background-secondary)] text-[var(--foreground)]" onClick={() => setIsMenuOpen(false)}>
                                     Library

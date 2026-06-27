@@ -9,6 +9,7 @@ import SEO from '@/components/seo/SEO';
 
 
 
+
 export default function HomePage() {
     const navigate = useNavigate();
 

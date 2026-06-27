@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import readingService from '@/services/readingService';
 import { detectAdBlocker } from '@/utils/adBlocker';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Trophy } from 'lucide-react';
 import SEO from '@/components/seo/SEO';
 import { getNovelCover } from '@/lib/defaultImages';
 
@@ -48,6 +48,9 @@ export default function NovelPage() {
 
     // Ad blocker state
     const [hasAdBlocker, setHasAdBlocker] = useState(false);
+
+    // Contest state
+    const [activeSubmission, setActiveSubmission] = useState<any>(null);
 
     // Check for ad blocker
     useEffect(() => {
@@ -91,6 +94,25 @@ export default function NovelPage() {
                     } else {
                         setIsAgeConfirmed(true); // Non-mature content doesn't need confirmation
                     }
+
+                    // Fetch active contest submission for this novel
+                    supabase
+                        .from('contest_submissions')
+                        .select('*, contest:contests(*)')
+                        .eq('novel_id', id)
+                        .then(async ({ data }) => {
+                            if (data && data.length > 0) {
+                                const now = new Date();
+                                const active = data.find((sub: any) => {
+                                    const start = new Date(sub.contest.start_date);
+                                    const end = new Date(sub.contest.end_date);
+                                    return now >= start && now <= end;
+                                });
+                                if (active) {
+                                    setActiveSubmission(active);
+                                }
+                            }
+                        });
 
                     setLoading(false); // UNBLOCK UI IMMEDIATELY
 
@@ -146,6 +168,8 @@ export default function NovelPage() {
 
         fetchReadingProgress();
     }, [user, id]);
+
+
 
     // Record novel view to reading_progress (for logged-in users)
     useEffect(() => {
@@ -310,6 +334,24 @@ export default function NovelPage() {
                         chapters={chapters}
                         onVoteChange={handleVoteChange}
                     >
+                        {/* Contest Entry Widget */}
+                        {activeSubmission && (
+                            <div className="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
+                                    <Trophy className="w-5 h-5 animate-pulse" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">Active Contest Entry</span>
+                                    <span className="text-sm font-bold text-foreground line-clamp-1">
+                                        {activeSubmission.contest.name}
+                                    </span>
+                                    <span className="text-xs text-foreground-secondary mt-0.5 block">
+                                        This novel is a participant in the {activeSubmission.contest.name} writing contest.
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Tabs Content */}
                         <div className="mb-12">
                             <NovelTabs

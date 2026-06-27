@@ -38,6 +38,10 @@ const EditProfilePage = lazy(() => import('./pages/EditProfilePage'));
 const FaqPage = lazy(() => import('./pages/FaqPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ReportPage = lazy(() => import('./pages/ReportPage'));
+const ContestsPage = lazy(() => import('./pages/ContestsPage'));
+const ContestDetailPage = lazy(() => import('./pages/ContestDetailPage'));
+const BlogsListPage = lazy(() => import('./pages/BlogsListPage'));
+const BlogDetailPage = lazy(() => import('./pages/BlogDetailPage'));
 
 // Wallet pages - loaded on demand
 const WalletPage = lazy(() => import('./pages/WalletPage'));
@@ -106,6 +110,10 @@ function App() {
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/report" element={<AuthGuard><ReportPage /></AuthGuard>} />
+          <Route path="/contests" element={<ContestsPage />} />
+          <Route path="/contests/:id" element={<ContestDetailPage />} />
+          <Route path="/blogs" element={<BlogsListPage />} />
+          <Route path="/blog/:id" element={<BlogDetailPage />} />
           <Route path="/user/:id" element={<UserPublicProfilePage />} />
           <Route path="/user/:id/followers" element={<FollowersListPage />} />
           <Route path="/user/:id/following" element={<FollowingListPage />} />

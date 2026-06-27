@@ -5,6 +5,7 @@ import type {
     FeaturedBanner, FAQ, ContactSubmission, Notification,
     DashboardStats, ChartDataPoint, ActivityItem,
     NovelWithAuthor, ReportWithDetails, WithdrawalWithUser,
+    Contest, ContestSubmission, ContestSubmissionWithNovel,
 } from '@/types/supabase';
 import { subDays, format } from 'date-fns';
 
@@ -896,6 +897,72 @@ class AdminService {
             .limit(limit);
         if (error) throw error;
         return data || [];
+    }
+
+    // ═══════════════════════════════════════════
+    // CONTEST MANAGEMENT
+    // ═══════════════════════════════════════════
+
+    async getAllContests() {
+        const { data, error } = await this.supabase
+            .from('contests')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data as Contest[];
+    }
+
+    async createContest(contest: Omit<Contest, 'id' | 'created_at' | 'updated_at'>) {
+        const { data, error } = await this.supabase
+            .from('contests')
+            .insert(contest)
+            .select()
+            .single();
+        if (error) throw error;
+        return data as Contest;
+    }
+
+    async updateContest(contestId: string, updates: Partial<Contest>) {
+        const { error } = await this.supabase
+            .from('contests')
+            .update(updates)
+            .eq('id', contestId);
+        if (error) throw error;
+    }
+
+    async deleteContest(contestId: string) {
+        const { error } = await this.supabase
+            .from('contests')
+            .delete()
+            .eq('id', contestId);
+        if (error) throw error;
+    }
+
+    async getContestSubmissions(contestId: string) {
+        const { data, error } = await this.supabase
+            .from('contest_submissions')
+            .select('*, novel:novels!novel_id(*, author:profiles!author_id(*))')
+            .eq('contest_id', contestId)
+            .order('votes_count', { ascending: false });
+        if (error) throw error;
+        return data as unknown as ContestSubmissionWithNovel[];
+    }
+
+    async setContestWinner(
+        contestId: string, 
+        winnerNovelId: string | null,
+        winnerNovelId2: string | null = null,
+        winnerNovelId3: string | null = null
+    ) {
+        const { error } = await this.supabase
+            .from('contests')
+            .update({ 
+                winner_novel_id: winnerNovelId,
+                winner_novel_id_2: winnerNovelId2,
+                winner_novel_id_3: winnerNovelId3
+            })
+            .eq('id', contestId);
+        if (error) throw error;
     }
 }
 

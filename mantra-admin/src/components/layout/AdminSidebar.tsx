@@ -14,6 +14,7 @@ import {
     Menu,
     ChevronLeft,
     BookMarked,
+    Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,12 @@ const routes = [
         icon: BookOpen,
         href: '/novels',
         color: 'text-pink-400',
+    },
+    {
+        label: 'Contests',
+        icon: Trophy,
+        href: '/contests',
+        color: 'text-amber-400',
     },
     {
         label: 'Reports',

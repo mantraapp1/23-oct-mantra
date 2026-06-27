@@ -15,16 +15,17 @@
   <!-- End Google Tag Manager -->
 
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/favicon-transparent.png?v=4" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
-  <link rel="shortcut icon" href="/favicon-transparent.png?v=4" />
+  <link rel="icon" type="image/png" href="/favicon-circular.png?v=4" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-circular.png?v=4" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-circular.png?v=4" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon-circular.png?v=4" />
+  <link rel="shortcut icon" href="/favicon-circular.png?v=4" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Performance optimizations -->
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Mantra - Your reading platform" />
+  <meta name="description" content="Read original web novels, light novels, and web fiction online for free on Mantra. Discover fantasy, romance, wuxia, action, and system stories, or publish your own!" />
+  <meta name="keywords" content="web novels, light novels, read free novels online, publish stories, fantasy romance novels, wuxia stories, webfiction" />
 
   <!-- Preconnect to external domains for faster loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,17 +43,139 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4647827605046549"
      crossorigin="anonymous"></script>
 
-  <title>Mantra - Read & Discover Stories</title>
-</head>
+  <title>Mantra Novels - Read & Write Web Novels Online</title>
 
+  <!-- Theme initialization to prevent layout/color flash -->
+  <script>
+    (function() {
+      try {
+        var theme = localStorage.getItem('mantra-theme') || 'system';
+        var resolvedTheme = 'light';
+        if (theme === 'system') {
+          resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } else {
+          resolvedTheme = theme;
+        }
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(resolvedTheme);
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    :root {
+      --fallback-bg: #ffffff;
+      --fallback-color: #0f172a;
+      --fallback-secondary-color: #64748b;
+      --fallback-border: #e2e8f0;
+      --fallback-dark-bg: #f8fafc;
+      --fallback-footer-bg: #f1f5f9;
+      --fallback-primary: #0ea5e9;
+    }
+    .dark {
+      --fallback-bg: #020617;
+      --fallback-color: #f8fafc;
+      --fallback-secondary-color: #94a3b8;
+      --fallback-border: #1e293b;
+      --fallback-dark-bg: #0f172a;
+      --fallback-footer-bg: #090d16;
+      --fallback-primary: #0ea5e9;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.97); }
+    }
+  </style>
+</head>
+ 
 <body>
   <!-- Google Tag Manager (noscript) -->
   <noscript>
     <iframe src="https://www.googletagmanager.com/ns.html?id=%VITE_GTM_ID%" height="0" width="0" style="display:none;visibility:hidden"></iframe>
   </noscript>
   <!-- End Google Tag Manager (noscript) -->
+ 
+  <div id="root">
+    <!-- Clean, Premium Center-Aligned Splash Screen -->
+    <div style="position: fixed; inset: 0; background-color: var(--fallback-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; font-family: 'Inter', system-ui, -apple-system, sans-serif;">
+      <img src="/favicon-circular.png" alt="Mantra" style="width: 5.5rem; height: 5.5rem; object-fit: contain; margin-bottom: 2rem; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;" />
+      <div style="width: 2rem; height: 2rem; border: 3px solid var(--fallback-border); border-top: 3px solid #0EA5E9; border-radius: 50%; animation: spin 0.85s linear infinite; box-sizing: border-box;"></div>
+    </div>
 
-  <div id="root"></div>
+    <!-- Hidden Static Fallback Shell for SEO and AdSense Crawlers -->
+    <div class="seo-fallback-shell" style="display: none;">
+      
+      <!-- Header -->
+      <header style="max-width: 1200px; width: 100%; margin: 0 auto; padding: 1.5rem 1rem; display: flex; align-items: center; border-bottom: 1px solid var(--fallback-border); box-sizing: border-box;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 2.25rem; height: 2.25rem; border-radius: 0.75rem; background-color: #0EA5E9; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 1.25rem; font-style: italic;">M</div>
+          <span style="font-size: 1.5rem; font-weight: 800; color: #0EA5E9; font-style: italic;">Mantra <span style="font-size: 0.75rem; color: #38BDF8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">Novel</span></span>
+        </div>
+      </header>
+ 
+      <!-- Main Splash / Loading Area -->
+      <main style="max-width: 800px; width: 100%; margin: auto; padding: 3rem 1rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; box-sizing: border-box;">
+        <!-- Loading Spinner -->
+        <div style="width: 3rem; height: 3rem; border: 4px solid var(--fallback-border); border-top: 4px solid #0EA5E9; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 2rem; box-sizing: border-box;"></div>
+        
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem; color: var(--fallback-color); letter-spacing: -0.025em;">Mantra Novels - Read & Discover Stories</h1>
+        <p style="font-size: 1.125rem; color: var(--fallback-secondary-color); max-width: 600px; margin-bottom: 2rem; line-height: 1.75; margin-top: 0;">
+          Your ultimate destination for captivating web novels, light novels, and web fictions online. Read thousands of daily updated stories across Fantasy, Romance, Sci-Fi, Action, and Wuxia.
+        </p>
+ 
+        <!-- Hidden text block that is readable by crawlers but does not distract users during quick loads -->
+        <div style="text-align: left; background-color: var(--fallback-dark-bg); border: 1px solid var(--fallback-border); border-radius: 1.5rem; padding: 2rem; width: 100%; box-sizing: border-box; margin-top: 2rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--fallback-color); margin-top: 0; margin-bottom: 0.75rem;">Explore Mantra Novel Platform</h2>
+          <p style="font-size: 0.875rem; color: var(--fallback-secondary-color); margin-bottom: 1.25rem; line-height: 1.6; margin-top: 0;">
+            Mantra Novel connects independent authors and passionate readers in a premium online publishing community. Experience immersive reading with our high-quality customization, bookmarks, reading history tracking, and dark mode optimizations.
+          </p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.875rem; color: var(--fallback-secondary-color);">
+            <div>
+              <h3 style="font-size: 0.95rem; font-weight: 600; color: #38BDF8; margin-top: 0; margin-bottom: 0.5rem;">For Readers</h3>
+              <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.6;">
+                <li>Read daily chapters of ongoing novels</li>
+                <li>Track your reading library & bookmarks</li>
+                <li>Vote in writing contests to support authors</li>
+                <li>Personalized reading settings & dark mode</li>
+              </ul>
+            </div>
+            <div>
+              <h3 style="font-size: 0.95rem; font-weight: 600; color: #38BDF8; margin-top: 0; margin-bottom: 0.5rem;">For Authors</h3>
+              <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.6;">
+                <li>Publish and schedule novel chapters</li>
+                <li>Earn through our monetization system</li>
+                <li>Participate in writing contests with prizes</li>
+                <li>Track analytics & build your fanbase</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </main>
+ 
+      <!-- Footer with Links for Crawlers -->
+      <footer style="width: 100%; border-top: 1px solid var(--fallback-border); background-color: var(--fallback-footer-bg); padding: 2rem 1rem; box-sizing: border-box;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <p style="font-size: 0.75rem; color: var(--fallback-secondary-color); margin: 0;">&copy; 2026 Mantra Novel. All rights reserved.</p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; justify-content: center;">
+            <a href="/ranking" style="color: var(--fallback-secondary-color); text-decoration: none;">Rankings</a>
+            <a href="/faq" style="color: var(--fallback-secondary-color); text-decoration: none;">FAQ</a>
+            <a href="/contact" style="color: var(--fallback-secondary-color); text-decoration: none;">Contact Us</a>
+            <a href="/terms" style="color: var(--fallback-secondary-color); text-decoration: none;">Terms of Service</a>
+            <a href="/privacy" style="color: var(--fallback-secondary-color); text-decoration: none;">Privacy Policy</a>
+            <a href="/cookies" style="color: var(--fallback-secondary-color); text-decoration: none;">Cookie Policy</a>
+            <a href="/content-policy" style="color: var(--fallback-secondary-color); text-decoration: none;">Content Policy</a>
+            <a href="/dmca" style="color: var(--fallback-secondary-color); text-decoration: none;">DMCA Policy</a>
+            <a href="/acceptable-use" style="color: var(--fallback-secondary-color); text-decoration: none;">Acceptable Use Policy</a>
+            <a href="/grievance-redressal" style="color: var(--fallback-secondary-color); text-decoration: none;">Grievance Redressal</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

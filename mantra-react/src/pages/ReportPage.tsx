@@ -283,7 +283,6 @@ export default function ReportPage() {
     return (
         <div className="min-h-screen flex flex-col w-full bg-background text-foreground font-inter antialiased">
             {/* Header */}
-            {/* Header */}
             <div className="sticky top-0 bg-background z-40 border-b border-border">
                 <div className="px-4 py-3 flex items-center gap-2 w-full">
                     <button
@@ -303,11 +302,11 @@ export default function ReportPage() {
                         <label className="block text-xs text-foreground-secondary mb-2 font-medium">What would you like to report?</label>
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {[
-                                { id: 'novel', label: 'Report a Novel', sub: 'Content issues, plagiarism, etc.', icon: Book, color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-100 dark:bg-sky-500/20' },
-                                { id: 'chapter', label: 'Report a Chapter', sub: 'Specific chapter problems', icon: FileText, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-500/20' },
-                                { id: 'user', label: 'Report a User', sub: 'Harassment, spam, abuse', icon: User, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-500/20' },
-                                { id: 'technical', label: 'Technical Issue', sub: 'Bugs, errors, crashes', icon: AlertCircle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-100 dark:bg-rose-500/20' },
-                                { id: 'other', label: 'Other', sub: 'Something else', icon: HelpCircle, color: 'text-slate-600 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-slate-500/20' }
+                                { id: 'novel', label: 'Report a Novel', sub: 'Content issues, plagiarism, etc.', icon: Book, color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-500/10 dark:bg-sky-500/20' },
+                                { id: 'chapter', label: 'Report a Chapter', sub: 'Specific chapter problems', icon: FileText, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 dark:bg-purple-500/20' },
+                                { id: 'user', label: 'Report a User', sub: 'Harassment, spam, abuse', icon: User, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 dark:bg-amber-500/20' },
+                                { id: 'technical', label: 'Technical Issue', sub: 'Bugs, errors, crashes', icon: AlertCircle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 dark:bg-rose-500/20' },
+                                { id: 'other', label: 'Other', sub: 'Something else', icon: HelpCircle, color: 'text-slate-600 dark:text-slate-400', bg: 'bg-slate-500/10 dark:bg-slate-500/20' }
                             ].map((type) => (
                                 <button
                                     key={type.id}
@@ -343,7 +342,7 @@ export default function ReportPage() {
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full rounded-xl border border-border pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-card placeholder:text-muted-foreground text-foreground"
+                                            className="w-full rounded-xl border border-border pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-card placeholder:text-foreground-secondary text-foreground"
                                             placeholder="Type novel name..."
                                             autoFocus
                                         />
@@ -369,7 +368,7 @@ export default function ReportPage() {
                                                         <img
                                                             src={getNovelCover(result.cover_image_url)}
                                                             alt=""
-                                                            className="w-8 h-10 object-cover rounded shadow-sm bg-muted"
+                                                            className="w-8 h-10 object-cover rounded shadow-sm bg-background-secondary"
                                                         />
                                                         <div>
                                                             <div className="text-sm font-semibold text-foreground">{result.title}</div>
@@ -386,7 +385,7 @@ export default function ReportPage() {
                                             <img
                                                 src={getNovelCover(selectedItem.image)}
                                                 alt=""
-                                                className="w-10 h-14 object-cover rounded bg-white shadow-sm"
+                                                className="w-10 h-14 object-cover rounded bg-background-secondary border border-border shadow-sm"
                                             />
                                             <div>
                                                 <div className="text-xs text-foreground-secondary font-medium uppercase tracking-wide">Selected Novel</div>
@@ -404,17 +403,17 @@ export default function ReportPage() {
                             </div>
                         )}
 
-                        {/* Chapter Select (Mockup for now, follows HTML logic) */}
+                        {/* Chapter Select */}
                         {reportType === 'chapter' && selectedItem && (
                             <div>
                                 <label className="block text-xs text-foreground-secondary mb-1 font-medium">Search Chapter <span className="text-red-500">*</span></label>
                                 {isLoadingChapters ? (
-                                    <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
-                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    <div className="flex items-center gap-2 py-2 text-sm text-foreground-secondary">
+                                        <Loader2 className="w-4 h-4 animate-spin text-sky-500" />
                                         Loading chapters...
                                     </div>
                                 ) : chaptersList.length === 0 ? (
-                                    <div className="text-sm text-muted-foreground py-2">No chapters found for this novel.</div>
+                                    <div className="text-sm text-foreground-secondary py-2">No chapters found for this novel.</div>
                                 ) : !selectedChapter ? (
                                     <div className="relative">
                                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" />
@@ -422,12 +421,12 @@ export default function ReportPage() {
                                             type="text"
                                             value={chapterSearchQuery}
                                             onChange={(e) => setChapterSearchQuery(e.target.value)}
-                                            className="w-full rounded-xl border border-border pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-card placeholder:text-muted-foreground text-foreground"
+                                            className="w-full rounded-xl border border-border pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-card placeholder:text-foreground-secondary text-foreground"
                                             placeholder="Type chapter number or title..."
                                         />
                                         {/* Filtered Chapter Results */}
                                         {chapterSearchQuery.length >= 1 && (
-                                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-xl shadow-lg z-20 max-h-60 overflow-y-auto">
+                                            <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-20 max-h-60 overflow-y-auto">
                                                 {chaptersList
                                                     .filter(ch =>
                                                         ch.title.toLowerCase().includes(chapterSearchQuery.toLowerCase()) ||
@@ -442,14 +441,14 @@ export default function ReportPage() {
                                                                 setSelectedChapter({ id: ch.id, title: `Ch ${ch.chapter_number}: ${ch.title}` });
                                                                 setChapterSearchQuery('');
                                                             }}
-                                                            className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-50 last:border-0 flex items-center gap-3"
+                                                            className="w-full text-left px-4 py-3 hover:bg-background-secondary border-b border-border last:border-0 flex items-center gap-3"
                                                         >
-                                                            <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                                            <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
                                                                 <FileText className="w-4 h-4 text-purple-500" />
                                                             </div>
                                                             <div>
-                                                                <div className="text-sm font-semibold text-slate-800">Chapter {ch.chapter_number}</div>
-                                                                <div className="text-xs text-slate-500 truncate max-w-xs">{ch.title}</div>
+                                                                <div className="text-sm font-semibold text-foreground">Chapter {ch.chapter_number}</div>
+                                                                <div className="text-xs text-foreground-secondary truncate max-w-xs">{ch.title}</div>
                                                             </div>
                                                         </button>
                                                     ))}
@@ -457,26 +456,26 @@ export default function ReportPage() {
                                                     ch.title.toLowerCase().includes(chapterSearchQuery.toLowerCase()) ||
                                                     String(ch.chapter_number).includes(chapterSearchQuery)
                                                 ).length === 0 && (
-                                                        <div className="px-4 py-3 text-sm text-slate-400">No chapters match your search.</div>
+                                                        <div className="px-4 py-3 text-sm text-foreground-secondary">No chapters match your search.</div>
                                                     )}
                                             </div>
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50">
+                                    <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-background-secondary">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                            <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0">
                                                 <FileText className="w-4 h-4 text-purple-500" />
                                             </div>
                                             <div>
-                                                <div className="text-xs text-slate-500 font-medium uppercase tracking-wide">Selected Chapter</div>
-                                                <div className="text-sm font-bold text-slate-800">{selectedChapter.title}</div>
+                                                <div className="text-xs text-foreground-secondary font-medium uppercase tracking-wide">Selected Chapter</div>
+                                                <div className="text-sm font-bold text-foreground">{selectedChapter.title}</div>
                                             </div>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => setSelectedChapter(null)}
-                                            className="text-xs font-semibold text-sky-600 hover:text-sky-700 px-3 py-1.5 hover:bg-sky-50 rounded-lg transition-colors"
+                                            className="text-xs font-semibold text-sky-600 hover:text-sky-700 px-3 py-1.5 hover:bg-sky-500/10 rounded-lg transition-colors"
                                         >
                                             Change
                                         </button>
@@ -488,15 +487,15 @@ export default function ReportPage() {
                         {/* User Search */}
                         {reportType === 'user' && (
                             <div>
-                                <label className="block text-xs text-slate-500 mb-1 font-medium">Username or profile link <span className="text-slate-400">*</span></label>
+                                <label className="block text-xs text-foreground-secondary mb-1 font-medium">Username or profile link <span className="text-red-500">*</span></label>
                                 {!selectedItem ? (
                                     <div className="relative">
-                                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" />
                                         <input
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-white placeholder:text-slate-400"
+                                            className="w-full rounded-xl border border-border pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 bg-card placeholder:text-foreground-secondary text-foreground"
                                             placeholder="@username"
                                             autoFocus
                                         />
@@ -534,21 +533,21 @@ export default function ReportPage() {
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50">
+                                    <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-background-secondary">
                                         <div className="flex items-center gap-3">
                                             <img
                                                 src={getProfilePicture(selectedItem.image, selectedItem.name)}
                                                 alt=""
-                                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                                                className="w-10 h-10 rounded-full object-cover border-2 border-border shadow-sm"
                                             />
                                             <div>
-                                                <div className="text-xs text-slate-500 font-medium uppercase tracking-wide">Report Target</div>
-                                                <div className="text-sm font-bold text-slate-800">@{selectedItem.name}</div>
+                                                <div className="text-xs text-foreground-secondary font-medium uppercase tracking-wide">Report Target</div>
+                                                <div className="text-sm font-bold text-foreground">@{selectedItem.name}</div>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => setSelectedItem(null)}
-                                            className="text-xs font-semibold text-sky-600 hover:text-sky-700 px-3 py-1.5 hover:bg-sky-50 rounded-lg transition-colors"
+                                            className="text-xs font-semibold text-sky-600 hover:text-sky-700 px-3 py-1.5 hover:bg-sky-500/10 rounded-lg transition-colors"
                                         >
                                             Change
                                         </button>
@@ -559,7 +558,7 @@ export default function ReportPage() {
 
                         {/* Reason Selection */}
                         <div>
-                            <label className="block text-xs text-slate-500 mb-2 font-medium">Reason <span className="text-slate-400">*</span></label>
+                            <label className="block text-xs text-foreground-secondary mb-2 font-medium">Reason <span className="text-red-500">*</span></label>
                             <div className="space-y-2">
                                 {reportReasons[reportType || 'other']?.map((reason) => (
                                     <button
@@ -567,8 +566,8 @@ export default function ReportPage() {
                                         type="button"
                                         onClick={() => setSelectedReason(reason)}
                                         className={`w-full text-left px-3 py-2 rounded-lg border text-sm transition-all ${selectedReason === reason
-                                            ? 'bg-sky-50 border-sky-500 text-sky-700 font-medium shadow-sm'
-                                            : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                                            ? 'bg-sky-500/10 border-sky-500 text-sky-500 font-semibold shadow-sm'
+                                            : 'border-border text-foreground hover:bg-background-secondary'
                                             }`}
                                     >
                                         {reason}
@@ -579,22 +578,22 @@ export default function ReportPage() {
 
                         {/* Description */}
                         <div>
-                            <label className="block text-xs text-slate-500 mb-1 font-medium">Description <span className="text-slate-400">*</span></label>
+                            <label className="block text-xs text-foreground-secondary mb-1 font-medium">Description <span className="text-red-500">*</span></label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 rows={5}
-                                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500/50 bg-white placeholder:text-slate-400 resize-none text-slate-700"
+                                className="w-full rounded-xl border border-border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500/50 bg-card placeholder:text-foreground-secondary resize-none text-foreground"
                                 placeholder="Please provide details about the issue..."
                             />
-                            <div className={`text-xs mt-1 font-medium ${description.length < 20 ? 'text-slate-400' : 'text-emerald-600'}`}>
+                            <div className={`text-xs mt-1 font-medium ${description.length < 20 ? 'text-foreground-secondary' : 'text-emerald-500'}`}>
                                 {description.length < 20 ? `Minimum 20 characters (${20 - description.length} left)` : 'Length requirement met'}
                             </div>
                         </div>
 
                         {/* Screenshots */}
                         <div>
-                            <label className="block text-xs text-slate-500 mb-1 font-medium">Screenshots (Optional)</label>
+                            <label className="block text-xs text-foreground-secondary mb-1 font-medium">Screenshots (Optional)</label>
 
                             {!previewUrl ? (
                                 <div className="relative">
@@ -604,13 +603,13 @@ export default function ReportPage() {
                                         onChange={handleImageSelect}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
-                                    <div className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-200 hover:border-sky-300 hover:bg-sky-50 transition-colors text-sm text-slate-600 flex items-center justify-center gap-2 group">
-                                        <Upload className="w-4 h-4 text-slate-400 group-hover:text-sky-500" />
+                                    <div className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-border hover:border-sky-500 hover:bg-sky-500/5 transition-colors text-sm text-foreground-secondary flex items-center justify-center gap-2 group">
+                                        <Upload className="w-4 h-4 text-foreground-secondary group-hover:text-sky-500" />
                                         <span>Upload evidence</span>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="relative w-full h-48 rounded-xl overflow-hidden border border-slate-200 group">
+                                <div className="relative w-full h-48 rounded-xl overflow-hidden border border-border group">
                                     <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                                     <button
                                         onClick={removeImage}
@@ -626,16 +625,16 @@ export default function ReportPage() {
                         <button
                             onClick={handleSubmit}
                             disabled={isSubmitting || !selectedReason || description.length < 20 || (['novel', 'user', 'chapter'].includes(reportType) && !selectedItem)}
-                            className="w-full rounded-xl bg-sky-500 text-white text-sm font-semibold py-3 shadow-md active:scale-95 transition-all hover:bg-sky-600 disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
+                            className="w-full rounded-xl bg-sky-500 text-white text-sm font-semibold py-3 shadow-md active:scale-95 transition-all hover:bg-sky-600 disabled:opacity-50 disabled:shadow-none disabled:active:scale-100 cursor-pointer"
                         >
                             {isSubmitting ? 'Submitting...' : 'Submit Report'}
                         </button>
 
                         {/* Disclaimer */}
-                        <div className="rounded-xl border border-slate-100 bg-amber-50 p-3">
+                        <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3">
                             <div className="flex gap-2 items-start">
-                                <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                                <div className="text-xs text-amber-900 leading-relaxed">
+                                <Info className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                                <div className="text-xs text-amber-500 dark:text-amber-400 leading-relaxed">
                                     False reports may result in account restrictions. We review all reports within 24-48 hours.
                                 </div>
                             </div>
@@ -646,14 +645,14 @@ export default function ReportPage() {
 
                 {/* Help Section - Always visible */}
                 <div className="mt-8 max-w-4xl mx-auto">
-                    <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-sky-50 p-6 shadow-sm">
+                    <div className="rounded-2xl border border-border bg-gradient-to-r from-background-secondary to-sky-500/5 p-6 shadow-sm">
                         <div className="flex items-start gap-4">
                             <div className="h-10 w-10 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0 shadow-md">
                                 <Shield className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <div className="text-base font-bold text-slate-800">Our Commitment to Safety</div>
-                                <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                                <div className="text-base font-bold text-foreground">Our Commitment to Safety</div>
+                                <p className="text-sm text-foreground-secondary mt-1 leading-relaxed">
                                     We're dedicated to maintaining a safe and respectful community. Your reports help us keep Mantra a better place for everyone. All reports are reviewed within 24-48 hours.
                                 </p>
                             </div>
@@ -711,28 +710,28 @@ function UserReportsList({ userId }: { userId: string }) {
         };
     }, [userId]);
 
-    if (loading) return <div className="py-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-slate-300" /></div>;
+    if (loading) return <div className="py-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-foreground-secondary" /></div>;
     if (reports.length === 0) return null;
 
     return (
         <div className="px-4 pb-24 w-full">
-            <div className="max-w-4xl mx-auto mt-10 pt-10 border-t border-slate-200">
+            <div className="max-w-4xl mx-auto mt-10 pt-10 border-t border-border">
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-bold text-slate-800">My Reports</h2>
-                    <span className="text-xs text-slate-400">{reports.length} total</span>
+                    <h2 className="text-lg font-bold text-foreground">My Reports</h2>
+                    <span className="text-xs text-foreground-secondary">{reports.length} total</span>
                 </div>
                 <div className="space-y-4">
                     {reports.map((report) => (
-                        <div key={report.id} className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 hover:border-slate-300 hover:shadow-sm transition-all h-full">
+                        <div key={report.id} className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 hover:border-border/80 hover:shadow-sm transition-all h-full">
                             <div>
                                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-3">
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                                            <span className="text-xs font-bold uppercase tracking-wider text-foreground-secondary bg-background-secondary px-2 py-0.5 rounded">
                                                 {report.reported_type}
                                             </span>
-                                            <span className="text-slate-300">•</span>
-                                            <span className="text-xs text-slate-400 font-medium">
+                                            <span className="text-border">•</span>
+                                            <span className="text-xs text-foreground-secondary font-medium">
                                                 {new Date(report.created_at).toLocaleDateString(undefined, {
                                                     month: 'short',
                                                     day: 'numeric',
@@ -741,32 +740,32 @@ function UserReportsList({ userId }: { userId: string }) {
                                                 })}
                                             </span>
                                         </div>
-                                        <h3 className="font-semibold text-slate-800 text-base">{report.reason}</h3>
+                                        <h3 className="font-semibold text-foreground text-base">{report.reason}</h3>
                                     </div>
                                 </div>
 
-                                <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                                <p className="text-foreground-secondary text-sm leading-relaxed mb-4">
                                     {report.description}
                                 </p>
 
                             </div>
                             {/* Admin Resolution Note */}
                             {(report.resolution_notes || report.status === 'resolved') && (
-                                <div className="relative mt-3 rounded-lg bg-sky-50 border border-sky-100 p-4">
+                                <div className="relative mt-3 rounded-lg bg-sky-500/10 border border-sky-500/20 p-4">
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="w-4 h-4 rounded-full bg-sky-500 flex items-center justify-center">
                                             <CheckCircle className="w-2.5 h-2.5 text-white" />
                                         </div>
-                                        <span className="text-xs text-sky-700 font-bold uppercase tracking-wide">
+                                        <span className="text-xs text-sky-500 font-bold uppercase tracking-wide">
                                             Resolution
                                         </span>
                                         {report.resolved_at && (
-                                            <span className="text-[10px] text-sky-400 ml-auto">
+                                            <span className="text-[10px] text-foreground-secondary ml-auto">
                                                 {new Date(report.resolved_at).toLocaleDateString()}
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-slate-700 text-sm leading-relaxed pl-6">
+                                    <p className="text-foreground text-sm leading-relaxed pl-6">
                                         {report.resolution_notes || 'This report has been reviewed and resolved.'}
                                     </p>
                                 </div>

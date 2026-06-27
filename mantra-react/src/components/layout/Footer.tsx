@@ -1,6 +1,18 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import contestService from '@/services/contestService';
 
 export default function Footer() {
+    const [showContestLink, setShowContestLink] = useState(false);
+
+    useEffect(() => {
+        const checkContests = async () => {
+            const hasContests = await contestService.hasAnyContests();
+            setShowContestLink(hasContests);
+        };
+        checkContests();
+    }, []);
+
     return (
         <footer className="bg-[var(--background-secondary)] border-t border-[var(--border)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -43,6 +55,13 @@ export default function Footer() {
                                     Rankings
                                 </Link>
                             </li>
+                            {showContestLink && (
+                                <li>
+                                    <Link to="/contests" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                        Contests
+                                    </Link>
+                                </li>
+                            )}
                             <li>
                                 <Link to="/genre" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
                                     Genres
@@ -105,6 +124,11 @@ export default function Footer() {
                             <li>
                                 <Link to="/grievance-redressal" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
                                     Grievance Redressal
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/blogs" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors">
+                                    Mantra Blogs
                                 </Link>
                             </li>
                         </ul>

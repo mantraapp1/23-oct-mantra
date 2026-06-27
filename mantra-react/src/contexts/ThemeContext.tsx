@@ -40,7 +40,14 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
         return (localStorage.getItem(THEME_KEY) as Theme) || defaultTheme;
     });
 
-    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() => {
+        if (typeof window === 'undefined') return 'light';
+        const savedTheme = (localStorage.getItem(THEME_KEY) as Theme) || defaultTheme;
+        if (savedTheme === 'system') {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        return savedTheme as 'light' | 'dark';
+    });
 
     // Get system preference
     const getSystemTheme = useCallback((): 'light' | 'dark' => {

@@ -361,3 +361,34 @@ export interface UpdateNovelData extends Partial<CreateNovelData> {
     id: string;
 }
 
+export interface Contest {
+    id: string;
+    name: string;
+    description: string | null;
+    rules: string | null;
+    prize: string | null;
+    start_date: string;
+    end_date: string;
+    requires_new_novel: boolean;
+    banner_image_url: string | null;
+    winner_novel_id: string | null;
+    winner_novel_id_2: string | null;
+    winner_novel_id_3: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ContestSubmission {
+    id: string;
+    contest_id: string;
+    novel_id: string;
+    user_id: string;
+    votes_count: number;
+    submitted_at: string;
+}
+
+export interface ContestSubmissionWithNovel extends ContestSubmission {
+    novel: Novel & { author: Profile };
+}
+
+
