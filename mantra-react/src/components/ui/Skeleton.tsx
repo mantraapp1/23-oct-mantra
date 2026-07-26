@@ -111,7 +111,7 @@ export function ProfileSkeleton() {
             <div className="px-8 pb-8">
                 <div className="relative -mt-16 mb-6 flex justify-between items-end">
                     {/* Avatar */}
-                    <Skeleton className="w-32 h-32 rounded-full border-4 border-white dark:border-slate-900" />
+                    <Skeleton className="w-32 h-32 rounded-full border-4 border-card" />
                     {/* Edit Button */}
                     <Skeleton className="h-10 w-28 rounded-lg" />
                 </div>

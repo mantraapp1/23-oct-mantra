@@ -121,8 +121,25 @@ export default function ChapterPage() {
         }
     };
 
-    if (loading) return <div className="flex justify-center items-center min-h-screen bg-background"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500"></div></div>;
-    if (!chapter) return <div className="text-center py-20 bg-background text-foreground min-h-screen">Chapter not found</div>;
+    let loadingBgClass = 'bg-background';
+    try {
+        const saved = localStorage.getItem('reader-settings');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.theme === 'dark') loadingBgClass = 'bg-[#1a1a1a]';
+            else if (parsed.theme === 'sepia') loadingBgClass = 'bg-[#f6f1d1]';
+            else if (parsed.theme === 'light') loadingBgClass = 'bg-white';
+        }
+    } catch {}
+
+    if (loading) {
+        return (
+            <div className={`flex justify-center items-center min-h-screen ${loadingBgClass} transition-colors duration-300`}>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500" />
+            </div>
+        );
+    }
+    if (!chapter) return <div className={`text-center py-20 min-h-screen text-foreground ${loadingBgClass}`}>Chapter not found</div>;
 
     const authorName = novel?.author?.username || 'Unknown';
     const chapterSchema = {

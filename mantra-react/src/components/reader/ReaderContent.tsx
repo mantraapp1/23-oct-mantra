@@ -5,6 +5,7 @@ import ChapterComments from '@/components/novel/ChapterComments';
 import chapterService from '@/services/chapterService';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useAppNavigation } from '@/hooks/useAppNavigation';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -21,6 +22,7 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
     const { goBack, navigate } = useAppNavigation();
     const { toast } = useToast();
     const confirm = useConfirm();
+    const { resolvedTheme } = useTheme();
     const [showSettings, setShowSettings] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
 
@@ -44,7 +46,16 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
     const [fontSize, setFontSize] = useState(18);
     const [lineHeight, setLineHeight] = useState(1.8);
     const [fontFamily, setFontFamily] = useState<'sans' | 'serif' | 'mono'>('serif');
-    const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>('light');
+    const [theme, setTheme] = useState<'light' | 'sepia' | 'dark'>(() => {
+        try {
+            const saved = localStorage.getItem('reader-settings');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.theme) return parsed.theme;
+            }
+        } catch {}
+        return resolvedTheme || 'light';
+    });
 
     // Persist settings
     useEffect(() => {
@@ -52,8 +63,10 @@ export default function ReaderContent({ chapter, novel, prevChapter, nextChapter
         if (saved) {
             const settings = JSON.parse(saved);
             setFontStyles(settings);
+        } else {
+            setTheme(resolvedTheme);
         }
-    }, []);
+    }, [resolvedTheme]);
 
     const setFontStyles = (settings: any) => {
         if (settings.fontSize) setFontSize(settings.fontSize);

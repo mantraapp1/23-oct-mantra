@@ -68,6 +68,9 @@
   --foreground: var(--slate-900);
   --foreground-secondary: var(--slate-500);
 
+  --muted: var(--slate-200);
+  --muted-foreground: var(--slate-500);
+
   /* Components */
   --card: var(--white);
   --card-hover: var(--slate-50);
@@ -112,6 +115,9 @@
   --foreground: var(--slate-50);
   --foreground-secondary: var(--slate-400);
 
+  --muted: var(--slate-800);
+  --muted-foreground: var(--slate-400);
+
   /* Components */
   --card: var(--slate-900);
   --card-hover: var(--slate-800);
@@ -147,6 +153,9 @@
   --color-foreground: var(--foreground);
   --color-foreground-secondary: var(--foreground-secondary);
 
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
   --color-card: var(--card);
   --color-card-hover: var(--card-hover);
 
@@ -178,6 +187,9 @@ html,
 body {
   max-width: 100%;
   overflow-x: hidden;
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
 }
 
 body {

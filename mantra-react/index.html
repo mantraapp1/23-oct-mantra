@@ -58,10 +58,21 @@
         }
         document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(resolvedTheme);
+        document.documentElement.style.colorScheme = resolvedTheme;
       } catch (e) {}
     })();
   </script>
   <style>
+    html.dark, html.dark body {
+      background-color: #020617 !important;
+      color: #f8fafc !important;
+      color-scheme: dark;
+    }
+    html.light, html.light body {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      color-scheme: light;
+    }
     :root {
       --fallback-bg: #ffffff;
       --fallback-color: #0f172a;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
-import { ChevronLeft, CheckCircle, Bookmark, Edit2, Trash2, X, Check } from 'lucide-react';
+import { ChevronLeft, CheckCircle, Bookmark, Edit2, Trash2, X, Check, Clock, AlertTriangle } from 'lucide-react';
 
 // Stellar address validation - must start with G and be 56 characters
 const validateStellarAddress = (address: string): boolean => {
@@ -16,6 +16,7 @@ interface SavedAddress {
 
 const SAVED_ADDRESSES_KEY = 'mantra_saved_wallet_addresses';
 
+// WalletWithdrawPage - Withdrawals Paused Mode
 export default function WalletWithdrawPage() {
     const navigate = useNavigate();
 
@@ -146,87 +147,7 @@ export default function WalletWithdrawPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
-
-        const withdrawAmount = parseFloat(amount);
-
-        if (!withdrawAmount || withdrawAmount <= 0) {
-            setError('Please enter a valid amount');
-            return;
-        }
-        if (withdrawAmount < minimumWithdrawal) {
-            setError(`Minimum withdrawal is ${minimumWithdrawal} XLM`);
-            return;
-        }
-        if (withdrawAmount > balance) {
-            setError('Insufficient balance');
-            return;
-        }
-        if (!stellarAddress.trim()) {
-            setError('Stellar address is required');
-            return;
-        }
-        if (!validateStellarAddress(stellarAddress.trim())) {
-            setError('Invalid Stellar address format. Must start with G and be 56 characters.');
-            return;
-        }
-
-        // Save address if checkbox is checked
-        if (saveAddress) {
-            if (!label.trim()) {
-                setError('Please enter a label for this address');
-                return;
-            }
-
-            // Check if address already exists
-            const exists = savedAddresses.some(addr => addr.address === stellarAddress);
-            if (!exists) {
-                const updated = [...savedAddresses, { label: label.trim(), address: stellarAddress }];
-                saveSavedAddressesToStorage(updated);
-            }
-        }
-
-        setIsSubmitting(true);
-
-        try {
-            if (!userId) throw new Error('Not authenticated');
-
-            // Create withdrawal request (matching mobile walletService)
-            const { error: reqError } = await supabase
-                .from('withdrawal_requests')
-                .insert({
-                    user_id: userId,
-                    amount: withdrawAmount,
-                    stellar_address: stellarAddress.trim(),
-                    network_fee: networkFee,
-                    total_amount: withdrawAmount,
-                });
-
-            if (reqError) throw reqError;
-
-            // Create pending transaction record for history
-            await supabase
-                .from('transactions')
-                .insert({
-                    user_id: userId,
-                    type: 'withdrawal',
-                    amount: withdrawAmount,
-                    status: 'pending',
-                    description: `Withdrawal to ${stellarAddress.slice(0, 8)}...`,
-                });
-
-            // Update wallet stellar address if changed
-            await supabase
-                .from('wallets')
-                .update({ stellar_address: stellarAddress.trim() })
-                .eq('user_id', userId);
-
-            setSuccess(true);
-        } catch (err: any) {
-            setError(err.message || 'Withdrawal failed');
-        } finally {
-            setIsSubmitting(false);
-        }
+        setError('Withdrawals are currently paused for scheduled system upgrades. Please check back soon.');
     };
 
     if (isLoading) {
@@ -267,6 +188,25 @@ export default function WalletWithdrawPage() {
                     <h1 className="text-xl font-bold text-foreground">Withdraw Funds</h1>
                 </div>
 
+                {/* Withdrawals Paused / Coming Soon Banner */}
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 mb-6 flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Clock className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-black uppercase tracking-wider bg-amber-500 text-white px-2.5 py-0.5 rounded-full">
+                                Currently Paused
+                            </span>
+                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">Coming Soon</span>
+                        </div>
+                        <h2 className="text-sm font-bold text-foreground mb-1">Withdrawals Under System Upgrade</h2>
+                        <p className="text-xs text-foreground-secondary leading-relaxed">
+                            Direct wallet withdrawals are temporarily paused for scheduled system upgrades and maintenance. All earnings remain 100% safe and will continue to accumulate in your balance. Withdrawals will be enabled soon!
+                        </p>
+                    </div>
+                </div>
+
                 {/* Balance Card */}
                 <div className="bg-card border border-border rounded-2xl p-5 mb-6">
                     <p className="text-foreground-secondary text-sm mb-1">Available Balance</p>
@@ -276,7 +216,7 @@ export default function WalletWithdrawPage() {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-5 opacity-75">
                     {error && (
                         <div className="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-400 text-sm">
                             {error}
@@ -290,11 +230,12 @@ export default function WalletWithdrawPage() {
                             <input
                                 type="number"
                                 value={amount}
+                                disabled={true}
                                 onChange={(e) => setAmount(e.target.value)}
                                 placeholder="0.00"
                                 min="10"
                                 step="0.01"
-                                className="w-full px-4 py-3 pr-16 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-lg text-foreground"
+                                className="w-full px-4 py-3 pr-16 bg-card border border-border rounded-xl focus:outline-none text-lg text-foreground cursor-not-allowed opacity-60"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-foreground-secondary">XLM</span>
                         </div>
@@ -318,17 +259,19 @@ export default function WalletWithdrawPage() {
                         <input
                             type="text"
                             value={stellarAddress}
+                            disabled={true}
                             onChange={(e) => setStellarAddress(e.target.value.toUpperCase())}
                             placeholder="GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
                             maxLength={56}
-                            className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary font-mono text-sm text-foreground"
+                            className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:outline-none font-mono text-sm text-foreground cursor-not-allowed opacity-60"
                         />
 
                         {/* Save Address Checkbox */}
                         <button
                             type="button"
+                            disabled={true}
                             onClick={() => setSaveAddress(!saveAddress)}
-                            className="flex items-center gap-2 mt-3"
+                            className="flex items-center gap-2 mt-3 cursor-not-allowed opacity-60"
                         >
                             <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${saveAddress ? 'bg-primary border-primary' : 'bg-card border-border'}`}>
                                 {saveAddress && <Check className="w-3 h-3 text-white" />}
@@ -405,10 +348,10 @@ export default function WalletWithdrawPage() {
 
                     <button
                         type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-3.5 bg-primary text-primary-foreground rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 shadow-lg shadow-primary/20"
+                        disabled={true}
+                        className="w-full py-3.5 bg-slate-400 dark:bg-slate-700 text-white rounded-xl font-bold transition-all cursor-not-allowed opacity-80 shadow-none"
                     >
-                        {isSubmitting ? 'Processing...' : 'Request Withdrawal'}
+                        Withdrawals Paused (Coming Soon)
                     </button>
                 </form>
             </div>

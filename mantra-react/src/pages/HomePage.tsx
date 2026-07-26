@@ -6,9 +6,7 @@ import { NovelCardSkeleton } from '@/components/ui/Skeleton';
 import NovelCard from '@/components/ui/NovelCard';
 import HeroSection from '@/components/ui/HeroSection';
 import SEO from '@/components/seo/SEO';
-
-
-
+import { formatTimeAgo } from '@/utils/dateUtils';
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -108,7 +106,7 @@ export default function HomePage() {
                     {novel.title}
                 </div>
                 <div className="text-xs text-[var(--foreground-secondary)] mt-1">
-                    {getGenre(novel)} · {new Date(novel.updated_at).toLocaleDateString()}
+                    {getGenre(novel)} · {formatTimeAgo(novel.updated_at)}
                 </div>
                 <div className="flex items-center gap-1 mt-2">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${novel.status === 'ongoing'
