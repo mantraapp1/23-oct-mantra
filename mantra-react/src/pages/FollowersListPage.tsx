@@ -12,6 +12,7 @@ interface FollowUser {
     display_name?: string;
     profile_picture_url?: string;
     bio?: string;
+    founding_author_number?: number | null;
 }
 
 export default function FollowersListPage() {

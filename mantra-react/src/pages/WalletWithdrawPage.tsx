@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase/client';
-import { ChevronLeft, CheckCircle, Bookmark, Edit2, Trash2, X, Check, Clock, AlertTriangle } from 'lucide-react';
-
-// Stellar address validation - must start with G and be 56 characters
-const validateStellarAddress = (address: string): boolean => {
-    const stellarRegex = /^G[A-Z0-9]{55}$/;
-    return stellarRegex.test(address);
-};
+import { ChevronLeft, Bookmark, Edit2, Trash2, X, Check, Clock } from 'lucide-react';
 
 interface SavedAddress {
     label: string;
@@ -20,14 +14,11 @@ const SAVED_ADDRESSES_KEY = 'mantra_saved_wallet_addresses';
 export default function WalletWithdrawPage() {
     const navigate = useNavigate();
 
-    const [userId, setUserId] = useState<string | null>(null);
     const [balance, setBalance] = useState(0);
     const [amount, setAmount] = useState('');
     const [stellarAddress, setStellarAddress] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState(false);
 
     // Saved addresses state
     const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -77,7 +68,6 @@ export default function WalletWithdrawPage() {
             navigate('/login');
             return;
         }
-        setUserId(user.id);
 
         // Get or create wallet
         let { data: wallet } = await supabase
@@ -154,25 +144,6 @@ export default function WalletWithdrawPage() {
         return (
             <div className="min-h-screen bg-background flex justify-center items-center">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (success) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="max-w-md mx-auto px-4 py-20 text-center font-inter">
-                    <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle className="w-8 h-8 text-emerald-600" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-foreground mb-2">Withdrawal Requested</h1>
-                    <p className="text-foreground-secondary mb-6">
-                        Your withdrawal of {amount} XLM is being processed. It may take 24-48 hours.
-                    </p>
-                    <Link to="/wallet" className="text-primary font-semibold hover:underline">
-                        Back to Wallet
-                    </Link>
-                </div>
             </div>
         );
     }
