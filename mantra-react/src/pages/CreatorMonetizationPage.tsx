@@ -23,8 +23,7 @@ export default function CreatorMonetizationPage() {
                 {/* Introduction */}
                 <section>
                     <p className="text-base leading-relaxed">
-                        Mantra Novels shares ad revenue with authors based on reader engagement.
-                        This policy explains how earnings are calculated and paid.
+                        Mantra Novels shares ad revenue with authors based on reader engagement. We distribute 80% of generated ad revenue to authors, retaining a 20% platform fee to cover hosting, maintenance, and operational costs. This policy explains how earnings are calculated and paid.
                     </p>
                 </section>
 
@@ -48,19 +47,7 @@ export default function CreatorMonetizationPage() {
                     <div className="space-y-4">
                         <div className="bg-card rounded-2xl p-5 border border-border">
                             <h3 className="font-semibold text-foreground mb-2">View-Based Revenue</h3>
-                            <p className="text-sm">Authors earn based on the total views their chapters receive. Revenue is generated from ads shown to readers.</p>
-                        </div>
-                        <div className="bg-card rounded-2xl p-5 border border-border">
-                            <h3 className="font-semibold text-foreground mb-2">Chapter Access Tiers</h3>
-                            <ul className="list-disc ml-6 space-y-2 text-sm">
-                                <li><strong className="text-foreground">Chapters 1-7:</strong> Free access (0 wait)</li>
-                                <li><strong className="text-foreground">Chapters 8-30:</strong> 3-hour wait OR unlock</li>
-                                <li><strong className="text-foreground">Chapters 31+:</strong> 24-hour wait OR unlock</li>
-                            </ul>
-                        </div>
-                        <div className="bg-card rounded-2xl p-5 border border-border">
-                            <h3 className="font-semibold text-foreground mb-2">Unlock Duration</h3>
-                            <p className="text-sm">Unlocked chapters remain accessible for <strong className="text-foreground">72 hours</strong>.</p>
+                            <p className="text-sm">Authors earn based on the total views their chapters receive. Revenue is generated from ads shown to readers, with 80% of the revenue credited to the author's wallet.</p>
                         </div>
                     </div>
                 </section>
@@ -74,7 +61,7 @@ export default function CreatorMonetizationPage() {
                         <ul className="list-disc ml-6 space-y-2">
                             <li><strong className="text-foreground">Minimum Withdrawal:</strong> 10 XLM</li>
                             <li><strong className="text-foreground">Processing Time:</strong> Usually instant (blockchain dependent)</li>
-                            <li><strong className="text-foreground">Fees:</strong> No platform fees (network fees apply)</li>
+                            <li><strong className="text-foreground">Fees:</strong> 20% platform fee applies to ad revenue earnings (standard network fees also apply on withdrawal)</li>
                         </ul>
                         <p className="mt-3 text-sm">You need a Stellar wallet (Lobstr, Solar, etc.) to receive payments.</p>
                     </div>

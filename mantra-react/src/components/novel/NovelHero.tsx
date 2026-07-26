@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MoreVertical, Share2, User, Flag } from 'lucide-react';
+import FoundingAuthorBadge from '@/components/common/FoundingAuthorBadge';
 import ActionButtons from './ActionButtons';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -16,6 +17,8 @@ interface NovelHeroProps {
         author?: {
             id: string;
             username: string;
+            display_name?: string | null;
+            founding_author_number?: number | null;
         };
         status: string;
         genres?: string[];
@@ -152,14 +155,17 @@ export default function NovelHero({ novel, chapters = [], children, onVoteChange
                                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight break-words">
                                         {novel.title}
                                     </h1>
-                                    <div className="text-sm sm:text-base text-foreground-secondary">
-                                        by{' '}
+                                    <div className="text-sm sm:text-base text-foreground-secondary flex flex-wrap items-center gap-2">
+                                        <span>by</span>
                                         <Link
                                             to={`/user/${novel.author?.id}`}
                                             className="font-semibold text-foreground hover:text-sky-500 transition-colors"
                                         >
-                                            {novel.author?.username || 'Unknown'}
+                                            {novel.author?.display_name || novel.author?.username || 'Unknown'}
                                         </Link>
+                                        {novel.author?.founding_author_number && (
+                                            <FoundingAuthorBadge size="sm" />
+                                        )}
                                     </div>
 
                                     <div className="flex flex-wrap items-center gap-2">

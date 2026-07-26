@@ -22,6 +22,7 @@ export interface CommentWithUser {
         username: string;
         display_name: string | null;
         profile_picture_url: string | null;
+        founding_author_number: number | null;
     };
     user_has_liked?: boolean;
     user_has_disliked?: boolean;
@@ -51,7 +52,7 @@ class CommentService {
                 .from('comments')
                 .select(`
           *,
-          user:profiles!comments_user_id_fkey(id, username, display_name, profile_picture_url)
+          user:profiles!comments_user_id_fkey(id, username, display_name, profile_picture_url, founding_author_number)
         `)
                 .eq('chapter_id', chapterId)
                 .is('parent_comment_id', null) // Only top-level comments
@@ -110,7 +111,7 @@ class CommentService {
                 .from('comments')
                 .select(`
           *,
-          user:profiles!comments_user_id_fkey(id, username, display_name, profile_picture_url)
+          user:profiles!comments_user_id_fkey(id, username, display_name, profile_picture_url, founding_author_number)
         `)
                 .eq('parent_comment_id', parentCommentId)
                 .order('created_at', { ascending: true });
@@ -164,7 +165,7 @@ class CommentService {
                 })
                 .select(`
           *,
-          user:profiles!comments_user_id_fkey(id, username, display_name, profile_picture_url)
+          user:profiles!comments_user_id_fkey(id, username, display_name, profile_picture_url, founding_author_number)
         `)
                 .single();
 

@@ -2,6 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, UserCheck, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import UserAvatar from '@/components/common/UserAvatar';
+import FoundingAuthorBadge from '@/components/common/FoundingAuthorBadge';
+import AvatarFrame from '@/components/common/AvatarFrame';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase/client';
 
@@ -13,6 +15,7 @@ interface AuthorResultCardProps {
         avatar_url?: string | null;
         profile_picture_url?: string | null;
         followers_count?: number;
+        founding_author_number?: number | null;
     };
 }
 
@@ -104,18 +107,26 @@ export default function AuthorResultCard({ author }: AuthorResultCardProps) {
             className="flex items-center gap-3 p-3 rounded-2xl border border-transparent hover:bg-background-secondary transition-colors group"
         >
             {/* Avatar - using shared component for consistency */}
-            <UserAvatar
-                uri={profileImageUrl}
-                name={displayName}
-                size="large"
-                className="w-12 h-12"
-            />
+            <AvatarFrame active={!!author.founding_author_number} size="sm">
+                <UserAvatar
+                    uri={profileImageUrl}
+                    name={displayName}
+                    size="large"
+                    className="w-12 h-12"
+                    showBorder={!author.founding_author_number}
+                />
+            </AvatarFrame>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-sm text-foreground truncate">
-                    {displayName}
-                </h4>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                    <h4 className="font-semibold text-sm text-foreground truncate">
+                        {displayName}
+                    </h4>
+                    {author.founding_author_number && (
+                        <FoundingAuthorBadge size="sm" />
+                    )}
+                </div>
                 <p className="text-xs text-foreground-secondary">
                     Author
                 </p>

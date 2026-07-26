@@ -10,6 +10,8 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import profileService from '@/services/profileService';
 import { useQuery } from '@tanstack/react-query';
 import UserAvatar from '@/components/common/UserAvatar';
+import FoundingAuthorBadge from '@/components/common/FoundingAuthorBadge';
+import AvatarFrame from '@/components/common/AvatarFrame';
 import { useNotifications } from '@/contexts/NotificationContext';
 
 export default function ProfilePage() {
@@ -70,13 +72,15 @@ export default function ProfilePage() {
                         {/* Profile Header - Responsive */}
                         <div className="flex items-center gap-4">
                             {/* Centralized UserAvatar Component */}
-                            <UserAvatar
-                                uri={profile?.profile_picture_url}
-                                name={displayName}
-                                size="large"
-                                showBorder
-                                borderColorClass="border-border"
-                            />
+                            <AvatarFrame active={!!profile?.founding_author_number} size="md">
+                                <UserAvatar
+                                    uri={profile?.profile_picture_url}
+                                    name={displayName}
+                                    size="large"
+                                    showBorder={!profile?.founding_author_number}
+                                    borderColorClass="border-border"
+                                />
+                            </AvatarFrame>
                             <div className="flex-1">
                                 <div className="text-base md:text-lg font-semibold text-foreground">
                                     {displayName}
@@ -84,6 +88,11 @@ export default function ProfilePage() {
                                 <div className="text-xs md:text-sm text-foreground-secondary">
                                     @{profile?.username || 'user'}
                                 </div>
+                                {profile?.founding_author_number && (
+                                    <div className="mt-1.5 flex">
+                                        <FoundingAuthorBadge size="sm" />
+                                    </div>
+                                )}
                                 <div className="text-[11px] md:text-xs text-foreground-secondary opacity-70">
                                     Member since {profile?.created_at ? new Date(profile.created_at).getFullYear() : new Date().getFullYear()}
                                 </div>

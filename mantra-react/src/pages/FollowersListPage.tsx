@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, X } from 'lucide-react';
 import UserAvatar from '@/components/common/UserAvatar';
+import FoundingAuthorBadge from '@/components/common/FoundingAuthorBadge';
+import AvatarFrame from '@/components/common/AvatarFrame';
 import { supabase } from '@/lib/supabase/client';
 
 interface FollowUser {
@@ -44,7 +46,7 @@ export default function FollowersListPage() {
                 .from('follows')
                 .select(`
                     follower:profiles!follows_follower_id_fkey (
-                        id, username, display_name, profile_picture_url, bio
+                        id, username, display_name, profile_picture_url, bio, founding_author_number
                     )
                 `)
                 .eq('following_id', userId);
@@ -147,16 +149,24 @@ export default function FollowersListPage() {
                             {followers.map((user) => (
                                 <div key={user.id} className="flex items-center justify-between px-4 py-4 hover:bg-muted/30 transition-colors">
                                     <Link to={`/user/${user.id}`} className="flex items-center gap-3 flex-1 min-w-0 mr-4">
-                                        <UserAvatar
-                                            uri={user.profile_picture_url}
-                                            name={user.display_name || user.username}
-                                            size="medium"
-                                            className="w-10 h-10 flex-shrink-0"
-                                        />
+                                        <AvatarFrame active={!!user.founding_author_number} size="sm">
+                                            <UserAvatar
+                                                uri={user.profile_picture_url}
+                                                name={user.display_name || user.username}
+                                                size="medium"
+                                                className="w-10 h-10 flex-shrink-0"
+                                                showBorder={!user.founding_author_number}
+                                            />
+                                        </AvatarFrame>
                                         <div className="flex flex-col min-w-0">
-                                            <p className="font-semibold text-sm text-foreground truncate">
-                                                {user.display_name || user.username}
-                                            </p>
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                <p className="font-semibold text-sm text-foreground truncate">
+                                                    {user.display_name || user.username}
+                                                </p>
+                                                {user.founding_author_number && (
+                                                    <FoundingAuthorBadge size="sm" />
+                                                )}
+                                            </div>
                                             <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
                                         </div>
                                     </Link>

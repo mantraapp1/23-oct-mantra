@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ThumbsUp, ThumbsDown, MessageCircle, Send, MoreVertical, Flag, Trash2, Edit3, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import FoundingAuthorBadge from '@/components/common/FoundingAuthorBadge';
 import commentService from '@/lib/services/commentService';
 import type { CommentWithUser } from '@/lib/services/commentService';
 import { getUserDisplayName, getUserProfileImage } from '@/lib/utils/profileUtils';
@@ -208,8 +209,11 @@ export default function ChapterComments({ chapterId, currentUser, theme = 'light
                     <div className="flex-1 min-w-0">
                         {/* Header */}
                         <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-gray-200' : theme === 'sepia' ? 'text-[#5b4636]' : 'text-slate-800'}`}>{getDisplayName(comment.user)}</span>
+                                {comment.user?.founding_author_number && (
+                                    <FoundingAuthorBadge size="sm" />
+                                )}
                                 {isOwn && (
                                     <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-white text-sky-500 border border-sky-500 rounded dark:bg-transparent">You</span>
                                 )}

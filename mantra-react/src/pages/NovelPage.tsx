@@ -75,7 +75,7 @@ export default function NovelPage() {
                         is_mature, status, total_chapters, total_views, total_votes, 
                         average_rating, total_reviews, is_featured, is_editors_pick,
                         created_at, updated_at,
-                        author:profiles!novels_author_id_fkey(id, username, display_name, profile_picture_url)
+                        author:profiles!novels_author_id_fkey(id, username, display_name, profile_picture_url, founding_author_number)
                     `)
                     .eq('id', id)
                     .single();

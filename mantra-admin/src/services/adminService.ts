@@ -318,6 +318,31 @@ class AdminService {
         if (error) throw error;
     }
 
+    async updateUserFoundingAuthorNumber(userId: string, foundingAuthorNumber: number | null) {
+        const { error } = await this.supabase
+            .from('profiles')
+            .update({ founding_author_number: foundingAuthorNumber })
+            .eq('id', userId);
+        if (error) throw error;
+    }
+
+    async getNextAvailableFoundingAuthorNumber(): Promise<number | null> {
+        const { data, error } = await this.supabase
+            .from('profiles')
+            .select('founding_author_number')
+            .not('founding_author_number', 'is', null);
+        
+        if (error) throw error;
+        
+        const assigned = new Set((data || []).map(p => p.founding_author_number));
+        for (let i = 1; i <= 108; i++) {
+            if (!assigned.has(i)) {
+                return i;
+            }
+        }
+        return null;
+    }
+
     async sendUserNotification(userId: string, title: string, message: string) {
         const { error } = await this.supabase
             .from('notifications')

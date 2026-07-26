@@ -104,22 +104,30 @@ export default function EmailVerificationPage() {
 
 
         try {
-            const { data, error } = await supabase.auth.verifyOtp({
+            let { data, error } = await supabase.auth.verifyOtp({
                 email,
                 token: otpCode,
                 type: 'signup',
             });
 
             if (error) {
-
-                throw error;
+                // Try type 'email' fallback
+                const emailRes = await supabase.auth.verifyOtp({
+                    email,
+                    token: otpCode,
+                    type: 'email',
+                });
+                if (emailRes.error) throw error;
+                data = emailRes.data;
             }
 
-
-
-            if (!data.session) {
-
-                // This can happen if Autoconfirm is off or other settings. But usually verifyOtp logs them in.
+            // Sync email_confirmed_at to public.profiles directly upon OTP verification success
+            if (data.user) {
+                const confirmedAt = data.user.email_confirmed_at || data.user.confirmed_at || new Date().toISOString();
+                await supabase
+                    .from('profiles')
+                    .update({ email_confirmed_at: confirmedAt })
+                    .eq('id', data.user.id);
             }
 
             setSuccess('Email verified successfully!');

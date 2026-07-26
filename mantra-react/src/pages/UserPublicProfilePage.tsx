@@ -9,6 +9,8 @@ import {
     BookmarkCheck
 } from 'lucide-react';
 import UserAvatar from '@/components/common/UserAvatar';
+import FoundingAuthorBadge from '@/components/common/FoundingAuthorBadge';
+import AvatarFrame from '@/components/common/AvatarFrame';
 import { supabase } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -19,6 +21,7 @@ interface UserProfile {
     bio: string;
     profile_picture_url?: string;
     created_at: string;
+    founding_author_number?: number | null;
 }
 
 interface Novel {
@@ -70,7 +73,7 @@ export default function UserPublicProfilePage() {
             // Load profile
             const { data: profileData } = await supabase
                 .from('profiles')
-                .select('id, username, display_name, bio, profile_picture_url, created_at')
+                .select('id, username, display_name, bio, profile_picture_url, created_at, founding_author_number')
                 .eq('id', userId)
                 .single();
 
@@ -269,21 +272,30 @@ export default function UserPublicProfilePage() {
                     {/* Centered Profile Info Block */}
                     <div className="flex flex-col items-center max-w-2xl mx-auto mb-12">
                         {/* Avatar */}
-                        <div className="mb-4">
-                            <UserAvatar
-                                uri={profile.profile_picture_url}
-                                name={profile.display_name || profile.username}
-                                size="xl"
-                                className="w-24 h-24 text-3xl"
-                                showBorder
-                                borderColorClass="border-border"
-                            />
+                        <div className="mb-6">
+                            <AvatarFrame active={!!profile.founding_author_number} size="lg">
+                                <UserAvatar
+                                    uri={profile.profile_picture_url}
+                                    name={profile.display_name || profile.username}
+                                    size="xl"
+                                    className="w-24 h-24 text-3xl"
+                                    showBorder={!profile.founding_author_number}
+                                    borderColorClass="border-border"
+                                />
+                            </AvatarFrame>
                         </div>
 
                         {/* Name & Username */}
-                        <div className="mt-4 text-center">
-                            <div className="text-xl font-bold text-foreground">{profile.display_name || profile.username}</div>
-                            <div className="text-sm text-muted-foreground mt-0.5">@{profile.username}</div>
+                        <div className="mt-4 text-center flex flex-col items-center gap-1">
+                            <div className="text-xl font-bold text-foreground">
+                                {profile.display_name || profile.username}
+                            </div>
+                            <div className="text-sm text-muted-foreground font-medium">@{profile.username}</div>
+                            {profile.founding_author_number && (
+                                <div className="mt-2.5">
+                                    <FoundingAuthorBadge size="md" />
+                                </div>
+                            )}
                         </div>
 
                         {/* Stats */}

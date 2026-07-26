@@ -22,6 +22,7 @@ export interface Profile {
     onboarding_completed: boolean | null; // Added field
     created_at: string;
     updated_at: string;
+    founding_author_number: number | null;
 }
 
 interface AuthContextType {
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, username, display_name, profile_picture_url, bio, gender, age, preferred_language, favorite_genres, onboarding_completed, created_at, updated_at')
+                .select('id, username, display_name, profile_picture_url, bio, gender, age, preferred_language, favorite_genres, onboarding_completed, created_at, updated_at, founding_author_number')
                 .eq('id', userId)
                 .single();
 

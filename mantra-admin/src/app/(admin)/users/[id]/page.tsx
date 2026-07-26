@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BookOpen, Users, Wallet as WalletIcon, ShieldCheck, ShieldOff, Crown, ArrowLeft, Calendar } from 'lucide-react';
+import { BookOpen, Users, Wallet as WalletIcon, ShieldCheck, ShieldOff, Crown, ArrowLeft, Calendar, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -26,6 +27,7 @@ export default function UserDetailPage() {
     const [followersCount, setFollowersCount] = useState(0);
     const [followingCount, setFollowingCount] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [submittingBadge, setSubmittingBadge] = useState(false);
 
     useEffect(() => {
         loadUser();
@@ -63,6 +65,32 @@ export default function UserDetailPage() {
             toast.success(profile.is_verified ? 'Verification removed' : 'User verified');
             loadUser();
         } catch { toast.error('Failed to update'); }
+    };
+
+    const handleFoundingToggle = async () => {
+        if (!profile) return;
+        setSubmittingBadge(true);
+        try {
+            if (profile.founding_author_number) {
+                await adminService.updateUserFoundingAuthorNumber(userId, null);
+                toast.success('Revoked Founding Author Badge');
+                loadUser();
+            } else {
+                const nextNum = await adminService.getNextAvailableFoundingAuthorNumber();
+                if (nextNum === null) {
+                    toast.error('All 108 Founding Author slots are already taken!');
+                    return;
+                }
+                await adminService.updateUserFoundingAuthorNumber(userId, nextNum);
+                toast.success(`Assigned Founding Author Slot #${nextNum}`);
+                loadUser();
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to update Founding Author Badge');
+        } finally {
+            setSubmittingBadge(false);
+        }
     };
 
     if (loading) {
@@ -210,6 +238,31 @@ export default function UserDetailPage() {
                                 </div>
                                 <Button size="sm" variant={profile.is_verified ? 'outline' : 'default'} onClick={handleVerifyToggle}>
                                     {profile.is_verified ? <><ShieldOff className="h-3 w-3 mr-1" /> Remove</> : <><ShieldCheck className="h-3 w-3 mr-1" /> Verify</>}
+                                </Button>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 rounded-lg border flex-wrap gap-4">
+                                <div>
+                                    <p className="font-medium">Founding Author Badge</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {profile.founding_author_number 
+                                            ? `Assigned Founding Author Slot #${profile.founding_author_number} (Honorary status, max 108)` 
+                                            : 'Not currently a Founding Author'}
+                                    </p>
+                                </div>
+                                <Button 
+                                    size="sm" 
+                                    variant={profile.founding_author_number ? 'destructive' : 'default'} 
+                                    onClick={handleFoundingToggle}
+                                    disabled={submittingBadge}
+                                >
+                                    {submittingBadge ? (
+                                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                    ) : profile.founding_author_number ? (
+                                        'Revoke Badge'
+                                    ) : (
+                                        'Assign Badge'
+                                    )}
                                 </Button>
                             </div>
                         </CardContent>

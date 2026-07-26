@@ -7,6 +7,7 @@ import { Trophy, Calendar, Award, Info, Loader2, ArrowLeft, X, BookOpen, Clock }
 import SEO from '@/components/seo/SEO';
 import { getNovelCover, getContestBanner } from '@/lib/defaultImages';
 import { supabase } from '@/lib/supabase/client';
+import UserAvatar from '@/components/common/UserAvatar';
 
 export default function ContestDetailPage() {
     const { id: contestId } = useParams<{ id: string }>();
@@ -45,7 +46,7 @@ export default function ContestDetailPage() {
                     .from('novels')
                     .select(`
                         id, title, cover_image_url, genres,
-                        author:profiles!novels_author_id_fkey(username, display_name, profile_picture_url)
+                        author:profiles!novels_author_id_fkey(username, display_name, profile_picture_url, founding_author_number)
                     `)
                     .eq('id', contestData.winner_novel_id)
                     .single();
@@ -62,7 +63,7 @@ export default function ContestDetailPage() {
                     .from('novels')
                     .select(`
                         id, title, cover_image_url, genres,
-                        author:profiles!novels_author_id_fkey(username, display_name, profile_picture_url)
+                        author:profiles!novels_author_id_fkey(username, display_name, profile_picture_url, founding_author_number)
                     `)
                     .eq('id', cData.winner_novel_id_2)
                     .single();
@@ -78,7 +79,7 @@ export default function ContestDetailPage() {
                     .from('novels')
                     .select(`
                         id, title, cover_image_url, genres,
-                        author:profiles!novels_author_id_fkey(username, display_name, profile_picture_url)
+                        author:profiles!novels_author_id_fkey(username, display_name, profile_picture_url, founding_author_number)
                     `)
                     .eq('id', cData.winner_novel_id_3)
                     .single();
@@ -474,13 +475,13 @@ export default function ContestDetailPage() {
                                             </h3>
                                             
                                             <div className="flex items-center justify-center sm:justify-start gap-2">
-                                                <div className="w-5 h-5 rounded-full bg-[var(--background-secondary)] overflow-hidden shrink-0 border border-[var(--border)]">
-                                                    <img
-                                                        src={winnerNovel.author?.profile_picture_url || 'https://hiposzbsobvhkgylmeyy.supabase.co/storage/v1/object/public/profile-pictures/default-avatar.png'}
-                                                        alt=""
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
+                                                <UserAvatar
+                                                    uri={winnerNovel.author?.profile_picture_url}
+                                                    name={winnerNovel.author?.display_name || winnerNovel.author?.username || 'User'}
+                                                    size={20}
+                                                    showBorder
+                                                    borderColorClass="border-[var(--border)]"
+                                                />
                                                 <span className="text-xs font-semibold text-[var(--foreground-secondary)]">
                                                     By {winnerNovel.author?.display_name || winnerNovel.author?.username || 'Unknown Author'}
                                                 </span>

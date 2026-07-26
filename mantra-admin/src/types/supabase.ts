@@ -27,6 +27,7 @@ export interface Profile {
     preferred_language: string | null;
     favorite_genres: string[] | null;
     email?: string | null;
+    founding_author_number: number | null;
 }
 
 export interface Novel {
